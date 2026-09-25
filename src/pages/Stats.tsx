@@ -8,6 +8,7 @@ import { ExpenseDonut } from '../components/charts/ExpenseDonut';
 import { IncomeExpenseBars } from '../components/charts/IncomeExpenseBars';
 import { accountDisplayName } from '../utils/displayName';
 import { getCategoryBreakdown, getMonthlySeries, isWithinCurrentMonth } from '../utils/stats';
+import { EmojiIcon } from '../utils/icons';
 
 export function Stats() {
   const { t } = useTranslation();
@@ -57,7 +58,7 @@ export function Stats() {
               className={scope === a.id ? 'active' : ''}
               onClick={() => setScope(a.id)}
             >
-              {a.icon} {accountDisplayName(a, t)}
+              <EmojiIcon icon={a.icon} size={14} className="inline-icon" /> {accountDisplayName(a, t)}
             </button>
           ))}
         </div>

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PiggyBank } from 'lucide-react';
 import { useAccount } from '../context/AccountContext';
 import { AccountAuthForm } from './AccountAuthForm';
 
@@ -22,7 +23,7 @@ export function AccountGate({ children }: AccountGateProps) {
     <div className="account-gate">
       <div className="account-gate-card">
         <div className="account-gate-icon" aria-hidden="true">
-          💰
+          <PiggyBank size={30} strokeWidth={1.75} />
         </div>
         <h1 className="account-gate-title">{t('accountGate.title')}</h1>
         <p className="account-gate-hint">{t('accountGate.hint')}</p>

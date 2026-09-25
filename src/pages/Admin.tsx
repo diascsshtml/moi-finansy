@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchAdminUserData, fetchAdminUsers, type AdminDataSnapshot, type AdminUser } from '../utils/adminApi';
+import { EmojiIcon } from '../utils/icons';
 
 const KEY_STORAGE = 'mf_admin_key';
 
@@ -81,7 +82,7 @@ function ClientDataSummary({ snapshot }: { snapshot: AdminDataSnapshot }) {
           {snapshot.accounts.map((a) => (
             <div key={a.id} className="admin-detail-row">
               <span>
-                {a.icon} {a.name}
+                <EmojiIcon icon={a.icon} size={14} className="inline-icon" /> {a.name}
               </span>
               <span>{num(balances.get(a.id) ?? 0)}</span>
             </div>

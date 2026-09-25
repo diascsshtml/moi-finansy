@@ -10,6 +10,7 @@ import { EmptyState } from '../components/EmptyState';
 import { formatDateShort, formatMoney } from '../utils/format';
 import { accountDisplayName } from '../utils/displayName';
 import { deleteDebt, deleteDebtPayment, reopenDebt, setDebtLinkedToBalance, writeOffDebt } from '../db/operations';
+import { EmojiIcon } from '../utils/icons';
 
 export function DebtDetail() {
   const { t } = useTranslation();
@@ -99,7 +100,7 @@ export function DebtDetail() {
             <div>
               <dt>{t('debtDetail.account')}</dt>
               <dd>
-                {account.icon} {accountDisplayName(account, t)}
+                <EmojiIcon icon={account.icon} size={14} className="inline-icon" /> {accountDisplayName(account, t)}
               </dd>
             </div>
           )}

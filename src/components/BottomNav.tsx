@@ -1,15 +1,16 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { ClipboardList, CreditCard, Handshake, Home, Settings as SettingsIcon } from 'lucide-react';
 import { db } from '../db/db';
 import { getBillsNeedingAttention } from '../utils/bills';
 
 const TABS = [
-  { to: '/', key: 'nav.dashboard', icon: '🏠', end: true },
-  { to: '/history', key: 'nav.history', icon: '📋', end: false },
-  { to: '/debts', key: 'nav.debts', icon: '🤝', end: false },
-  { to: '/bills', key: 'nav.bills', icon: '💳', end: false },
-  { to: '/settings', key: 'nav.settings', icon: '⚙️', end: false },
+  { to: '/', key: 'nav.dashboard', Icon: Home, end: true },
+  { to: '/history', key: 'nav.history', Icon: ClipboardList, end: false },
+  { to: '/debts', key: 'nav.debts', Icon: Handshake, end: false },
+  { to: '/bills', key: 'nav.bills', Icon: CreditCard, end: false },
+  { to: '/settings', key: 'nav.settings', Icon: SettingsIcon, end: false },
 ] as const;
 
 export function BottomNav() {
@@ -29,8 +30,8 @@ export function BottomNav() {
           className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
         >
           <span className="bottom-nav-icon-wrap">
-            <span className="bottom-nav-icon" aria-hidden="true">
-              {tab.icon}
+            <span className="bottom-nav-icon">
+              <tab.Icon size={20} strokeWidth={2.25} aria-hidden="true" />
             </span>
             {tab.to === '/bills' && attentionCount > 0 && (
               <span className="bottom-nav-badge">{attentionCount > 9 ? '9+' : attentionCount}</span>

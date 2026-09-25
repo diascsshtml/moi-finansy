@@ -27,7 +27,7 @@ export default defineConfig({
       name: 'Мои финансы',
       short_name: 'Финансы',
       description: 'Личный учёт доходов, расходов, долгов и баланса',
-      theme_color: '#2a78d6',
+      theme_color: '#10b981',
       background_color: '#f9f9f7',
       display: 'standalone',
       start_url: '/',

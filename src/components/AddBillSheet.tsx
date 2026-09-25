@@ -13,6 +13,7 @@ import { SYSTEM_CATEGORY_IDS } from '../db/constants';
 import { CATEGORICAL_LIGHT } from '../styles/palette';
 import { dateToISO, todayISO } from '../utils/format';
 import { getDueDateInMonth } from '../utils/bills';
+import { EmojiIcon } from '../utils/icons';
 import type { BillPreset, RecurringBill } from '../types';
 
 const REMINDER_OPTIONS = [0, 1, 2, 3, 5, 7, 10, 14];
@@ -188,7 +189,7 @@ export function AddBillSheet({ onClose, bill, preset }: AddBillSheetProps) {
             onClick={() => setIcon(i)}
             aria-label={i}
           >
-            {i}
+            <EmojiIcon icon={i} size={19} />
           </button>
         ))}
       </div>

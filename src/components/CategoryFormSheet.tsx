@@ -6,6 +6,7 @@ import { createCategory, deleteCategory, updateCategory } from '../db/operations
 import { CATEGORICAL_LIGHT, NEUTRAL_COLOR } from '../styles/palette';
 import { SYSTEM_CATEGORY_IDS } from '../db/constants';
 import { categoryDisplayName } from '../utils/displayName';
+import { EmojiIcon } from '../utils/icons';
 import type { Category, TransactionType } from '../types';
 
 const ICONS = [
@@ -90,7 +91,7 @@ export function CategoryFormSheet({ onClose, type, category }: CategoryFormSheet
             onClick={() => setIcon(i)}
             aria-label={i}
           >
-            {i}
+            <EmojiIcon icon={i} size={19} />
           </button>
         ))}
       </div>

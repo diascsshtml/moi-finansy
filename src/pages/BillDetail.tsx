@@ -11,6 +11,8 @@ import { dateToISO, formatDateShort, formatMoney } from '../utils/format';
 import { categoryDisplayName, accountDisplayName } from '../utils/displayName';
 import { getBillStatus, getDueRelativeLabel } from '../utils/bills';
 import { deleteBill, updateBill } from '../db/operations';
+import { isMonogramIcon } from '../data/billCatalog';
+import { EmojiIcon } from '../utils/icons';
 
 export function BillDetail() {
   const { t } = useTranslation();
@@ -55,7 +57,7 @@ export function BillDetail() {
 
       <div className="debt-detail-card">
         <span className="debt-detail-badge">
-          {bill.icon} {bill.name}
+          {isMonogramIcon(bill.icon) ? bill.icon : <EmojiIcon icon={bill.icon} size={16} className="inline-icon" />} {bill.name}
         </span>
         <div className="debt-detail-amount tone-negative">{formatMoney(bill.amount, settings.currency)}</div>
 
@@ -84,7 +86,7 @@ export function BillDetail() {
             <div>
               <dt>{t('transaction.category')}</dt>
               <dd>
-                {category.icon} {categoryDisplayName(category, t)}
+                <EmojiIcon icon={category.icon} size={14} className="inline-icon" /> {categoryDisplayName(category, t)}
               </dd>
             </div>
           )}
@@ -92,7 +94,7 @@ export function BillDetail() {
             <div>
               <dt>{t('bills.detail.account')}</dt>
               <dd>
-                {account.icon} {accountDisplayName(account, t)}
+                <EmojiIcon icon={account.icon} size={14} className="inline-icon" /> {accountDisplayName(account, t)}
               </dd>
             </div>
           )}

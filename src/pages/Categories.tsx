@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
+import { ChevronRight } from 'lucide-react';
 import { db } from '../db/db';
 import { useSheet } from '../context/SheetContext';
 import { categoryDisplayName } from '../utils/displayName';
+import { EmojiIcon } from '../utils/icons';
 import type { TransactionType } from '../types';
 
 export function Categories() {
@@ -58,11 +60,11 @@ export function Categories() {
             onClick={() => open({ kind: 'edit-category', type, category: c })}
           >
             <span className="category-chip-icon" style={{ background: `${c.color}26`, color: c.color }}>
-              {c.icon}
+              <EmojiIcon icon={c.icon} size={17} />
             </span>
             <span className="category-list-name">{categoryDisplayName(c, t)}</span>
             {c.isSystem && <span className="category-list-tag">{t('categoriesPage.systemTag')}</span>}
-            <span aria-hidden="true">→</span>
+            <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
           </button>
         ))}
       </div>

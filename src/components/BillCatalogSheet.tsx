@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Sheet } from './Sheet';
 import { useSheet } from '../context/SheetContext';
 import { BILL_CATALOG, isMonogramIcon, type BillCatalogItem } from '../data/billCatalog';
+import { EmojiIcon } from '../utils/icons';
 import type { BillPreset } from '../types';
 
 interface BillCatalogSheetProps {
@@ -33,7 +34,7 @@ export function BillCatalogSheet({ onClose }: BillCatalogSheetProps) {
         className={`category-chip-icon${isMonogramIcon(item.icon) ? ' icon-monogram' : ''}`}
         style={{ background: `${item.color}26`, color: item.color }}
       >
-        {item.icon}
+        {isMonogramIcon(item.icon) ? item.icon : <EmojiIcon icon={item.icon} size={18} />}
       </span>
       <span className="category-chip-name">{name}</span>
     </button>

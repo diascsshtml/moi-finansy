@@ -7,6 +7,7 @@ import { useSheet } from '../context/SheetContext';
 import { toDisplayColor } from '../styles/palette';
 import { deleteTransfer } from '../db/operations';
 import { ConfirmDialog } from './ConfirmDialog';
+import { EmojiIcon } from '../utils/icons';
 
 interface HistoryEntryRowProps {
   entry: HistoryEntry;
@@ -76,7 +77,7 @@ export function HistoryEntryRow({ entry, currency, isDark, accountsById }: Histo
           style={{ background: `${toDisplayColor(entry.color, isDark)}26`, color: toDisplayColor(entry.color, isDark) }}
           aria-hidden="true"
         >
-          {entry.icon}
+          <EmojiIcon icon={entry.icon} size={18} />
         </span>
         <span className="history-row-text">
           <span className="history-row-title">{entry.title}</span>
@@ -89,7 +90,7 @@ export function HistoryEntryRow({ entry, currency, isDark, accountsById }: Histo
         </span>
         {showAccountBadge && (
           <span className="account-badge">
-            <span aria-hidden="true">{account!.icon}</span>
+            <EmojiIcon icon={account!.icon} size={13} />
           </span>
         )}
         <span className={`history-row-amount ${toneClass}`}>{amountText}</span>

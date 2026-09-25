@@ -2,12 +2,14 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
+import { ChevronRight } from 'lucide-react';
 import { db } from '../db/db';
 import { useSheet } from '../context/SheetContext';
 import { useSettings } from '../context/SettingsContext';
 import { getAccountBalances } from '../utils/stats';
 import { formatMoney } from '../utils/format';
 import { accountDisplayName } from '../utils/displayName';
+import { EmojiIcon } from '../utils/icons';
 
 export function Accounts() {
   const { t } = useTranslation();
@@ -43,14 +45,14 @@ export function Accounts() {
             onClick={() => open({ kind: 'edit-account', account: a })}
           >
             <span className="account-list-icon" style={{ background: `${a.color}26`, color: a.color }}>
-              {a.icon}
+              <EmojiIcon icon={a.icon} size={17} />
             </span>
             <span className="account-list-info">
               <span className="account-list-name">{accountDisplayName(a, t)}</span>
               {a.bank && <span className="account-list-bank">{a.bank}</span>}
               <span className="account-list-balance">{formatMoney(balances.get(a.id) ?? 0, settings.currency)}</span>
             </span>
-            <span aria-hidden="true">→</span>
+            <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
           </button>
         ))}
       </div>

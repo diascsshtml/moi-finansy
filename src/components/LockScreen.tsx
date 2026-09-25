@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Lock } from 'lucide-react';
 import { PinDots } from './PinDots';
 import { PinKeypad } from './PinKeypad';
 import { checkPinCode } from '../db/operations';
@@ -66,7 +67,7 @@ export function LockScreen({ pinLength, onUnlock }: LockScreenProps) {
   return (
     <div className="lock-screen">
       <div className="lock-screen-icon" aria-hidden="true">
-        🔒
+        <Lock size={30} strokeWidth={1.75} />
       </div>
       <h1 className="lock-screen-title">{t('lock.title')}</h1>
       <p className="lock-screen-hint">

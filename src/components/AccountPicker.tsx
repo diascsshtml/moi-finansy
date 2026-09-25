@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
 import { db } from '../db/db';
 import { accountDisplayName } from '../utils/displayName';
+import { EmojiIcon } from '../utils/icons';
 
 interface AccountPickerProps {
   value: string | null;
@@ -30,7 +31,7 @@ export function AccountPicker({ value, onChange, exclude }: AccountPickerProps) 
           style={value === a.id ? { borderColor: a.color, background: `${a.color}1f`, color: a.color } : undefined}
           onClick={() => onChange(a.id)}
         >
-          <span aria-hidden="true">{a.icon}</span> {accountDisplayName(a, t)}
+          <EmojiIcon icon={a.icon} size={14} className="inline-icon" /> {accountDisplayName(a, t)}
         </button>
       ))}
     </div>

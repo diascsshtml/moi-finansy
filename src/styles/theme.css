@@ -19,8 +19,15 @@
   --money-positive: #006300;
   --money-negative: #b23327;
 
-  --accent: #2a78d6;
-  --accent-soft: rgba(42, 120, 214, 0.12);
+  /* Мятно-зелёный фирменный цвет. --accent — для текста/ссылок/обводок,
+     достаточно тёмный для контраста с белым фоном (WCAG AA). --accent-bright —
+     тот же цвет, но более сочный, для заливки крупных элементов (кнопка,
+     FAB) — там читаемость обеспечивает --on-accent (тёмный текст на ярком
+     фоне), а не контраст с фоном страницы. */
+  --accent: #047857;
+  --accent-bright: #10b981;
+  --accent-soft: rgba(16, 185, 129, 0.14);
+  --on-accent: #062e1f;
   --danger: #d03b3b;
   --danger-soft: rgba(208, 59, 59, 0.12);
   --positive-soft: rgba(0, 99, 0, 0.12);
@@ -30,7 +37,7 @@
      там свои, гораздо более тихие значения (см. ниже). */
   --shadow-sm: 0 1px 2px rgba(11, 11, 11, 0.04), 0 2px 6px rgba(11, 11, 11, 0.05);
   --shadow-md: 0 2px 6px rgba(11, 11, 11, 0.05), 0 8px 20px rgba(11, 11, 11, 0.07);
-  --shadow-accent: 0 6px 16px rgba(42, 120, 214, 0.28);
+  --shadow-accent: 0 6px 16px rgba(16, 185, 129, 0.3);
 
   --radius-sm: 10px;
   --radius-md: 14px;
@@ -53,15 +60,17 @@
     --money-positive: #0ca30c;
     --money-negative: #e66767;
 
-    --accent: #3987e5;
-    --accent-soft: rgba(57, 135, 229, 0.18);
+    --accent: #34d399;
+    --accent-bright: #34d399;
+    --accent-soft: rgba(52, 211, 153, 0.18);
+    --on-accent: #052e1e;
     --danger: #e66767;
     --danger-soft: rgba(230, 103, 103, 0.18);
     --positive-soft: rgba(12, 163, 12, 0.18);
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
     --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
-    --shadow-accent: 0 6px 16px rgba(57, 135, 229, 0.3);
+    --shadow-accent: 0 6px 16px rgba(52, 211, 153, 0.32);
   }
 }
 
@@ -80,15 +89,17 @@
   --money-positive: #0ca30c;
   --money-negative: #e66767;
 
-  --accent: #3987e5;
-  --accent-soft: rgba(57, 135, 229, 0.18);
+  --accent: #34d399;
+  --accent-bright: #34d399;
+  --accent-soft: rgba(52, 211, 153, 0.18);
+  --on-accent: #052e1e;
   --danger: #e66767;
   --danger-soft: rgba(230, 103, 103, 0.18);
   --positive-soft: rgba(12, 163, 12, 0.18);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
   --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
-  --shadow-accent: 0 6px 16px rgba(57, 135, 229, 0.3);
+  --shadow-accent: 0 6px 16px rgba(52, 211, 153, 0.32);
 }
 
 * {

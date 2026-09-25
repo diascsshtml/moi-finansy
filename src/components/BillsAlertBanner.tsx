@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { CreditCard, TriangleAlert } from 'lucide-react';
 import type { BillStatus } from '../utils/bills';
 
 interface BillsAlertBannerProps {
@@ -17,7 +18,7 @@ export function BillsAlertBanner({ statuses }: BillsAlertBannerProps) {
   return (
     <Link to="/bills" className={`bills-banner${hasOverdue ? ' bills-banner--overdue' : ''}`}>
       <span className="bills-banner-icon" aria-hidden="true">
-        {hasOverdue ? '⚠️' : '💳'}
+        {hasOverdue ? <TriangleAlert size={20} strokeWidth={2} /> : <CreditCard size={20} strokeWidth={2} />}
       </span>
       <span className="bills-banner-text">{t('bills.bannerTitle', { count: statuses.length })}</span>
       <span className="bills-banner-cta">{t('bills.bannerCta')} →</span>

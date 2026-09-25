@@ -7,6 +7,7 @@ import { createAccount, deleteAccount, updateAccount } from '../db/operations';
 import { CATEGORICAL_LIGHT } from '../styles/palette';
 import { accountDisplayName } from '../utils/displayName';
 import { db } from '../db/db';
+import { EmojiIcon } from '../utils/icons';
 import type { Account } from '../types';
 
 const ICONS = ['👤', '💼', '💰', '🏦', '💳', '👛', '🧾', '🏠', '🚗', '👨‍👩‍👧', '📦', '⭐'];
@@ -114,7 +115,7 @@ export function AccountFormSheet({ onClose, account }: AccountFormSheetProps) {
             onClick={() => setIcon(i)}
             aria-label={i}
           >
-            {i}
+            <EmojiIcon icon={i} size={19} />
           </button>
         ))}
       </div>

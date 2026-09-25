@@ -4,6 +4,7 @@ import { dateToISO, formatDateShort, formatMoney } from '../utils/format';
 import { toDisplayColor } from '../styles/palette';
 import { isMonogramIcon } from '../data/billCatalog';
 import { getDueRelativeLabel, type BillStatus } from '../utils/bills';
+import { EmojiIcon } from '../utils/icons';
 
 interface BillRowProps {
   status: BillStatus;
@@ -40,7 +41,7 @@ export function BillRow({ status, currency, isDark }: BillRowProps) {
           style={{ background: `${color}26`, color }}
           aria-hidden="true"
         >
-          {bill.icon}
+          {isMonogramIcon(bill.icon) ? bill.icon : <EmojiIcon icon={bill.icon} size={18} />}
         </span>
         {status.status === 'paid' && (
           <span className="bill-row-status-badge bill-row-status-badge--paid" aria-hidden="true">

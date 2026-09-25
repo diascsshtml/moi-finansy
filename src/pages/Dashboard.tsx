@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
+import { BarChart3, ChevronRight } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { useAccount } from '../context/AccountContext';
@@ -13,6 +14,7 @@ import { buildHistory } from '../utils/history';
 import { formatDateHuman, formatMoney, todayISO } from '../utils/format';
 import { toDisplayColor } from '../styles/palette';
 import { accountDisplayName } from '../utils/displayName';
+import { EmojiIcon } from '../utils/icons';
 import { getBillsNeedingAttention } from '../utils/bills';
 import { notifyAboutBills } from '../utils/notifications';
 import { getAccountBalances, getCashBalance, getDebtTotals, isWithinCurrentMonth } from '../utils/stats';
@@ -130,7 +132,7 @@ export function Dashboard() {
               className={scope === a.id ? 'active' : ''}
               onClick={() => setScope(a.id)}
             >
-              {a.icon} {accountDisplayName(a, t)}
+              <EmojiIcon icon={a.icon} size={14} className="inline-icon" /> {accountDisplayName(a, t)}
             </button>
           ))}
         </div>
@@ -152,7 +154,7 @@ export function Dashboard() {
                 className="account-list-icon"
                 style={{ background: `${toDisplayColor(a.color, isDark)}26`, color: toDisplayColor(a.color, isDark) }}
               >
-                {a.icon}
+                <EmojiIcon icon={a.icon} size={17} />
               </span>
               <span className="account-balance-info">
                 <span className="account-list-name">{accountDisplayName(a, t)}</span>
@@ -181,13 +183,13 @@ export function Dashboard() {
 
       <Link to="/stats" className="account-list-row">
         <span className="account-list-icon" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }} aria-hidden="true">
-          📊
+          <BarChart3 size={17} />
         </span>
         <span className="account-list-info">
           <span className="account-list-name">{t('dashboard.statsButton')}</span>
           <span className="account-list-bank">{t('dashboard.statsButtonHint')}</span>
         </span>
-        <span aria-hidden="true">→</span>
+        <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
       </Link>
 
       <section className="recent-section">

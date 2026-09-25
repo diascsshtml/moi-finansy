@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { Account, Debt, Person } from '../types';
 import { formatMoney, formatDateShort, todayISO } from '../utils/format';
 import { accountDisplayName } from '../utils/displayName';
+import { EmojiIcon } from '../utils/icons';
 
 interface DebtRowProps {
   debt: Debt;
@@ -42,7 +43,7 @@ export function DebtRow({ debt, person, currency, account }: DebtRowProps) {
         )}
         {account && (
           <span className="account-badge">
-            <span aria-hidden="true">{account.icon}</span> {accountDisplayName(account, t)}
+            <EmojiIcon icon={account.icon} size={14} className="inline-icon" /> {accountDisplayName(account, t)}
           </span>
         )}
         {debt.note && <span className="debt-row-note">{debt.note}</span>}

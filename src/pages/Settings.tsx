@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ChevronRight } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useSheet } from '../context/SheetContext';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -232,7 +233,7 @@ export function SettingsPage() {
         <h2>{t('settings.accountsSection')}</h2>
         <Link to="/settings/accounts" className="settings-link-row">
           <span>{t('settings.accountsLink')}</span>
-          <span aria-hidden="true">→</span>
+          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
         </Link>
       </section>
 
@@ -240,7 +241,7 @@ export function SettingsPage() {
         <h2>{t('settings.categoriesSection')}</h2>
         <Link to="/settings/categories" className="settings-link-row">
           <span>{t('settings.categoriesLink')}</span>
-          <span aria-hidden="true">→</span>
+          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
         </Link>
       </section>
 

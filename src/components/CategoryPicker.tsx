@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
 import { db } from '../db/db';
 import { categoryDisplayName } from '../utils/displayName';
+import { EmojiIcon } from '../utils/icons';
 import type { TransactionType } from '../types';
 
 interface CategoryPickerProps {
@@ -31,7 +32,7 @@ export function CategoryPicker({ type, value, onChange }: CategoryPickerProps) {
           onClick={() => onChange(c.id)}
         >
           <span className="category-chip-icon" style={{ background: `${c.color}26`, color: c.color }}>
-            {c.icon}
+            <EmojiIcon icon={c.icon} size={18} />
           </span>
           <span className="category-chip-name">{categoryDisplayName(c, t)}</span>
         </button>

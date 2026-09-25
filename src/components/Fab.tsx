@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { ArrowDown, ArrowLeftRight, ArrowUp, Handshake, Plus } from 'lucide-react';
 import { useSheet } from '../context/SheetContext';
 
 // Страницы, где «Добавить операцию» не к месту (Настройки и их подстраницы,
@@ -43,7 +44,9 @@ export function Fab() {
             role="menuitem"
             onClick={() => pick(() => openSheet({ kind: 'add-transfer' }))}
           >
-            <span className="fab-option-icon fab-option-icon--transfer" aria-hidden="true">🔄</span>
+            <span className="fab-option-icon fab-option-icon--transfer" aria-hidden="true">
+              <ArrowLeftRight size={15} strokeWidth={2.25} />
+            </span>
             {t('fab.transfer')}
           </button>
           <button
@@ -52,7 +55,9 @@ export function Fab() {
             role="menuitem"
             onClick={() => pick(() => openSheet({ kind: 'add-debt', direction: 'i_owe' }))}
           >
-            <span className="fab-option-icon fab-option-icon--debt" aria-hidden="true">🤝</span>
+            <span className="fab-option-icon fab-option-icon--debt" aria-hidden="true">
+              <Handshake size={15} strokeWidth={2.25} />
+            </span>
             {t('fab.debt')}
           </button>
           <button
@@ -61,7 +66,9 @@ export function Fab() {
             role="menuitem"
             onClick={() => pick(() => openSheet({ kind: 'add-transaction', type: 'expense' }))}
           >
-            <span className="fab-option-icon fab-option-icon--expense" aria-hidden="true">↓</span>
+            <span className="fab-option-icon fab-option-icon--expense" aria-hidden="true">
+              <ArrowDown size={15} strokeWidth={2.25} />
+            </span>
             {t('fab.expense')}
           </button>
           <button
@@ -70,7 +77,9 @@ export function Fab() {
             role="menuitem"
             onClick={() => pick(() => openSheet({ kind: 'add-transaction', type: 'income' }))}
           >
-            <span className="fab-option-icon fab-option-icon--income" aria-hidden="true">↑</span>
+            <span className="fab-option-icon fab-option-icon--income" aria-hidden="true">
+              <ArrowUp size={15} strokeWidth={2.25} />
+            </span>
             {t('fab.income')}
           </button>
         </div>
@@ -82,7 +91,7 @@ export function Fab() {
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        +
+        <Plus size={26} strokeWidth={2.5} aria-hidden="true" />
       </button>
     </div>
   );

@@ -1,3 +1,14 @@
+.inline-icon {
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-right: 2px;
+}
+
+.chevron-affordance {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
 /* ============ Layout ============ */
 
 .app-shell {
@@ -15,10 +26,11 @@
 
 .app-main {
   flex: 1;
-  /* 88px хватает под саму нижнюю навигацию, но FAB (см. .fab-wrap) стоит
-     выше и шире — без запаса последние строки длинного списка при скролле
-     до конца оказывались под ним. */
-  padding-bottom: calc(148px + env(safe-area-inset-bottom, 0px));
+  /* Нижняя навигация теперь «плавающая» таблетка с отступом от края (см.
+     .bottom-nav), а FAB стоит ещё выше над ней — запас должен перекрывать
+     оба, иначе последние строки длинного списка при скролле до конца
+     оказываются под ними. */
+  padding-bottom: calc(165px + env(safe-area-inset-bottom, 0px));
   min-height: 0;
 }
 
@@ -60,15 +72,17 @@
 
 .bottom-nav {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-width: 560px;
+  left: 16px;
+  right: 16px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  max-width: 528px;
   margin: 0 auto;
   display: flex;
   background: var(--surface-1);
-  border-top: 1px solid var(--border);
-  padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 4px;
+  box-shadow: var(--shadow-md);
   z-index: 20;
 }
 
@@ -77,21 +91,33 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 6px 4px;
+  gap: 1px;
+  padding: 4px 2px;
   text-decoration: none;
   color: var(--text-muted);
   border-radius: var(--radius-sm);
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .bottom-nav-item.active {
   color: var(--accent);
+  font-weight: 600;
 }
 
 .bottom-nav-icon {
-  font-size: 20px;
-  line-height: 1;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+  background: var(--accent-soft);
+  border-color: var(--accent);
 }
 
 .bottom-nav-icon-wrap {
@@ -121,7 +147,9 @@
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+  /* Нижняя навигация теперь плавающая таблетка (см. .bottom-nav) — FAB
+     должен стоять выше её верхнего края с запасом, а не впритык. */
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
   max-width: 560px;
   margin: 0 auto;
   padding-right: 16px;
@@ -142,8 +170,11 @@
   height: 56px;
   border-radius: 50%;
   border: none;
-  background: var(--accent);
-  color: #fff;
+  background: var(--accent-bright);
+  color: var(--on-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 28px;
   line-height: 1;
   box-shadow: var(--shadow-accent);
@@ -205,7 +236,8 @@
 }
 
 .fab-option-icon--transfer {
-  background: var(--accent);
+  background: var(--accent-bright);
+  color: var(--on-accent);
   font-size: 14px;
 }
 
@@ -290,8 +322,8 @@
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: #fff;
+  background: var(--accent-bright);
+  color: var(--on-accent);
   box-shadow: var(--shadow-accent);
 }
 
@@ -579,13 +611,18 @@
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--surface-2);
+  color: var(--text-secondary);
   font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
 .icon-swatch.selected {
   border-color: var(--accent);
   background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .color-grid {
@@ -1423,7 +1460,15 @@
 }
 
 .empty-state-icon {
-  font-size: 34px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-bottom: 4px;
 }
 
 .empty-state-title {
@@ -1511,7 +1556,14 @@
 }
 
 .lock-screen-icon {
-  font-size: 40px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
   margin-bottom: 4px;
 }
 
@@ -1553,9 +1605,15 @@
 }
 
 .account-gate-icon {
-  font-size: 40px;
-  text-align: center;
-  margin-bottom: 4px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin: 0 auto 4px;
 }
 
 .account-gate-title {

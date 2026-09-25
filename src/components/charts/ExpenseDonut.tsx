@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { CategoryBreakdownRow } from '../../utils/stats';
 import { formatMoney } from '../../utils/format';
 import { NEUTRAL_COLOR, toDisplayColor } from '../../styles/palette';
+import { EmojiIcon } from '../../utils/icons';
 
 interface ExpenseDonutProps {
   rows: CategoryBreakdownRow[];
@@ -61,7 +62,7 @@ export function ExpenseDonut({ rows, currency, isDark, title }: ExpenseDonutProp
                 return (
                   <div className="chart-tooltip">
                     <strong>
-                      {row.icon} {row.name}
+                      <EmojiIcon icon={row.icon} size={14} className="inline-icon" /> {row.name}
                     </strong>
                     <span>{formatMoney(row.amount, currency)}</span>
                     <span className="chart-tooltip-muted">{pct}%</span>
@@ -84,7 +85,7 @@ export function ExpenseDonut({ rows, currency, isDark, title }: ExpenseDonutProp
             <li key={row.categoryId}>
               <span className="legend-dot" style={{ background: toDisplayColor(row.color, isDark) }} aria-hidden="true" />
               <span className="legend-name">
-                {row.icon} {row.name}
+                <EmojiIcon icon={row.icon} size={14} className="inline-icon" /> {row.name}
               </span>
               <span className="legend-pct">{pct}%</span>
               <span className="legend-amount">{formatMoney(row.amount, currency)}</span>

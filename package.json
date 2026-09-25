@@ -1,7 +1,7 @@
 {
   "name": "personal-finance-pwa",
   "private": true,
-  "version": "1.1.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -17,6 +17,7 @@
     "dexie": "^4.4.6",
     "dexie-react-hooks": "^4.4.0",
     "i18next": "^26.4.2",
+    "lucide-react": "^1.48.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-i18next": "^17.0.14",
