@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
@@ -26,6 +26,7 @@ const LANGUAGES: Array<{ value: AppLanguage; label: string }> = [
 
 export function SettingsPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { settings, setCurrency, setTheme, setLanguage } = useSettings();
   const { open } = useSheet();
   const pinEnabled = !!settings.pinHash;
@@ -100,6 +101,9 @@ export function SettingsPage() {
   return (
     <div className="page">
       <header className="page-header">
+        <button type="button" className="btn-link" onClick={() => navigate('/settings')}>
+          {t('settings.back')}
+        </button>
         <h1>{t('settings.title')}</h1>
       </header>
 

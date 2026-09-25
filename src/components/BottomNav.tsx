@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ClipboardList, CreditCard, Handshake, Home, Settings as SettingsIcon } from 'lucide-react';
+import { ClipboardList, CreditCard, Handshake, Home, User } from 'lucide-react';
 import { db } from '../db/db';
 import { getBillsNeedingAttention } from '../utils/bills';
 
@@ -10,7 +10,7 @@ const TABS = [
   { to: '/history', key: 'nav.history', Icon: ClipboardList, end: false },
   { to: '/debts', key: 'nav.debts', Icon: Handshake, end: false },
   { to: '/bills', key: 'nav.bills', Icon: CreditCard, end: false },
-  { to: '/settings', key: 'nav.settings', Icon: SettingsIcon, end: false },
+  { to: '/settings', key: 'nav.profile', Icon: User, end: false },
 ] as const;
 
 export function BottomNav() {

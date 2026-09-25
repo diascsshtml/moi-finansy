@@ -29,7 +29,7 @@ export function Accounts() {
   return (
     <div className="page">
       <header className="page-header">
-        <button type="button" className="btn-link" onClick={() => navigate('/settings')}>
+        <button type="button" className="btn-link" onClick={() => navigate('/settings/preferences')}>
           {t('accountsPage.back')}
         </button>
         <h1>{t('accountsPage.title')}</h1>

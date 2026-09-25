@@ -88,26 +88,31 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     }
     const { hash, salt } = await hashPassword(body.password!);
     const id = makeId();
+    const createdAt = new Date().toISOString();
     await sql`
       INSERT INTO users (id, username, name, email, password_hash, password_salt, created_at)
-      VALUES (${id}, ${username}, ${name}, ${email}, ${hash}, ${salt}, ${new Date().toISOString()})
+      VALUES (${id}, ${username}, ${name}, ${email}, ${hash}, ${salt}, ${createdAt})
     `;
     const token = await createSessionToken(id, env.SESSION_SECRET);
-    return json({ ok: true, username, name, email }, 200, { 'Set-Cookie': sessionCookieHeader(token) });
+    return json({ ok: true, username, name, email, createdAt }, 200, { 'Set-Cookie': sessionCookieHeader(token) });
   }
 
   if (url.pathname === '/api/auth/login' && request.method === 'POST') {
     const body = (await request.json().catch(() => ({}))) as { username?: string; password?: string };
     const username = (body.username ?? '').trim();
     const rows = (await sql`
-      SELECT id, username, name, email, password_hash, password_salt FROM users WHERE username = ${username}
-    `) as UserRow[];
+      SELECT id, username, name, email, password_hash, password_salt, created_at FROM users WHERE username = ${username}
+    `) as Array<UserRow & { created_at: string }>;
     const user = rows[0] ?? null;
     if (!user || !(await verifyPassword(body.password ?? '', user.password_hash, user.password_salt))) {
       return json({ error: 'Неверный логин или пароль' }, 401);
     }
     const token = await createSessionToken(user.id, env.SESSION_SECRET);
-    return json({ ok: true, username: user.username, name: user.name, email: user.email }, 200, { 'Set-Cookie': sessionCookieHeader(token) });
+    return json(
+      { ok: true, username: user.username, name: user.name, email: user.email, createdAt: user.created_at },
+      200,
+      { 'Set-Cookie': sessionCookieHeader(token) },
+    );
   }
 
   // Восстановление пароля по коду с почты — двухшаговое: сперва запрос кода
@@ -155,8 +160,8 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
       return json({ error: 'Пароль: минимум 6 символов' }, 400);
     }
     const rows = (await sql`
-      SELECT id, username, name, reset_code_hash, reset_code_salt, reset_code_expires_at FROM users WHERE username = ${username}
-    `) as UserRowWithResetCode[];
+      SELECT id, username, name, reset_code_hash, reset_code_salt, reset_code_expires_at, created_at FROM users WHERE username = ${username}
+    `) as Array<UserRowWithResetCode & { created_at: string }>;
     const user = rows[0] ?? null;
     if (!user || !user.reset_code_hash || !user.reset_code_salt || !user.reset_code_expires_at) {
       return json({ error: 'Неверный код или логин' }, 401);
@@ -174,7 +179,11 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
       WHERE id = ${user.id}
     `;
     const token = await createSessionToken(user.id, env.SESSION_SECRET);
-    return json({ ok: true, username: user.username, name: user.name }, 200, { 'Set-Cookie': sessionCookieHeader(token) });
+    return json(
+      { ok: true, username: user.username, name: user.name, createdAt: user.created_at },
+      200,
+      { 'Set-Cookie': sessionCookieHeader(token) },
+    );
   }
 
   if (url.pathname === '/api/auth/logout' && request.method === 'POST') {
@@ -184,14 +193,15 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
   if (url.pathname === '/api/auth/me' && request.method === 'GET') {
     const userId = await currentUserId(request, env);
     if (!userId) return json({ error: 'not authenticated' }, 401);
-    const rows = (await sql`SELECT username, name, email FROM users WHERE id = ${userId}`) as Array<{
+    const rows = (await sql`SELECT username, name, email, created_at FROM users WHERE id = ${userId}`) as Array<{
       username: string;
       name: string;
       email: string | null;
+      created_at: string;
     }>;
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'not authenticated' }, 401);
-    return json({ username: user.username, name: user.name, email: user.email });
+    return json({ username: user.username, name: user.name, email: user.email, createdAt: user.created_at });
   }
 
   if (url.pathname === '/api/auth/name' && request.method === 'PUT') {
@@ -202,11 +212,15 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     if (!isValidName(name)) {
       return json({ error: 'Введите имя' }, 400);
     }
-    const rows = (await sql`SELECT username, email FROM users WHERE id = ${userId}`) as Array<{ username: string; email: string | null }>;
+    const rows = (await sql`SELECT username, email, created_at FROM users WHERE id = ${userId}`) as Array<{
+      username: string;
+      email: string | null;
+      created_at: string;
+    }>;
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'not authenticated' }, 401);
     await sql`UPDATE users SET name = ${name} WHERE id = ${userId}`;
-    return json({ username: user.username, name, email: user.email });
+    return json({ username: user.username, name, email: user.email, createdAt: user.created_at });
   }
 
   if (url.pathname === '/api/auth/email' && request.method === 'PUT') {
@@ -217,11 +231,15 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     if (!isValidEmail(email)) {
       return json({ error: 'Введите корректную почту' }, 400);
     }
-    const rows = (await sql`SELECT username, name FROM users WHERE id = ${userId}`) as Array<{ username: string; name: string }>;
+    const rows = (await sql`SELECT username, name, created_at FROM users WHERE id = ${userId}`) as Array<{
+      username: string;
+      name: string;
+      created_at: string;
+    }>;
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'not authenticated' }, 401);
     await sql`UPDATE users SET email = ${email} WHERE id = ${userId}`;
-    return json({ username: user.username, name: user.name, email });
+    return json({ username: user.username, name: user.name, email, createdAt: user.created_at });
   }
 
   if (url.pathname === '/api/data' && request.method === 'GET') {

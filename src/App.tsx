@@ -20,6 +20,7 @@ import { Categories } from './pages/Categories';
 import { Accounts } from './pages/Accounts';
 import { Admin } from './pages/Admin';
 import { Profile } from './pages/Profile';
+import { ProfileHub } from './pages/ProfileHub';
 
 function App() {
   return (
@@ -40,7 +41,8 @@ function App() {
                       <Route path="/debts/:id" element={<DebtDetail />} />
                       <Route path="/bills" element={<Bills />} />
                       <Route path="/bills/:id" element={<BillDetail />} />
-                      <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/settings" element={<ProfileHub />} />
+                      <Route path="/settings/preferences" element={<SettingsPage />} />
                       <Route path="/settings/categories" element={<Categories />} />
                       <Route path="/settings/accounts" element={<Accounts />} />
                       <Route path="/settings/profile" element={<Profile />} />

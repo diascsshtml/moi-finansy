@@ -8,6 +8,7 @@ export interface AuthUser {
   username: string;
   name: string;
   email: string | null;
+  createdAt?: string;
 }
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {

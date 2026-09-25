@@ -24,7 +24,7 @@ export function Categories() {
   return (
     <div className="page">
       <header className="page-header">
-        <button type="button" className="btn-link" onClick={() => navigate('/settings')}>
+        <button type="button" className="btn-link" onClick={() => navigate('/settings/preferences')}>
           {t('categoriesPage.back')}
         </button>
         <h1>{t('categoriesPage.title')}</h1>
