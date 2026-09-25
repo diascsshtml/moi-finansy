@@ -1,0 +1,41 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "moi-finansy",
+  "compatibility_date": "2026-09-18",
+  "main": "worker/index.ts",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "PUSH_SUBS",
+      "id": "06a144d62c404a25921f9fbfa8fc8873"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "moi-finansy-db",
+      "database_id": "a16f8433-4868-42e3-86dd-c1095fc9ee02"
+    }
+  ],
+  // Раз в час — шлёт напоминание всем подписанным устройствам (worker/index.ts).
+  "triggers": {
+    "crons": ["0 * * * *"]
+  },
+  "vars": {
+    // Публичный VAPID-ключ — не секрет, его же передаёт клиент в pushManager.subscribe().
+    // Совпадает с VITE_VAPID_PUBLIC_KEY в .env — если когда-нибудь перегенерируете
+    // ключи, поменяйте в обоих местах.
+    "VAPID_PUBLIC_KEY": "BPCuxHZYSbO2i00ibLYyL3hLMh-zF1coqlCZaXx9QtBWrvuPyM0knt73-K1ju0lVoV18oYvXJ0mGCYzNDcCe-Uk",
+    "VAPID_CONTACT": "https://moi-finansy.personal-finance-pwa.workers.dev",
+    // Адрес-отправитель для писем восстановления пароля (через Brevo) — должен
+    // быть подтверждён как sender в личном кабинете Brevo. Сам API-ключ — секрет
+    // (BREVO_API_KEY, см. wrangler secret put), сюда попадает только сам email.
+    "BREVO_SENDER_EMAIL": "kadyrbekdias123@gmail.com"
+  }
+}

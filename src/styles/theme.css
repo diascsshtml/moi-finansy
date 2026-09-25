@@ -1,0 +1,124 @@
+/* Токены темы — светлая и тёмная. Палитра валидирована dataviz-скиллом
+   (см. src/styles/palette.ts, там же дублируются hex для JS/графиков). */
+
+:root {
+  color-scheme: light;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+
+  --surface-1: #fcfcfb;
+  --surface-2: #ffffff;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+
+  --money-positive: #006300;
+  --money-negative: #b23327;
+
+  --accent: #2a78d6;
+  --accent-soft: rgba(42, 120, 214, 0.12);
+  --danger: #d03b3b;
+  --danger-soft: rgba(208, 59, 59, 0.12);
+  --positive-soft: rgba(0, 99, 0, 0.12);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --surface-2: #222220;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+
+    --money-positive: #0ca30c;
+    --money-negative: #e66767;
+
+    --accent: #3987e5;
+    --accent-soft: rgba(57, 135, 229, 0.18);
+    --danger: #e66767;
+    --danger-soft: rgba(230, 103, 103, 0.18);
+    --positive-soft: rgba(12, 163, 12, 0.18);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --surface-2: #222220;
+  --page: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --grid: #2c2c2a;
+  --baseline: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+
+  --money-positive: #0ca30c;
+  --money-negative: #e66767;
+
+  --accent: #3987e5;
+  --accent-soft: rgba(57, 135, 229, 0.18);
+  --danger: #e66767;
+  --danger-soft: rgba(230, 103, 103, 0.18);
+  --positive-soft: rgba(12, 163, 12, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  /* Всегда резервируем место под вертикальный скроллбар — иначе при
+     переходе между «короткой» страницей (без скролла) и «длинной» (со
+     скроллом) вся центрированная колонка (.app-shell) сдвигается влево-
+     вправо на ширину скроллбара, и кажется, что страницы «шатаются». */
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Страховка: если какой-то элемент всё же вылезет по ширине (длинное имя,
+     нерастягиваемый нативный контрол и т.п.), страницу просто обрежет, а не
+     сделает горизонтально «болтающейся». Модалки (Sheet) рендерятся через
+     portal прямо в body, поэтому это должно стоять именно здесь, а не на
+     .app-shell. */
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+  color: inherit;
+}

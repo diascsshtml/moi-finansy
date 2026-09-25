@@ -1,0 +1,89 @@
+import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useSheet } from '../context/SheetContext';
+
+// Страницы, где «Добавить операцию» не к месту (Настройки и их подстраницы,
+// Статистика, админка) — раньше кнопка всё равно всплывала поверх контента
+// на всех страницах и на некоторых (Настройки, Категории) перекрывала
+// собой другие кнопки и текст.
+const HIDDEN_PREFIXES = ['/settings', '/stats', '/admin'];
+
+export function Fab() {
+  const { t } = useTranslation();
+  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const { open: openSheet } = useSheet();
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, [open]);
+
+  const pick = (action: () => void) => {
+    action();
+    setOpen(false);
+  };
+
+  const hidden = HIDDEN_PREFIXES.some((prefix) => location.pathname.startsWith(prefix));
+  if (hidden) return null;
+
+  return (
+    <div className="fab-wrap" ref={ref}>
+      {open && (
+        <div className="fab-menu" role="menu">
+          <button
+            type="button"
+            className="fab-option"
+            role="menuitem"
+            onClick={() => pick(() => openSheet({ kind: 'add-transfer' }))}
+          >
+            <span className="fab-option-icon fab-option-icon--transfer" aria-hidden="true">🔄</span>
+            {t('fab.transfer')}
+          </button>
+          <button
+            type="button"
+            className="fab-option"
+            role="menuitem"
+            onClick={() => pick(() => openSheet({ kind: 'add-debt', direction: 'i_owe' }))}
+          >
+            <span className="fab-option-icon fab-option-icon--debt" aria-hidden="true">🤝</span>
+            {t('fab.debt')}
+          </button>
+          <button
+            type="button"
+            className="fab-option"
+            role="menuitem"
+            onClick={() => pick(() => openSheet({ kind: 'add-transaction', type: 'expense' }))}
+          >
+            <span className="fab-option-icon fab-option-icon--expense" aria-hidden="true">↓</span>
+            {t('fab.expense')}
+          </button>
+          <button
+            type="button"
+            className="fab-option"
+            role="menuitem"
+            onClick={() => pick(() => openSheet({ kind: 'add-transaction', type: 'income' }))}
+          >
+            <span className="fab-option-icon fab-option-icon--income" aria-hidden="true">↑</span>
+            {t('fab.income')}
+          </button>
+        </div>
+      )}
+      <button
+        type="button"
+        className={`fab${open ? ' fab-open' : ''}`}
+        aria-label={open ? t('fab.closeLabel') : t('fab.openLabel')}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        +
+      </button>
+    </div>
+  );
+}
