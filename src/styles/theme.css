@@ -25,6 +25,13 @@
   --danger-soft: rgba(208, 59, 59, 0.12);
   --positive-soft: rgba(0, 99, 0, 0.12);
 
+  /* Мягкие тени для ощущения глубины у карточек/кнопок — вместо плоских
+     обводок. В тёмной теме чёрная тень на тёмном фоне не читается, поэтому
+     там свои, гораздо более тихие значения (см. ниже). */
+  --shadow-sm: 0 1px 2px rgba(11, 11, 11, 0.04), 0 2px 6px rgba(11, 11, 11, 0.05);
+  --shadow-md: 0 2px 6px rgba(11, 11, 11, 0.05), 0 8px 20px rgba(11, 11, 11, 0.07);
+  --shadow-accent: 0 6px 16px rgba(42, 120, 214, 0.28);
+
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
@@ -51,6 +58,10 @@
     --danger: #e66767;
     --danger-soft: rgba(230, 103, 103, 0.18);
     --positive-soft: rgba(12, 163, 12, 0.18);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
+    --shadow-accent: 0 6px 16px rgba(57, 135, 229, 0.3);
   }
 }
 
@@ -74,6 +85,10 @@
   --danger: #e66767;
   --danger-soft: rgba(230, 103, 103, 0.18);
   --positive-soft: rgba(12, 163, 12, 0.18);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-accent: 0 6px 16px rgba(57, 135, 229, 0.3);
 }
 
 * {

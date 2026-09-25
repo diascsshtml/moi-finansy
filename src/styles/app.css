@@ -146,9 +146,13 @@
   color: #fff;
   font-size: 28px;
   line-height: 1;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+  box-shadow: var(--shadow-accent);
   cursor: pointer;
   transition: transform 0.15s ease;
+}
+
+.fab:active {
+  transform: scale(0.94);
 }
 
 .fab-open {
@@ -218,10 +222,15 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
 }
 
 .stat-card--hero {
   padding: 18px 18px;
+  background: linear-gradient(135deg, var(--accent-soft), var(--surface-1) 65%);
+  border-color: transparent;
+  box-shadow: var(--shadow-md);
 }
 
 .stat-card-top {
@@ -273,11 +282,17 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
 }
 
 .btn-primary {
   background: var(--accent);
   color: #fff;
+  box-shadow: var(--shadow-accent);
 }
 
 .btn-secondary {
@@ -430,12 +445,13 @@
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
 }
 
 .segmented button.active {
   background: var(--surface-1);
   color: var(--text-primary);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ============ Amount input ============ */
@@ -672,6 +688,12 @@
   text-align: left;
   text-decoration: none;
   color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.account-list-row:active {
+  transform: scale(0.98);
 }
 
 .account-list-icon {
@@ -1422,6 +1444,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: 10px;
