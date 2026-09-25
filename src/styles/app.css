@@ -241,12 +241,87 @@
   font-size: 14px;
 }
 
+.page-header-icon-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-header-icon-row h1 {
+  margin: 0;
+}
+
+.page-header-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--accent-bright);
+  color: var(--on-accent);
+}
+
+.section-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 /* ============ Cards / stats ============ */
 
 .stat-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.stat-row-3 {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.overview-card {
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.overview-card .stat-card-label {
+  margin-top: 6px;
+}
+
+.overview-card .stat-card-value {
+  font-size: 17px;
+  margin-top: 0;
+}
+
+.overview-card .stat-card-hint {
+  font-size: 11px;
+}
+
+.overview-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.overview-icon--positive {
+  background: var(--positive-soft);
+  color: var(--money-positive);
+}
+
+.overview-icon--negative {
+  background: rgba(124, 92, 252, 0.16);
+  color: #7c5cfc;
 }
 
 .stat-card {
@@ -1060,21 +1135,6 @@
 
 /* ============ Debts ============ */
 
-.debts-total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
-  font-size: 14px;
-}
-
-.debts-total strong {
-  font-size: 18px;
-}
-
 .debts-list {
   display: flex;
   flex-direction: column;
@@ -1480,6 +1540,10 @@
   font-size: 13px;
   color: var(--text-muted);
   margin: 0;
+}
+
+.empty-state-action {
+  margin-top: 10px;
 }
 
 /* ============ Settings ============ */
