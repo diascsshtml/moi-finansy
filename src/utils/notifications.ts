@@ -69,6 +69,7 @@ export async function notifyAboutBills(statuses: BillStatus[], currency: string,
   }
 
   for (const s of statuses) {
+    if (s.bill.notifyEnabled === false) continue;
     const dedupeKey = `${s.bill.id}:${todayKey}`;
     if (dedupe.has(dedupeKey)) continue;
 

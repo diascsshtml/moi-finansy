@@ -434,6 +434,7 @@ export async function createBill(input: {
   icon: string;
   color: string;
   reminderDaysBefore: number;
+  notifyEnabled?: boolean;
   note?: string;
 }): Promise<RecurringBill> {
   const bill: RecurringBill = {
@@ -447,6 +448,7 @@ export async function createBill(input: {
     icon: input.icon,
     color: input.color,
     reminderDaysBefore: input.reminderDaysBefore,
+    notifyEnabled: input.notifyEnabled ?? true,
     isActive: true,
     note: input.note?.trim() || undefined,
     createdAt: nowISO(),
@@ -458,7 +460,10 @@ export async function createBill(input: {
 export async function updateBill(
   id: string,
   patch: Partial<
-    Pick<RecurringBill, 'name' | 'amount' | 'dayOfMonth' | 'categoryId' | 'accountId' | 'icon' | 'color' | 'reminderDaysBefore' | 'note' | 'isActive'>
+    Pick<
+      RecurringBill,
+      'name' | 'amount' | 'dayOfMonth' | 'categoryId' | 'accountId' | 'icon' | 'color' | 'reminderDaysBefore' | 'notifyEnabled' | 'note' | 'isActive'
+    >
   >,
 ) {
   await db.bills.update(id, patch);

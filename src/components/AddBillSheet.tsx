@@ -14,6 +14,7 @@ import { CATEGORICAL_LIGHT } from '../styles/palette';
 import { dateToISO, todayISO } from '../utils/format';
 import { getDueDateInMonth } from '../utils/bills';
 import { EmojiIcon } from '../utils/icons';
+import { getNotificationPermission, requestNotificationPermission } from '../utils/notifications';
 import type { BillPreset, RecurringBill } from '../types';
 
 const REMINDER_OPTIONS = [0, 1, 2, 3, 5, 7, 10, 14];
@@ -53,6 +54,7 @@ export function AddBillSheet({ onClose, bill, preset }: AddBillSheetProps) {
   const [color, setColor] = useState(bill?.color ?? preset?.color ?? SWATCHES[7]);
   const [note, setNote] = useState(bill?.note ?? '');
   const [isActive, setIsActive] = useState(bill?.isActive ?? true);
+  const [notifyEnabled, setNotifyEnabled] = useState(bill?.notifyEnabled ?? true);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,6 +70,13 @@ export function AddBillSheet({ onClose, bill, preset }: AddBillSheetProps) {
       setError(t('bills.form.error'));
       return;
     }
+    // Включили уведомления по этому платежу — если разрешение браузера ещё
+    // не запрашивали, спрашиваем прямо сейчас. Если откажут — просто не
+    // покажется само уведомление, remindersDaysBefore/бейдж в приложении на
+    // это не завязаны.
+    if (notifyEnabled && getNotificationPermission() === 'default') {
+      await requestNotificationPermission();
+    }
     if (isEdit && bill) {
       await updateBill(bill.id, {
         name,
@@ -80,6 +89,7 @@ export function AddBillSheet({ onClose, bill, preset }: AddBillSheetProps) {
         color,
         note,
         isActive,
+        notifyEnabled,
       });
     } else {
       await createBill({
@@ -93,6 +103,7 @@ export function AddBillSheet({ onClose, bill, preset }: AddBillSheetProps) {
         icon,
         color,
         note,
+        notifyEnabled,
       });
     }
     onClose();
@@ -219,6 +230,14 @@ export function AddBillSheet({ onClose, bill, preset }: AddBillSheetProps) {
         onChange={(e) => setNote(e.target.value)}
         maxLength={200}
       />
+
+      <label className="checkbox-row">
+        <input type="checkbox" checked={notifyEnabled} onChange={(e) => setNotifyEnabled(e.target.checked)} />
+        <span>
+          {t('bills.form.notifyToggle')}
+          <small>{t('bills.form.notifyHint')}</small>
+        </span>
+      </label>
 
       {isEdit && (
         <label className="checkbox-row">

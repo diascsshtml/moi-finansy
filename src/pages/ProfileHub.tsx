@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
-import { BarChart3, ChevronRight, Download, Handshake, Info, Plus, RefreshCw, SlidersHorizontal, User } from 'lucide-react';
+import { BarChart3, ChevronRight, Download, Handshake, Info, RefreshCw, SlidersHorizontal, User } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
-import { useSheet } from '../context/SheetContext';
 import { useAccount } from '../context/AccountContext';
 import { Sheet } from '../components/Sheet';
 import { exportDataToExcel } from '../utils/excelExport';
@@ -16,7 +15,6 @@ const SUPPORT_EMAIL = 'kadyrbekdias123@gmail.com';
 export function ProfileHub() {
   const { t } = useTranslation();
   const { settings } = useSettings();
-  const { open } = useSheet();
   const { user } = useAccount();
   const [showAbout, setShowAbout] = useState(false);
   const [exportStatus, setExportStatus] = useState<string | null>(null);
@@ -77,12 +75,6 @@ export function ProfileHub() {
 
       <h2>{t('profileHub.quickActionsTitle')}</h2>
       <div className="quick-actions-grid">
-        <button type="button" className="quick-action-tile" onClick={() => open({ kind: 'add-transaction', type: 'expense' })}>
-          <span className="quick-action-icon" aria-hidden="true">
-            <Plus size={17} strokeWidth={2.25} />
-          </span>
-          {t('profileHub.actionAddTransaction')}
-        </button>
         <Link to="/debts" className="quick-action-tile">
           <span className="quick-action-icon" aria-hidden="true">
             <Handshake size={17} strokeWidth={2.25} />

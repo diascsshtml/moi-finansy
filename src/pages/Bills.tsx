@@ -6,7 +6,6 @@ import { useSettings } from '../context/SettingsContext';
 import { useSheet } from '../context/SheetContext';
 import { BillRow } from '../components/BillRow';
 import { EmptyState } from '../components/EmptyState';
-import { NotificationsCard } from '../components/NotificationsCard';
 import { getBillsGroupedByMonth } from '../utils/bills';
 import { formatMonthYearFull } from '../utils/format';
 
@@ -36,8 +35,6 @@ export function Bills() {
         </div>
         <p className="page-subtitle">{t('bills.subtitle')}</p>
       </header>
-
-      <NotificationsCard />
 
       {groups.length === 0 ? (
         <EmptyState icon="💳" title={t('bills.emptyTitle')} hint={t('bills.emptyHint')} />
