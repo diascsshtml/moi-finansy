@@ -94,10 +94,6 @@ export const kk = {
     owedToMe: 'Маған қарыз',
     iOwe: 'Менің қарызым',
     expensesThisMonth: 'Осы айдағы шығыстар',
-    recentOperations: 'Соңғы операциялар',
-    seeAll: 'Барлығы →',
-    emptyTitle: 'Әлі операция жоқ',
-    emptyHint: 'Біріншісін қосу үшін «+» басыңыз',
   },
   stats: {
     back: '← Басты бет',

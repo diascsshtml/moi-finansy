@@ -94,10 +94,6 @@ export const ru = {
     owedToMe: 'Мне должны',
     iOwe: 'Я должен',
     expensesThisMonth: 'Расходы в этом месяце',
-    recentOperations: 'Последние операции',
-    seeAll: 'Все →',
-    emptyTitle: 'Пока нет операций',
-    emptyHint: 'Нажмите «+», чтобы добавить первую',
   },
   stats: {
     back: '← Главная',

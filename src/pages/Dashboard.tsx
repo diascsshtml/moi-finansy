@@ -1,16 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { useAccount } from '../context/AccountContext';
 import { StatCard } from '../components/StatCard';
-import { HistoryEntryRow } from '../components/HistoryEntryRow';
-import { EmptyState } from '../components/EmptyState';
 import { BillsAlertBanner } from '../components/BillsAlertBanner';
-import { buildHistory } from '../utils/history';
-import { formatDateHuman, formatMoney, todayISO } from '../utils/format';
+import { formatMoney, todayISO } from '../utils/format';
 import { toDisplayColor } from '../styles/palette';
 import { accountDisplayName } from '../utils/displayName';
 import { EmojiIcon } from '../utils/icons';
@@ -24,9 +20,6 @@ export function Dashboard() {
   const { user } = useAccount();
   const transactions = useLiveQuery(() => db.transactions.toArray(), []);
   const debts = useLiveQuery(() => db.debts.toArray(), []);
-  const categories = useLiveQuery(() => db.categories.toArray(), []);
-  const people = useLiveQuery(() => db.people.toArray(), []);
-  const debtPayments = useLiveQuery(() => db.debtPayments.toArray(), []);
   const accounts = useLiveQuery(() => db.accounts.orderBy('order').toArray(), []);
   const transfers = useLiveQuery(() => db.transfers.toArray(), []);
   const bills = useLiveQuery(() => db.bills.toArray(), []);
@@ -50,7 +43,7 @@ export function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attentionCount]);
 
-  const ready = transactions && debts && categories && people && debtPayments && accounts && transfers;
+  const ready = transactions && debts && accounts && transfers;
 
   const accountsById = useMemo(() => new Map((accounts ?? []).map((a) => [a.id, a])), [accounts]);
   const multiAccount = (accounts?.length ?? 0) > 1;
@@ -77,25 +70,6 @@ export function Dashboard() {
     return getAccountBalances(monthTxAll, monthTransfersAll).get(scope) ?? 0;
   }, [scope, transactions, transfers]);
   const debtTotals = useMemo(() => getDebtTotals(scopedDebts), [scopedDebts]);
-  const recent = useMemo(() => {
-    if (!ready) return [];
-    const all = buildHistory(transactions!, debts!, debtPayments!, people!, categories!, transfers!, accounts!, t);
-    const filtered =
-      scope === 'all'
-        ? all
-        : all.filter((e) => e.accountId === scope || e.transfer?.toAccountId === scope);
-    return filtered.slice(0, 6);
-  }, [ready, transactions, debts, debtPayments, people, categories, transfers, accounts, scope, t]);
-
-  const recentGroups = useMemo(() => {
-    const map = new Map<string, typeof recent>();
-    for (const e of recent) {
-      const arr = map.get(e.date) ?? [];
-      arr.push(e);
-      map.set(e.date, arr);
-    }
-    return Array.from(map.entries());
-  }, [recent]);
 
   if (!ready) return null;
 
@@ -179,33 +153,6 @@ export function Dashboard() {
           tone={debtTotals.iOwe > 0 ? 'negative' : 'neutral'}
         />
       </div>
-
-      <section className="recent-section">
-        <div className="section-header">
-          <h2>{t('dashboard.recentOperations')}</h2>
-          <Link to="/history" className="btn-link">
-            {t('dashboard.seeAll')}
-          </Link>
-        </div>
-        {recent.length === 0 ? (
-          <EmptyState icon="💸" title={t('dashboard.emptyTitle')} hint={t('dashboard.emptyHint')} />
-        ) : (
-          <div className="history-groups">
-            {recentGroups.map(([date, entries]) => (
-              <div key={date} className="history-group">
-                <Link to={`/history/day/${date}`} className="history-group-date">
-                  {formatDateHuman(date)}
-                </Link>
-                <div className="history-list">
-                  {entries.map((e) => (
-                    <HistoryEntryRow key={e.id} entry={e} currency={settings.currency} isDark={isDark} accountsById={accountsById} />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
     </div>
   );
 }
