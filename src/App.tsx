@@ -21,6 +21,11 @@ import { Accounts } from './pages/Accounts';
 import { Admin } from './pages/Admin';
 import { Profile } from './pages/Profile';
 import { ProfileHub } from './pages/ProfileHub';
+import { NewTransactionPage } from './pages/NewTransactionPage';
+import { NewDebtPage } from './pages/NewDebtPage';
+import { NewTransferPage } from './pages/NewTransferPage';
+import { NewBillCatalogPage } from './pages/NewBillCatalogPage';
+import { NewBillFormPage } from './pages/NewBillFormPage';
 
 function App() {
   return (
@@ -38,9 +43,14 @@ function App() {
                       <Route path="/history" element={<History />} />
                       <Route path="/history/day/:date" element={<DayDetail />} />
                       <Route path="/debts" element={<Debts />} />
+                      <Route path="/debts/new/:direction" element={<NewDebtPage />} />
                       <Route path="/debts/:id" element={<DebtDetail />} />
                       <Route path="/bills" element={<Bills />} />
+                      <Route path="/bills/new" element={<NewBillCatalogPage />} />
+                      <Route path="/bills/new/form" element={<NewBillFormPage />} />
                       <Route path="/bills/:id" element={<BillDetail />} />
+                      <Route path="/transactions/new/:type" element={<NewTransactionPage />} />
+                      <Route path="/transfers/new" element={<NewTransferPage />} />
                       <Route path="/settings" element={<ProfileHub />} />
                       <Route path="/settings/preferences" element={<SettingsPage />} />
                       <Route path="/settings/categories" element={<Categories />} />

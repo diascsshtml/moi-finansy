@@ -1,26 +1,24 @@
 import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { Sheet } from './Sheet';
-import { AmountInput } from './AmountInput';
-import { PersonPicker } from './PersonPicker';
-import { AccountPicker } from './AccountPicker';
+import { AmountInput } from '../components/AmountInput';
+import { PersonPicker } from '../components/PersonPicker';
+import { AccountPicker } from '../components/AccountPicker';
 import { useSettings } from '../context/SettingsContext';
 import { createDebt } from '../db/operations';
 import { todayISO } from '../utils/format';
 import { db } from '../db/db';
 import type { DebtDirection } from '../types';
 
-interface AddDebtSheetProps {
-  onClose: () => void;
-  direction: DebtDirection;
-}
-
-export function AddDebtSheet({ onClose, direction: initialDirection }: AddDebtSheetProps) {
+export function NewDebtPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { settings } = useSettings();
+  const { direction: directionParam } = useParams<{ direction: string }>();
   const accounts = useLiveQuery(() => db.accounts.orderBy('order').toArray(), []);
-  const [direction, setDirection] = useState<DebtDirection>(initialDirection);
+
+  const [direction, setDirection] = useState<DebtDirection>(directionParam === 'owed_to_me' ? 'owed_to_me' : 'i_owe');
   const [personName, setPersonName] = useState('');
   const [amount, setAmount] = useState('');
   const [accountIdOverride, setAccountIdOverride] = useState<string | null>(null);
@@ -32,7 +30,6 @@ export function AddDebtSheet({ onClose, direction: initialDirection }: AddDebtSh
   const [saving, setSaving] = useState(false);
 
   const accountId = accountIdOverride ?? accounts?.[0]?.id ?? null;
-
   const numericAmount = Number(amount);
   const canSave = numericAmount > 0 && personName.trim().length > 0 && !!date && !!accountId;
   const showAccountPicker = accounts && accounts.length > 1;
@@ -54,24 +51,18 @@ export function AddDebtSheet({ onClose, direction: initialDirection }: AddDebtSh
       accountId,
     });
     setSaving(false);
-    onClose();
+    navigate(-1);
   };
 
   return (
-    <Sheet
-      title={t('debtForm.title')}
-      onClose={onClose}
-      footer={
-        <button
-          type="button"
-          className="btn btn-primary btn-grow"
-          disabled={!canSave || saving}
-          onClick={handleSave}
-        >
-          {t('common.save')}
+    <div className="page">
+      <header className="page-header">
+        <button type="button" className="btn-link" onClick={() => navigate(-1)}>
+          ← {t('common.cancel')}
         </button>
-      }
-    >
+        <h1>{t('debtForm.title')}</h1>
+      </header>
+
       <div className="segmented" role="tablist">
         <button
           type="button"
@@ -112,26 +103,13 @@ export function AddDebtSheet({ onClose, direction: initialDirection }: AddDebtSh
           <label className="field-label" htmlFor="debt-date">
             {t('debtForm.dateCreated')}
           </label>
-          <input
-            id="debt-date"
-            type="date"
-            className="text-input"
-            value={date}
-            max={todayISO()}
-            onChange={(e) => setDate(e.target.value)}
-          />
+          <input id="debt-date" type="date" className="text-input" value={date} max={todayISO()} onChange={(e) => setDate(e.target.value)} />
         </div>
         <div>
           <label className="field-label" htmlFor="debt-due">
             {t('debtForm.dueDate')}
           </label>
-          <input
-            id="debt-due"
-            type="date"
-            className="text-input"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
+          <input id="debt-due" type="date" className="text-input" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         </div>
       </div>
 
@@ -149,11 +127,7 @@ export function AddDebtSheet({ onClose, direction: initialDirection }: AddDebtSh
       />
 
       <label className="checkbox-row">
-        <input
-          type="checkbox"
-          checked={linkedToBalance}
-          onChange={(e) => setLinkedToBalance(e.target.checked)}
-        />
+        <input type="checkbox" checked={linkedToBalance} onChange={(e) => setLinkedToBalance(e.target.checked)} />
         <span>
           {t('debtForm.linkToBalance')}
           <small>{direction === 'i_owe' ? t('debtForm.linkHintIOwe') : t('debtForm.linkHintOwedToMe')}</small>
@@ -161,6 +135,10 @@ export function AddDebtSheet({ onClose, direction: initialDirection }: AddDebtSh
       </label>
 
       {error && <p className="field-error">{error}</p>}
-    </Sheet>
+
+      <button type="button" className="btn btn-primary btn-block" disabled={!canSave || saving} onClick={handleSave}>
+        {t('common.save')}
+      </button>
+    </div>
   );
 }

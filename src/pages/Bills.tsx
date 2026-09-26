@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
-import { useSheet } from '../context/SheetContext';
 import { BillRow } from '../components/BillRow';
 import { EmptyState } from '../components/EmptyState';
 import { getBillsGroupedByMonth } from '../utils/bills';
@@ -12,7 +12,7 @@ import { formatMonthYearFull } from '../utils/format';
 export function Bills() {
   const { t } = useTranslation();
   const { settings, isDark } = useSettings();
-  const { open } = useSheet();
+  const navigate = useNavigate();
 
   const bills = useLiveQuery(() => db.bills.toArray(), []);
   const transactions = useLiveQuery(() => db.transactions.toArray(), []);
@@ -29,7 +29,7 @@ export function Bills() {
       <header className="page-header">
         <div className="page-header-row">
           <h1>{t('bills.title')}</h1>
-          <button type="button" className="btn btn-primary btn-sm" onClick={() => open({ kind: 'bill-catalog' })}>
+          <button type="button" className="btn btn-primary btn-sm" onClick={() => navigate('/bills/new')}>
             {t('bills.addButton')}
           </button>
         </div>

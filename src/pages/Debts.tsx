@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
 import { ArrowDownLeft, ArrowUpRight, ChevronRight, CircleHelp, Handshake, PieChart, Plus } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
-import { useSheet } from '../context/SheetContext';
 import { DebtRow } from '../components/DebtRow';
 import { EmptyState } from '../components/EmptyState';
 import { Sheet } from '../components/Sheet';
@@ -16,7 +15,7 @@ import type { DebtDirection } from '../types';
 export function Debts() {
   const { t } = useTranslation();
   const { settings } = useSettings();
-  const { open } = useSheet();
+  const navigate = useNavigate();
   const [direction, setDirection] = useState<DebtDirection>('owed_to_me');
   const [showClosed, setShowClosed] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -133,7 +132,7 @@ export function Debts() {
           title={direction === 'owed_to_me' ? t('debts.emptyOwedToMeTitle') : t('debts.emptyIOweTitle')}
           hint={direction === 'owed_to_me' ? t('debts.emptyHint') : t('debts.emptyHintIOwe')}
           action={
-            <button type="button" className="btn btn-primary" onClick={() => open({ kind: 'add-debt', direction })}>
+            <button type="button" className="btn btn-primary" onClick={() => navigate(`/debts/new/${direction}`)}>
               <Plus size={17} strokeWidth={2.5} className="inline-icon" style={{ marginRight: 4 }} />
               {t('debts.addButton').replace('+ ', '')}
             </button>
@@ -156,7 +155,7 @@ export function Debts() {
       <section className="recent-section">
         <div className="section-header">
           <h2>{t('debts.creditsSection')}</h2>
-          <button type="button" className="btn-link" onClick={() => open({ kind: 'bill-catalog' })}>
+          <button type="button" className="btn-link" onClick={() => navigate('/bills/new')}>
             {t('debts.addCreditLink')}
           </button>
         </div>

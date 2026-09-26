@@ -1,18 +1,13 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sheet } from './Sheet';
-import { useSheet } from '../context/SheetContext';
 import { BILL_CATALOG, isMonogramIcon, type BillCatalogItem } from '../data/billCatalog';
 import { EmojiIcon } from '../utils/icons';
 import type { BillPreset } from '../types';
 
-interface BillCatalogSheetProps {
-  onClose: () => void;
-}
-
-export function BillCatalogSheet({ onClose }: BillCatalogSheetProps) {
+export function NewBillCatalogPage() {
   const { t } = useTranslation();
-  const { open } = useSheet();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
   const named = useMemo(
@@ -25,7 +20,7 @@ export function BillCatalogSheet({ onClose }: BillCatalogSheetProps) {
 
   const selectItem = (item: BillCatalogItem, name: string) => {
     const preset: BillPreset = { name, icon: item.icon, color: item.color, categoryNameKey: item.categoryNameKey };
-    open({ kind: 'edit-bill', preset });
+    navigate('/bills/new/form', { state: preset });
   };
 
   const renderItem = (item: BillCatalogItem, name: string) => (
@@ -41,7 +36,14 @@ export function BillCatalogSheet({ onClose }: BillCatalogSheetProps) {
   );
 
   return (
-    <Sheet title={t('billCatalog.title')} onClose={onClose}>
+    <div className="page">
+      <header className="page-header">
+        <button type="button" className="btn-link" onClick={() => navigate(-1)}>
+          ← {t('common.cancel')}
+        </button>
+        <h1>{t('billCatalog.title')}</h1>
+      </header>
+
       <input
         type="search"
         className="text-input search-input"
@@ -51,7 +53,7 @@ export function BillCatalogSheet({ onClose }: BillCatalogSheetProps) {
         autoFocus
       />
 
-      <button type="button" className="btn btn-secondary btn-block bill-catalog-custom" onClick={() => open({ kind: 'edit-bill' })}>
+      <button type="button" className="btn btn-secondary btn-block bill-catalog-custom" onClick={() => navigate('/bills/new/form')}>
         {t('billCatalog.customButton')}
       </button>
 
@@ -69,6 +71,6 @@ export function BillCatalogSheet({ onClose }: BillCatalogSheetProps) {
           </div>
         ))
       )}
-    </Sheet>
+    </div>
   );
 }

@@ -1,20 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowDown, ArrowLeftRight, ArrowUp, Handshake, Plus } from 'lucide-react';
-import { useSheet } from '../context/SheetContext';
 
 // Страницы, где «Добавить операцию» не к месту (Настройки и их подстраницы,
-// Статистика, админка) — раньше кнопка всё равно всплывала поверх контента
-// на всех страницах и на некоторых (Настройки, Категории) перекрывала
-// собой другие кнопки и текст.
-const HIDDEN_PREFIXES = ['/settings', '/stats', '/admin'];
+// Статистика, админка, сами формы добавления) — раньше кнопка всё равно
+// всплывала поверх контента на всех страницах и на некоторых (Настройки,
+// Категории) перекрывала собой другие кнопки и текст.
+const HIDDEN_PREFIXES = ['/settings', '/stats', '/admin', '/transactions/new', '/debts/new', '/transfers/new', '/bills/new'];
 
 export function Fab() {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const { open: openSheet } = useSheet();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,45 +37,25 @@ export function Fab() {
     <div className="fab-wrap" ref={ref}>
       {open && (
         <div className="fab-menu" role="menu">
-          <button
-            type="button"
-            className="fab-option"
-            role="menuitem"
-            onClick={() => pick(() => openSheet({ kind: 'add-transfer' }))}
-          >
+          <button type="button" className="fab-option" role="menuitem" onClick={() => pick(() => navigate('/transfers/new'))}>
             <span className="fab-option-icon fab-option-icon--transfer" aria-hidden="true">
               <ArrowLeftRight size={15} strokeWidth={2.25} />
             </span>
             {t('fab.transfer')}
           </button>
-          <button
-            type="button"
-            className="fab-option"
-            role="menuitem"
-            onClick={() => pick(() => openSheet({ kind: 'add-debt', direction: 'i_owe' }))}
-          >
+          <button type="button" className="fab-option" role="menuitem" onClick={() => pick(() => navigate('/debts/new/i_owe'))}>
             <span className="fab-option-icon fab-option-icon--debt" aria-hidden="true">
               <Handshake size={15} strokeWidth={2.25} />
             </span>
             {t('fab.debt')}
           </button>
-          <button
-            type="button"
-            className="fab-option"
-            role="menuitem"
-            onClick={() => pick(() => openSheet({ kind: 'add-transaction', type: 'expense' }))}
-          >
+          <button type="button" className="fab-option" role="menuitem" onClick={() => pick(() => navigate('/transactions/new/expense'))}>
             <span className="fab-option-icon fab-option-icon--expense" aria-hidden="true">
               <ArrowDown size={15} strokeWidth={2.25} />
             </span>
             {t('fab.expense')}
           </button>
-          <button
-            type="button"
-            className="fab-option"
-            role="menuitem"
-            onClick={() => pick(() => openSheet({ kind: 'add-transaction', type: 'income' }))}
-          >
+          <button type="button" className="fab-option" role="menuitem" onClick={() => pick(() => navigate('/transactions/new/income'))}>
             <span className="fab-option-icon fab-option-icon--income" aria-hidden="true">
               <ArrowUp size={15} strokeWidth={2.25} />
             </span>

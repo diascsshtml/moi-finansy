@@ -6,59 +6,51 @@ import { AmountInput } from './AmountInput';
 import { CategoryPicker } from './CategoryPicker';
 import { AccountPicker } from './AccountPicker';
 import { useSettings } from '../context/SettingsContext';
-import { addTransaction, deleteTransaction, updateTransaction } from '../db/operations';
+import { deleteTransaction, updateTransaction } from '../db/operations';
 import { todayISO } from '../utils/format';
 import { db } from '../db/db';
-import type { Transaction, TransactionType } from '../types';
+import type { Transaction } from '../types';
 import { ConfirmDialog } from './ConfirmDialog';
 
 interface AddTransactionSheetProps {
   onClose: () => void;
-  type?: TransactionType;
-  transaction?: Transaction;
+  transaction: Transaction;
 }
 
-export function AddTransactionSheet({ onClose, type: initialType, transaction }: AddTransactionSheetProps) {
+/** Редактирование существующей операции — создание новой перенесено на
+ *  отдельную страницу (см. NewTransactionPage), этот лист теперь только
+ *  для правки уже сохранённой записи. */
+export function AddTransactionSheet({ onClose, transaction }: AddTransactionSheetProps) {
   const { t } = useTranslation();
   const { settings } = useSettings();
-  const isEdit = !!transaction;
   const accounts = useLiveQuery(() => db.accounts.orderBy('order').toArray(), []);
-  const [type, setType] = useState<TransactionType>(transaction?.type ?? initialType ?? 'expense');
-  const [amount, setAmount] = useState(transaction ? String(transaction.amount) : '');
-  const [categoryId, setCategoryId] = useState<string | null>(transaction?.categoryId ?? null);
+  const type = transaction.type;
+  const [amount, setAmount] = useState(String(transaction.amount));
+  const [categoryId, setCategoryId] = useState<string | null>(transaction.categoryId);
   const [accountIdOverride, setAccountIdOverride] = useState<string | null>(null);
-  const [date, setDate] = useState(transaction?.date ?? todayISO());
-  const [note, setNote] = useState(transaction?.note ?? '');
-  const [counterparty, setCounterparty] = useState(transaction?.counterparty ?? '');
+  const [date, setDate] = useState(transaction.date);
+  const [note, setNote] = useState(transaction.note ?? '');
+  const [counterparty, setCounterparty] = useState(transaction.counterparty ?? '');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Явный выбор пользователя важнее исходного счёта операции, а по умолчанию — первый счёт.
-  const accountId = accountIdOverride ?? transaction?.accountId ?? accounts?.[0]?.id ?? null;
+  // Явный выбор пользователя важнее исходного счёта операции.
+  const accountId = accountIdOverride ?? transaction.accountId ?? accounts?.[0]?.id ?? null;
 
   const numericAmount = Number(amount);
   const canSave = numericAmount > 0 && !!categoryId && !!accountId && !!date;
-
-  const handleTypeSwitch = (next: TransactionType) => {
-    setType(next);
-    setCategoryId(null);
-  };
 
   const handleSave = async () => {
     if (!canSave || !categoryId || !accountId) {
       setError(t('transaction.error'));
       return;
     }
-    if (isEdit && transaction) {
-      await updateTransaction(transaction.id, { amount: numericAmount, categoryId, accountId, date, note, counterparty });
-    } else {
-      await addTransaction({ type, amount: numericAmount, categoryId, accountId, date, note, counterparty });
-    }
+    await updateTransaction(transaction.id, { amount: numericAmount, categoryId, accountId, date, note, counterparty });
     onClose();
   };
 
   const handleDelete = async () => {
-    if (transaction) await deleteTransaction(transaction.id);
+    await deleteTransaction(transaction.id);
     onClose();
   };
 
@@ -66,45 +58,20 @@ export function AddTransactionSheet({ onClose, type: initialType, transaction }:
 
   return (
     <Sheet
-      title={isEdit ? t('transaction.editTitle') : type === 'income' ? t('transaction.newIncomeTitle') : t('transaction.newExpenseTitle')}
+      title={t('transaction.editTitle')}
       onClose={onClose}
       footer={
         <div className="sheet-footer-row">
-          {isEdit && (
-            <button type="button" className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
-              {t('common.delete')}
-            </button>
-          )}
+          <button type="button" className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
+            {t('common.delete')}
+          </button>
           <button type="button" className="btn btn-primary btn-grow" disabled={!canSave} onClick={handleSave}>
             {t('common.save')}
           </button>
         </div>
       }
     >
-      {!isEdit && (
-        <div className="segmented" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={type === 'expense'}
-            className={type === 'expense' ? 'active' : ''}
-            onClick={() => handleTypeSwitch('expense')}
-          >
-            {t('transaction.expense')}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={type === 'income'}
-            className={type === 'income' ? 'active' : ''}
-            onClick={() => handleTypeSwitch('income')}
-          >
-            {t('transaction.income')}
-          </button>
-        </div>
-      )}
-
-      <AmountInput value={amount} onChange={setAmount} currency={settings.currency} autoFocus={!isEdit} />
+      <AmountInput value={amount} onChange={setAmount} currency={settings.currency} />
 
       {showAccountPicker && (
         <>

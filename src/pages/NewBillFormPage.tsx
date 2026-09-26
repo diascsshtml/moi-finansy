@@ -1,20 +1,19 @@
 import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { Sheet } from './Sheet';
-import { AmountInput } from './AmountInput';
-import { CategoryPicker } from './CategoryPicker';
-import { AccountPicker } from './AccountPicker';
-import { ConfirmDialog } from './ConfirmDialog';
+import { AmountInput } from '../components/AmountInput';
+import { CategoryPicker } from '../components/CategoryPicker';
+import { AccountPicker } from '../components/AccountPicker';
 import { useSettings } from '../context/SettingsContext';
-import { deleteBill, updateBill } from '../db/operations';
+import { createBill } from '../db/operations';
 import { db } from '../db/db';
+import { SYSTEM_CATEGORY_IDS } from '../db/constants';
 import { CATEGORICAL_LIGHT } from '../styles/palette';
-import { dateToISO } from '../utils/format';
-import { getDueDateInMonth } from '../utils/bills';
+import { todayISO } from '../utils/format';
 import { EmojiIcon } from '../utils/icons';
 import { getNotificationPermission, requestNotificationPermission } from '../utils/notifications';
-import type { RecurringBill } from '../types';
+import type { BillPreset } from '../types';
 
 const REMINDER_OPTIONS = [0, 1, 2, 3, 5, 7, 10, 14];
 const ICONS = [
@@ -23,34 +22,33 @@ const ICONS = [
 ];
 const SWATCHES = CATEGORICAL_LIGHT;
 
-interface AddBillSheetProps {
-  onClose: () => void;
-  bill: RecurringBill;
-}
-
-/** Редактирование существующего регулярного платежа — создание нового
- *  перенесено на отдельную страницу (см. NewBillCatalogPage/NewBillFormPage),
- *  этот лист теперь только для правки уже созданного платежа. */
-export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
+export function NewBillFormPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { settings } = useSettings();
+  const location = useLocation();
+  const preset = location.state as BillPreset | undefined;
   const accounts = useLiveQuery(() => db.accounts.orderBy('order').toArray(), []);
 
-  const [name, setName] = useState(bill.name);
-  const [amount, setAmount] = useState(String(bill.amount));
-  const [dueDate, setDueDate] = useState(dateToISO(getDueDateInMonth(bill.dayOfMonth, new Date())));
-  const [reminderDaysBefore, setReminderDaysBefore] = useState(bill.reminderDaysBefore);
-  const [categoryIdOverride, setCategoryIdOverride] = useState<string | null>(bill.categoryId);
-  const [accountIdOverride, setAccountIdOverride] = useState<string | null>(bill.accountId);
-  const [icon, setIcon] = useState(bill.icon);
-  const [color, setColor] = useState(bill.color);
-  const [note, setNote] = useState(bill.note ?? '');
-  const [isActive, setIsActive] = useState(bill.isActive);
-  const [notifyEnabled, setNotifyEnabled] = useState(bill.notifyEnabled ?? true);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const defaultCategoryNameKey = preset?.categoryNameKey ?? 'categoryNames.loanPayments';
+  const defaultCategoryId = useLiveQuery(async () => {
+    const cat = await db.categories.filter((c) => c.nameKey === defaultCategoryNameKey).first();
+    return cat?.id ?? SYSTEM_CATEGORY_IDS.otherExpense;
+  }, [defaultCategoryNameKey]);
+
+  const [name, setName] = useState(preset?.name ?? '');
+  const [amount, setAmount] = useState('');
+  const [dueDate, setDueDate] = useState(todayISO());
+  const [reminderDaysBefore, setReminderDaysBefore] = useState(3);
+  const [categoryIdOverride, setCategoryIdOverride] = useState<string | null>(null);
+  const [accountIdOverride, setAccountIdOverride] = useState<string | null>(null);
+  const [icon, setIcon] = useState(preset?.icon ?? ICONS[0]);
+  const [color, setColor] = useState(preset?.color ?? SWATCHES[7]);
+  const [note, setNote] = useState('');
+  const [notifyEnabled, setNotifyEnabled] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const categoryId = categoryIdOverride ?? bill.categoryId;
+  const categoryId = categoryIdOverride ?? defaultCategoryId ?? null;
   const accountId = accountIdOverride ?? accounts?.[0]?.id ?? null;
   const numericAmount = Number(amount);
   const dayOfMonth = dueDate ? Number(dueDate.split('-')[2]) : 0;
@@ -62,49 +60,34 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
       setError(t('bills.form.error'));
       return;
     }
-    // Включили уведомления по этому платежу — если разрешение браузера ещё
-    // не запрашивали, спрашиваем прямо сейчас. Если откажут — просто не
-    // покажется само уведомление, remindersDaysBefore/бейдж в приложении на
-    // это не завязаны.
     if (notifyEnabled && getNotificationPermission() === 'default') {
       await requestNotificationPermission();
     }
-    await updateBill(bill.id, {
+    await createBill({
       name,
       amount: numericAmount,
       dayOfMonth,
+      firstDueDate: dueDate,
       reminderDaysBefore,
       categoryId,
       accountId,
       icon,
       color,
       note,
-      isActive,
       notifyEnabled,
     });
-    onClose();
-  };
-
-  const handleDelete = async () => {
-    await deleteBill(bill.id);
-    onClose();
+    navigate(-2);
   };
 
   return (
-    <Sheet
-      title={t('bills.form.editTitle')}
-      onClose={onClose}
-      footer={
-        <div className="sheet-footer-row">
-          <button type="button" className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
-            {t('common.delete')}
-          </button>
-          <button type="button" className="btn btn-primary btn-grow" disabled={!canSave} onClick={handleSave}>
-            {t('common.save')}
-          </button>
-        </div>
-      }
-    >
+    <div className="page">
+      <header className="page-header">
+        <button type="button" className="btn-link" onClick={() => navigate(-1)}>
+          ← {t('common.cancel')}
+        </button>
+        <h1>{t('bills.form.newTitle')}</h1>
+      </header>
+
       <label className="field-label" htmlFor="bill-name">
         {t('common.name')}
       </label>
@@ -126,13 +109,7 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
           <label className="field-label" htmlFor="bill-day">
             {t('bills.form.dayOfMonth')}
           </label>
-          <input
-            id="bill-day"
-            type="date"
-            className="text-input"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
+          <input id="bill-day" type="date" className="text-input" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
           <small className="settings-hint">{t('bills.form.dayOfMonthHint')}</small>
         </div>
         <div>
@@ -167,13 +144,7 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
       <label className="field-label">{t('common.icon')}</label>
       <div className="icon-grid">
         {ICONS.map((i) => (
-          <button
-            key={i}
-            type="button"
-            className={`icon-swatch${icon === i ? ' selected' : ''}`}
-            onClick={() => setIcon(i)}
-            aria-label={i}
-          >
+          <button key={i} type="button" className={`icon-swatch${icon === i ? ' selected' : ''}`} onClick={() => setIcon(i)} aria-label={i}>
             <EmojiIcon icon={i} size={19} />
           </button>
         ))}
@@ -196,14 +167,7 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
       <label className="field-label" htmlFor="bill-note">
         {t('common.noteOptional')}
       </label>
-      <input
-        id="bill-note"
-        type="text"
-        className="text-input"
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        maxLength={200}
-      />
+      <input id="bill-note" type="text" className="text-input" value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} />
 
       <label className="checkbox-row">
         <input type="checkbox" checked={notifyEnabled} onChange={(e) => setNotifyEnabled(e.target.checked)} />
@@ -213,26 +177,11 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
         </span>
       </label>
 
-      <label className="checkbox-row">
-        <input type="checkbox" checked={!isActive} onChange={(e) => setIsActive(!e.target.checked)} />
-        <span>
-          {t('bills.form.pauseToggle')}
-          <small>{t('bills.form.pauseHint')}</small>
-        </span>
-      </label>
-
       {error && <p className="field-error">{error}</p>}
 
-      {confirmDelete && (
-        <ConfirmDialog
-          title={t('bills.form.deleteTitle')}
-          message={t('bills.form.deleteMessage')}
-          confirmLabel={t('common.delete')}
-          danger
-          onConfirm={handleDelete}
-          onCancel={() => setConfirmDelete(false)}
-        />
-      )}
-    </Sheet>
+      <button type="button" className="btn btn-primary btn-block" disabled={!canSave} onClick={handleSave}>
+        {t('common.save')}
+      </button>
+    </div>
   );
 }
