@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { ArrowDownLeft, ArrowUpRight, ChevronRight, CircleHelp, Handshake, PieChart, Plus } from 'lucide-react';
+import { ChevronRight, CircleHelp, Handshake, Plus } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { DebtRow } from '../components/DebtRow';
@@ -23,7 +23,6 @@ export function Debts() {
   const debts = useLiveQuery(() => db.debts.toArray(), []);
   const people = useLiveQuery(() => db.people.toArray(), []);
   const accounts = useLiveQuery(() => db.accounts.orderBy('order').toArray(), []);
-  const bills = useLiveQuery(() => db.bills.toArray(), []);
 
   const peopleById = useMemo(() => new Map((people ?? []).map((p) => [p.id, p])), [people]);
   const accountsById = useMemo(() => new Map((accounts ?? []).map((a) => [a.id, a])), [accounts]);
@@ -46,19 +45,7 @@ export function Debts() {
   const { owedToMe, iOwe } = useMemo(() => (debts ? getDebtTotals(debts) : { owedToMe: 0, iOwe: 0 }), [debts]);
   const net = owedToMe - iOwe;
 
-  const openOwedToMeCount = useMemo(
-    () => new Set((debts ?? []).filter((d) => d.status === 'open' && d.direction === 'owed_to_me').map((d) => d.personId)).size,
-    [debts],
-  );
-  const openIOweCount = useMemo(
-    () => (debts ?? []).filter((d) => d.status === 'open' && d.direction === 'i_owe').length,
-    [debts],
-  );
-
-  const activeBills = useMemo(() => (bills ?? []).filter((b) => b.isActive), [bills]);
-  const activeBillsTotal = useMemo(() => activeBills.reduce((s, b) => s + b.amount, 0), [activeBills]);
-
-  if (!debts || !people || !accounts || !bills) return null;
+  if (!debts || !people || !accounts) return null;
 
   return (
     <div className="page">
@@ -71,33 +58,24 @@ export function Debts() {
         </div>
       </header>
 
-      <p className="section-label">{t('debts.overviewLabel')}</p>
-
-      <div className="stat-row stat-row-3">
-        <div className="stat-card overview-card">
-          <span className="overview-icon overview-icon--positive">
-            <ArrowDownLeft size={16} strokeWidth={2.25} />
-          </span>
-          <span className="stat-card-label">{t('debts.owedToMe')}</span>
-          <div className="stat-card-value tone-positive">{formatMoney(owedToMe, settings.currency)}</div>
-          <div className="stat-card-hint">{t('debts.peopleCount', { count: openOwedToMeCount })}</div>
+      <div className="period-summary-card">
+        <div className="period-summary-row">
+          <div className="period-summary-item">
+            <span className="period-summary-label">{t('debts.owedToMe')}</span>
+            <span className="period-summary-value tone-positive">{formatMoney(owedToMe, settings.currency)}</span>
+          </div>
+          <div className="period-summary-item">
+            <span className="period-summary-label">{t('debts.iOwe')}</span>
+            <span className="period-summary-value tone-negative">{formatMoney(iOwe, settings.currency)}</span>
+          </div>
+          <div className="period-summary-item">
+            <span className="period-summary-label">{t('debts.netTitle')}</span>
+            <span className={`period-summary-value tone-${net >= 0 ? 'positive' : 'negative'}`}>
+              {formatMoney(Math.abs(net), settings.currency)}
+            </span>
+          </div>
         </div>
-        <div className="stat-card overview-card">
-          <span className="overview-icon overview-icon--negative">
-            <ArrowUpRight size={16} strokeWidth={2.25} />
-          </span>
-          <span className="stat-card-label">{t('debts.iOwe')}</span>
-          <div className="stat-card-value tone-negative">{formatMoney(iOwe, settings.currency)}</div>
-          <div className="stat-card-hint">{t('debts.debtsCount', { count: openIOweCount })}</div>
-        </div>
-        <div className="stat-card overview-card">
-          <span className="overview-icon overview-icon--positive">
-            <PieChart size={16} strokeWidth={2.25} />
-          </span>
-          <span className="stat-card-label">{t('debts.netTitle')}</span>
-          <div className={`stat-card-value tone-${net >= 0 ? 'positive' : 'negative'}`}>{formatMoney(Math.abs(net), settings.currency)}</div>
-          <div className="stat-card-hint">{net >= 0 ? t('debts.netInMyFavor') : t('debts.netNotInMyFavor')}</div>
-        </div>
+        <p className="period-summary-hint">{net >= 0 ? t('debts.netInMyFavor') : t('debts.netNotInMyFavor')}</p>
       </div>
 
       <div className="segmented" role="tablist">
@@ -152,33 +130,16 @@ export function Debts() {
         </div>
       )}
 
-      <section className="recent-section">
-        <div className="section-header">
-          <h2>{t('debts.creditsSection')}</h2>
-          <button type="button" className="btn-link" onClick={() => navigate('/bills/new')}>
-            {t('debts.addCreditLink')}
-          </button>
-        </div>
-
-        {activeBills.length === 0 ? (
-          <p className="settings-hint">{t('debts.creditsEmpty')}</p>
-        ) : (
-          <Link to="/bills" className="settings-hint">
-            {t('debts.creditsCountHint', { count: activeBills.length, amount: formatMoney(activeBillsTotal, settings.currency) })}
-          </Link>
-        )}
-
-        <button type="button" className="account-list-row" onClick={() => setShowInfo(true)}>
-          <span className="account-list-icon" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }} aria-hidden="true">
-            <CircleHelp size={17} />
-          </span>
-          <span className="account-list-info">
-            <span className="account-list-name">{t('debts.howItWorksTitle')}</span>
-            <span className="account-list-bank">{t('debts.howItWorksHint')}</span>
-          </span>
-          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
-        </button>
-      </section>
+      <button type="button" className="account-list-row" onClick={() => setShowInfo(true)}>
+        <span className="account-list-icon" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }} aria-hidden="true">
+          <CircleHelp size={17} />
+        </span>
+        <span className="account-list-info">
+          <span className="account-list-name">{t('debts.howItWorksTitle')}</span>
+          <span className="account-list-bank">{t('debts.howItWorksHint')}</span>
+        </span>
+        <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
+      </button>
 
       {showInfo && (
         <Sheet title={t('debts.howItWorksTitle')} onClose={() => setShowInfo(false)}>

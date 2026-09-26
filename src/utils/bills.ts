@@ -1,6 +1,6 @@
-import { addMonths, differenceInCalendarDays, format, getDaysInMonth, isSameMonth, parseISO, setDate, startOfMonth } from 'date-fns';
+import { addMonths, differenceInCalendarDays, getDaysInMonth, isSameMonth, parseISO, setDate, startOfMonth } from 'date-fns';
 import type { TFunction } from 'i18next';
-import type { RecurringBill, Transaction } from '../types';
+import type { Category, RecurringBill, Transaction } from '../types';
 
 export type BillStatusKind = 'paid' | 'overdue' | 'due_soon' | 'upcoming' | 'paused';
 
@@ -91,35 +91,13 @@ export function getDueRelativeLabel(status: BillStatus, t: TFunction): string {
   return t('bills.dueInDaysBadge', { days: status.daysUntilDue });
 }
 
-export interface BillMonthGroup {
-  monthKey: string; // 'yyyy-MM'
-  monthDate: Date;
-  statuses: BillStatus[];
-}
-
-/** Тот же список платежей, но разбитый по месяцу следующей оплаты —
- *  чтобы в общем списке не путались платежи из «в этом месяце» и «в
- *  следующем». Внутри месяца — по дню оплаты, месяцы идут по порядку. */
-export function getBillsGroupedByMonth(
-  bills: RecurringBill[],
-  transactions: Transaction[],
-  today: Date = new Date(),
-): BillMonthGroup[] {
-  const statuses = bills
-    .map((b) => getBillStatus(b, transactions, today))
-    .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime() || STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
-
-  const groups = new Map<string, BillMonthGroup>();
-  for (const s of statuses) {
-    const monthKey = format(s.dueDate, 'yyyy-MM');
-    let group = groups.get(monthKey);
-    if (!group) {
-      group = { monthKey, monthDate: startOfMonth(s.dueDate), statuses: [] };
-      groups.set(monthKey, group);
-    }
-    group.statuses.push(s);
-  }
-  return Array.from(groups.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+/** Кредит определяем по явному полю kind, а для платежей, созданных до его
+ *  введения — по категории (историческая эвристика): банковские кредиты и
+ *  рассрочки заводились в категории «Кредиты и платежи». Всё остальное —
+ *  подписки/тарифы. */
+export function resolveBillKind(bill: RecurringBill, category?: Category): 'credit' | 'subscription' {
+  if (bill.kind) return bill.kind;
+  return category?.nameKey === 'categoryNames.loanPayments' ? 'credit' : 'subscription';
 }
 
 /** Платежи, которые нуждаются во внимании прямо сейчас — просроченные и

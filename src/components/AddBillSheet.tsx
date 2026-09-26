@@ -36,6 +36,7 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
   const accounts = useLiveQuery(() => db.accounts.orderBy('order').toArray(), []);
 
   const [name, setName] = useState(bill.name);
+  const [kind, setKind] = useState<'credit' | 'subscription'>(bill.kind ?? 'credit');
   const [amount, setAmount] = useState(String(bill.amount));
   const [dueDate, setDueDate] = useState(dateToISO(getDueDateInMonth(bill.dayOfMonth, new Date())));
   const [categoryIdOverride, setCategoryIdOverride] = useState<string | null>(bill.categoryId);
@@ -75,6 +76,7 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
       accountId,
       icon,
       color,
+      kind,
       note,
       isActive,
       notifyEnabled,
@@ -115,6 +117,22 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
         maxLength={60}
         autoFocus
       />
+
+      <label className="field-label">{t('bills.form.kindLabel')}</label>
+      <div className="segmented" role="tablist">
+        <button type="button" role="tab" aria-selected={kind === 'credit'} className={kind === 'credit' ? 'active' : ''} onClick={() => setKind('credit')}>
+          {t('bills.kindCredit')}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={kind === 'subscription'}
+          className={kind === 'subscription' ? 'active' : ''}
+          onClick={() => setKind('subscription')}
+        >
+          {t('bills.kindSubscription')}
+        </button>
+      </div>
 
       <AmountInput value={amount} onChange={setAmount} currency={settings.currency} />
 

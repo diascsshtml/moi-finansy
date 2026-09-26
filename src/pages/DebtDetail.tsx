@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { ChevronLeft, MoreHorizontal, Pencil, PiggyBank } from 'lucide-react';
+import { ChevronLeft, MoreHorizontal, Pencil } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { useSheet } from '../context/SheetContext';
@@ -80,9 +80,6 @@ export function DebtDetail() {
       </header>
 
       <div className="debt-detail-header-row">
-        <span className="debt-detail-icon" aria-hidden="true">
-          <PiggyBank size={24} strokeWidth={1.75} />
-        </span>
         <div className="debt-detail-name-col">
           <h1 className="debt-detail-name">{person?.name}</h1>
           <span className="debt-detail-badge">{isOwedToMe ? t('debtDetail.owedToMe') : t('debtDetail.iOwe')}</span>
@@ -126,6 +123,10 @@ export function DebtDetail() {
                 </button>
               </span>
             )}
+          </div>
+          <div>
+            <span className="debt-detail-meta-label">{isOwedToMe ? t('debtDetail.givenDateLabel') : t('debtDetail.takenDateLabel')}</span>
+            <span className="debt-detail-meta-value">{formatDateShort(debt.date)}</span>
           </div>
         </div>
       </div>

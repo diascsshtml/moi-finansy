@@ -571,6 +571,20 @@
   font-weight: 700;
   min-width: 160px;
   text-align: center;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  padding: 4px 2px;
+}
+
+.month-nav-label--pickable {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.month-nav-label--pickable:active {
+  background: var(--surface-2);
 }
 
 .period-summary-card {
@@ -1126,6 +1140,50 @@
   color: var(--accent);
 }
 
+.month-picker-year-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+.month-picker-year {
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 60px;
+  text-align: center;
+}
+
+.month-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.month-picker-cell {
+  padding: 12px 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+
+.month-picker-cell:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.month-picker-cell.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 .color-grid {
   display: flex;
   gap: 8px;
@@ -1513,35 +1571,6 @@
   flex-shrink: 0;
 }
 
-.history-row-text {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.history-row-title {
-  font-size: 14px;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.history-row-subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.history-row-amount {
-  font-size: 14px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
 .section-header {
   display: flex;
   align-items: baseline;
@@ -1635,11 +1664,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   font-size: 15px;
 }
 
 .debt-row-name {
   font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .debt-row-amount {
@@ -1661,6 +1695,24 @@
   padding: 4px 10px;
   border-radius: 999px;
   white-space: nowrap;
+}
+
+.debt-row-amount-pill.tone-positive {
+  background: var(--positive-soft);
+  color: var(--money-positive);
+}
+
+.debt-row-amount-pill.tone-negative {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.history-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 .debt-row-quick-add {

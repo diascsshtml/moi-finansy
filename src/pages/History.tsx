@@ -2,10 +2,11 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { addMonths, endOfMonth, startOfMonth } from 'date-fns';
+import { addMonths, differenceInCalendarMonths, endOfMonth, startOfMonth } from 'date-fns';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
+import { useSheet } from '../context/SheetContext';
 import { HistoryEntryRow } from '../components/HistoryEntryRow';
 import { EmptyState } from '../components/EmptyState';
 import { buildHistory } from '../utils/history';
@@ -26,6 +27,7 @@ function capitalize(s: string): string {
 export function History() {
   const { t } = useTranslation();
   const { settings, isDark } = useSettings();
+  const { open } = useSheet();
   const transactions = useLiveQuery(() => db.transactions.toArray(), []);
   const debts = useLiveQuery(() => db.debts.toArray(), []);
   const categories = useLiveQuery(() => db.categories.toArray(), []);
@@ -49,6 +51,11 @@ export function History() {
   const monthStart = useMemo(() => dateToISO(monthDate), [monthDate]);
   const monthEnd = useMemo(() => dateToISO(endOfMonth(monthDate)), [monthDate]);
   const monthLabel = useMemo(() => capitalize(formatMonthYearFull(monthDate)), [monthDate]);
+
+  const handlePickMonth = (picked: Date) => {
+    const offset = Math.min(differenceInCalendarMonths(startOfMonth(picked), startOfMonth(new Date())), 0);
+    setMonthOffset(offset);
+  };
 
   const monthTransactions = useMemo(() => {
     if (!transactions) return [];
@@ -127,22 +134,6 @@ export function History() {
         <h1>{t('history.title')}</h1>
       </header>
 
-      <div className="month-nav">
-        <button type="button" className="month-nav-arrow" onClick={() => setMonthOffset((o) => o - 1)} aria-label={t('history.prevMonth')}>
-          <ChevronLeft size={18} strokeWidth={2.25} />
-        </button>
-        <span className="month-nav-label">{monthLabel}</span>
-        <button
-          type="button"
-          className="month-nav-arrow"
-          onClick={() => setMonthOffset((o) => o + 1)}
-          disabled={monthOffset >= 0}
-          aria-label={t('history.nextMonth')}
-        >
-          <ChevronRight size={18} strokeWidth={2.25} />
-        </button>
-      </div>
-
       <div className="period-summary-card">
         <div className="period-summary-row">
           <div className="period-summary-item">
@@ -164,6 +155,28 @@ export function History() {
           <div className="debt-progress-fill" style={{ width: `${barPct}%`, background: barColor }} />
         </div>
         {barHint && <p className="period-summary-hint">{barHint}</p>}
+      </div>
+
+      <div className="month-nav">
+        <button type="button" className="month-nav-arrow" onClick={() => setMonthOffset((o) => o - 1)} aria-label={t('history.prevMonth')}>
+          <ChevronLeft size={18} strokeWidth={2.25} />
+        </button>
+        <button
+          type="button"
+          className="month-nav-label month-nav-label--pickable"
+          onClick={() => open({ kind: 'month-picker', selected: monthDate, onSelect: handlePickMonth })}
+        >
+          {monthLabel}
+        </button>
+        <button
+          type="button"
+          className="month-nav-arrow"
+          onClick={() => setMonthOffset((o) => o + 1)}
+          disabled={monthOffset >= 0}
+          aria-label={t('history.nextMonth')}
+        >
+          <ChevronRight size={18} strokeWidth={2.25} />
+        </button>
       </div>
 
       <div className="segmented" role="tablist">

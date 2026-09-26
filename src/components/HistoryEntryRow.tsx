@@ -8,6 +8,7 @@ import { toDisplayColor } from '../styles/palette';
 import { deleteTransfer } from '../db/operations';
 import { ConfirmDialog } from './ConfirmDialog';
 import { EmojiIcon } from '../utils/icons';
+import { accountDisplayName } from '../utils/displayName';
 
 interface HistoryEntryRowProps {
   entry: HistoryEntry;
@@ -31,7 +32,7 @@ export function HistoryEntryRow({ entry, currency, isDark, accountsById }: Histo
   // Сумма в записях всегда хранится положительной — знак и цвет определяем
   // по смыслу операции, а не по числовому значению.
   let amountText = formatMoney(entry.amount, currency);
-  let toneClass = 'tone-neutral';
+  let toneClass = '';
   if (entry.kind === 'income') {
     amountText = `+ ${amountText}`;
     toneClass = 'tone-positive';
@@ -79,21 +80,25 @@ export function HistoryEntryRow({ entry, currency, isDark, accountsById }: Histo
         >
           <EmojiIcon icon={entry.icon} size={18} />
         </span>
-        <span className="history-row-text">
-          <span className="history-row-title">{entry.title}</span>
-          <span className="history-row-subtitle">
+        <span className="history-row-body">
+          <span className="debt-row-top">
+            <span className="debt-row-name">{entry.title}</span>
+            <span className={`debt-row-amount-pill ${toneClass}`}>{amountText}</span>
+          </span>
+          <span className="debt-row-subtitle">
             {entry.subtitle ? `${entry.subtitle} · ` : ''}
             {time}
             {isDebtLinked ? t('history.debtTag') : ''}
             {isBillLinked ? t('historyText.billTag') : ''}
           </span>
+          {showAccountBadge && (
+            <span className="debt-row-bottom">
+              <span className="account-badge">
+                <EmojiIcon icon={account!.icon} size={13} /> {accountDisplayName(account!, t)}
+              </span>
+            </span>
+          )}
         </span>
-        {showAccountBadge && (
-          <span className="account-badge">
-            <EmojiIcon icon={account!.icon} size={13} />
-          </span>
-        )}
-        <span className={`history-row-amount ${toneClass}`}>{amountText}</span>
       </button>
 
       {confirmDeleteTransfer && entry.transfer && (

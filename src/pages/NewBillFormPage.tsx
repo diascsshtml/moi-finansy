@@ -36,6 +36,7 @@ export function NewBillFormPage() {
   }, [defaultCategoryNameKey]);
 
   const [name, setName] = useState(preset?.name ?? '');
+  const [kind, setKind] = useState<'credit' | 'subscription'>(preset?.kind ?? 'credit');
   const [amount, setAmount] = useState('');
   const [dueDate, setDueDate] = useState(todayISO());
   const [categoryIdOverride, setCategoryIdOverride] = useState<string | null>(null);
@@ -70,6 +71,7 @@ export function NewBillFormPage() {
       accountId,
       icon,
       color,
+      kind,
       note,
       notifyEnabled,
     });
@@ -98,6 +100,22 @@ export function NewBillFormPage() {
         maxLength={60}
         autoFocus
       />
+
+      <label className="field-label">{t('bills.form.kindLabel')}</label>
+      <div className="segmented" role="tablist">
+        <button type="button" role="tab" aria-selected={kind === 'credit'} className={kind === 'credit' ? 'active' : ''} onClick={() => setKind('credit')}>
+          {t('bills.kindCredit')}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={kind === 'subscription'}
+          className={kind === 'subscription' ? 'active' : ''}
+          onClick={() => setKind('subscription')}
+        >
+          {t('bills.kindSubscription')}
+        </button>
+      </div>
 
       <AmountInput value={amount} onChange={setAmount} currency={settings.currency} />
 

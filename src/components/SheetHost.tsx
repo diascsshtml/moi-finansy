@@ -7,6 +7,7 @@ import { AccountFormSheet } from './AccountFormSheet';
 import { PinSetupSheet } from './PinSetupSheet';
 import { AddBillSheet } from './AddBillSheet';
 import { MarkBillPaidSheet } from './MarkBillPaidSheet';
+import { MonthPickerSheet } from './MonthPickerSheet';
 
 export function SheetHost() {
   const { sheet, close } = useSheet();
@@ -28,6 +29,8 @@ export function SheetHost() {
       return <AddBillSheet onClose={close} bill={sheet.bill} />;
     case 'mark-bill-paid':
       return <MarkBillPaidSheet onClose={close} bill={sheet.bill} />;
+    case 'month-picker':
+      return <MonthPickerSheet onClose={close} selected={sheet.selected} onSelect={sheet.onSelect} />;
     default:
       return null;
   }

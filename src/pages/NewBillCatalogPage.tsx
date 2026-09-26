@@ -19,7 +19,13 @@ export function NewBillCatalogPage() {
   const filtered = query ? named.flatMap((g) => g.items).filter(({ name }) => name.toLowerCase().includes(query)) : null;
 
   const selectItem = (item: BillCatalogItem, name: string) => {
-    const preset: BillPreset = { name, icon: item.icon, color: item.color, categoryNameKey: item.categoryNameKey };
+    const preset: BillPreset = {
+      name,
+      icon: item.icon,
+      color: item.color,
+      categoryNameKey: item.categoryNameKey,
+      kind: item.categoryNameKey === 'categoryNames.loanPayments' ? 'credit' : 'subscription',
+    };
     navigate('/bills/new/form', { state: preset });
   };
 

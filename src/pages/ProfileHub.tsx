@@ -42,9 +42,7 @@ export function ProfileHub() {
           </span>
           <div>
             <h2 className="profile-card-name">{user?.name || t('profileHub.addName')}</h2>
-            <Link to="/settings/profile" className="btn-link">
-              {t('profileHub.editProfile')} ›
-            </Link>
+            {user && <p className="page-subtitle">@{user.username}</p>}
           </div>
         </div>
       </div>

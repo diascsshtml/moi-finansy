@@ -6,8 +6,7 @@ import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { BillRow } from '../components/BillRow';
 import { EmptyState } from '../components/EmptyState';
-import { getBillsGroupedByMonth } from '../utils/bills';
-import { formatMonthYearFull } from '../utils/format';
+import { getAllBillStatuses, resolveBillKind } from '../utils/bills';
 
 export function Bills() {
   const { t } = useTranslation();
@@ -16,13 +15,21 @@ export function Bills() {
 
   const bills = useLiveQuery(() => db.bills.toArray(), []);
   const transactions = useLiveQuery(() => db.transactions.toArray(), []);
+  const categories = useLiveQuery(() => db.categories.toArray(), []);
 
-  const groups = useMemo(
-    () => (bills && transactions ? getBillsGroupedByMonth(bills, transactions) : []),
-    [bills, transactions],
-  );
+  const categoriesById = useMemo(() => new Map((categories ?? []).map((c) => [c.id, c])), [categories]);
 
-  if (!bills || !transactions) return null;
+  const { credits, subscriptions } = useMemo(() => {
+    if (!bills || !transactions) return { credits: [], subscriptions: [] };
+    const statuses = getAllBillStatuses(bills, transactions);
+    const credits = statuses.filter((s) => resolveBillKind(s.bill, categoriesById.get(s.bill.categoryId)) === 'credit');
+    const subscriptions = statuses.filter((s) => resolveBillKind(s.bill, categoriesById.get(s.bill.categoryId)) === 'subscription');
+    return { credits, subscriptions };
+  }, [bills, transactions, categoriesById]);
+
+  if (!bills || !transactions || !categories) return null;
+
+  const isEmpty = credits.length === 0 && subscriptions.length === 0;
 
   return (
     <div className="page">
@@ -36,21 +43,46 @@ export function Bills() {
         <p className="page-subtitle">{t('bills.subtitle')}</p>
       </header>
 
-      {groups.length === 0 ? (
+      {isEmpty ? (
         <EmptyState icon="💳" title={t('bills.emptyTitle')} hint={t('bills.emptyHint')} />
       ) : (
-        <div className="history-groups">
-          {groups.map((group) => (
-            <div key={group.monthKey} className="history-group">
-              <h3 className="history-group-date">{formatMonthYearFull(group.monthDate)}</h3>
+        <>
+          <section className="recent-section">
+            <div className="section-header">
+              <h2>{t('bills.sectionCredits')}</h2>
+              <button type="button" className="btn-link" onClick={() => navigate('/bills/new')}>
+                {t('bills.addCreditLink')}
+              </button>
+            </div>
+            {credits.length === 0 ? (
+              <p className="settings-hint">{t('bills.emptyCreditsHint')}</p>
+            ) : (
               <div className="debts-list">
-                {group.statuses.map((s) => (
+                {credits.map((s) => (
                   <BillRow key={s.bill.id} status={s} currency={settings.currency} isDark={isDark} />
                 ))}
               </div>
+            )}
+          </section>
+
+          <section className="recent-section">
+            <div className="section-header">
+              <h2>{t('bills.sectionSubscriptions')}</h2>
+              <button type="button" className="btn-link" onClick={() => navigate('/bills/new')}>
+                {t('bills.addSubscriptionLink')}
+              </button>
             </div>
-          ))}
-        </div>
+            {subscriptions.length === 0 ? (
+              <p className="settings-hint">{t('bills.emptySubscriptionsHint')}</p>
+            ) : (
+              <div className="debts-list">
+                {subscriptions.map((s) => (
+                  <BillRow key={s.bill.id} status={s} currency={settings.currency} isDark={isDark} />
+                ))}
+              </div>
+            )}
+          </section>
+        </>
       )}
     </div>
   );

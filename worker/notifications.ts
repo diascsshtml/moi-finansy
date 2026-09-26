@@ -103,6 +103,29 @@ function hasMatchingBillDue(bills: BillLike[], transactions: TransactionLike[], 
   return false;
 }
 
+// Разные формулировки одного и того же напоминания — чтобы push не выглядел
+// одним и тем же роботом каждый день. Выбирается случайно при каждой отправке.
+const DAILY_MESSAGES = [
+  'Не забудьте внести операции за сегодня.',
+  'Запишите сегодняшние расходы — привычка, которая копит капитал.',
+  'Пара минут сегодня — порядок в бюджете на весь месяц.',
+  'Мелкие траты забываются первыми. Внесите их, пока помните.',
+  '«Копейка рубль бережёт» — отметьте сегодняшние операции.',
+  'Финансовая дисциплина начинается с одной привычки: фиксировать каждый день.',
+];
+
+const BILLS_MESSAGES = [
+  'Проверьте платежи, которые скоро наступают.',
+  'Скоро срок платежа — загляните в «Кредиты и подписки».',
+  'Своевременный платёж сегодня — спокойствие на весь месяц.',
+  '«Долг не бревно, в лес не убежит» — но лучше оплатить вовремя.',
+  'Проверьте предстоящие платежи, чтобы не пропустить срок и не платить пени.',
+];
+
+function randomOf(messages: string[]): string {
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+
 async function sendToAll(subs: SubRow[], payload: unknown, vapid: VapidKeys, contact: string, onGone: (endpoint: string) => Promise<void>) {
   await Promise.all(
     subs.map(async (s) => {
@@ -144,7 +167,7 @@ export async function runNotificationSweep(env: NotificationsEnv): Promise<void>
     };
 
     if (prefs.daily_enabled && hour === Number(prefs.daily_time.split(':')[0])) {
-      await sendToAll(subs, { title: 'Мои финансы', body: 'Не забудьте внести операции за сегодня.', tag: 'daily-reminder' }, vapid, env.VAPID_CONTACT, deleteGone);
+      await sendToAll(subs, { title: 'Мои финансы', body: randomOf(DAILY_MESSAGES), tag: 'daily-reminder' }, vapid, env.VAPID_CONTACT, deleteGone);
     }
 
     if (prefs.bills_enabled && hour === Number(prefs.bills_time.split(':')[0])) {
@@ -162,7 +185,7 @@ export async function runNotificationSweep(env: NotificationsEnv): Promise<void>
         if (hasMatchingBillDue(bills, transactions, todayISO, daysBefore)) {
           await sendToAll(
             subs,
-            { title: 'Мои финансы', body: 'Проверьте платежи, которые скоро наступают.', tag: 'bills-reminder' },
+            { title: 'Мои финансы', body: randomOf(BILLS_MESSAGES), tag: 'bills-reminder' },
             vapid,
             env.VAPID_CONTACT,
             deleteGone,

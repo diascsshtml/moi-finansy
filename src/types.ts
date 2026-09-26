@@ -119,6 +119,11 @@ export interface RecurringBill {
   icon: string;
   color: string;
   isActive: boolean; // приостановленный платёж не показывается как просроченный/скоро
+  /** Кредит (банковский кредит, рассрочка) или подписка/тариф — определяет,
+   *  в какой из двух разделов страницы «Кредиты и подписки» попадёт платёж.
+   *  У платежей, созданных до этого поля, undefined — тогда раздел определяется
+   *  по категории (см. resolveBillKind в utils/bills.ts). */
+  kind?: 'credit' | 'subscription';
   /** Локальные системные уведомления браузера конкретно по этому платежу —
    *  показываются только пока приложение открыто (см. utils/notifications.ts),
    *  отдельно от настоящих push-напоминаний с сервера (см.
@@ -138,6 +143,7 @@ export interface BillPreset {
   icon: string;
   color: string;
   categoryNameKey: string;
+  kind: 'credit' | 'subscription';
 }
 
 export type ThemeMode = 'system' | 'light' | 'dark';
