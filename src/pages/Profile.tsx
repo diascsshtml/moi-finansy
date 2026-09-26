@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { User } from 'lucide-react';
 import { useAccount } from '../context/AccountContext';
 import { updateEmail, updateName } from '../utils/accountAuth';
 
@@ -12,54 +13,34 @@ export function Profile() {
   const navigate = useNavigate();
   const { user, setUser } = useAccount();
 
-  const [editingName, setEditingName] = useState(false);
-  const [nameInput, setNameInput] = useState('');
-  const [nameBusy, setNameBusy] = useState(false);
-  const [nameError, setNameError] = useState<string | null>(null);
-  const [editingEmail, setEditingEmail] = useState(false);
-  const [emailInput, setEmailInput] = useState('');
-  const [emailBusy, setEmailBusy] = useState(false);
-  const [emailError, setEmailError] = useState<string | null>(null);
+  const [name, setName] = useState(user?.name ?? '');
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
 
   if (!user) return null;
 
-  const handleStartEditName = () => {
-    setNameInput(user.name ?? '');
-    setNameError(null);
-    setEditingName(true);
-  };
+  const dirty = name.trim() !== (user.name ?? '') || email.trim() !== (user.email ?? '');
 
-  const handleSaveName = async () => {
-    setNameBusy(true);
-    setNameError(null);
+  const handleSave = async () => {
+    setBusy(true);
+    setError(null);
+    setStatus(null);
     try {
-      const result = await updateName(nameInput.trim());
-      setUser(result);
-      setEditingName(false);
+      let latest = user;
+      if (name.trim() !== (user.name ?? '')) {
+        latest = await updateName(name.trim());
+      }
+      if (email.trim() !== (user.email ?? '')) {
+        latest = await updateEmail(email.trim());
+      }
+      setUser(latest);
+      setStatus(t('userAccount.profileSaved'));
     } catch (e) {
-      setNameError(e instanceof Error ? e.message : String(e));
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
-      setNameBusy(false);
-    }
-  };
-
-  const handleStartEditEmail = () => {
-    setEmailInput(user.email ?? '');
-    setEmailError(null);
-    setEditingEmail(true);
-  };
-
-  const handleSaveEmail = async () => {
-    setEmailBusy(true);
-    setEmailError(null);
-    try {
-      const result = await updateEmail(emailInput.trim());
-      setUser(result);
-      setEditingEmail(false);
-    } catch (e) {
-      setEmailError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setEmailBusy(false);
+      setBusy(false);
     }
   };
 
@@ -72,79 +53,54 @@ export function Profile() {
         <h1>{t('userAccount.profileTitle')}</h1>
       </header>
 
-      <section className="settings-section">
-        <p className="settings-hint">
-          {t('userAccount.usernameLabel')}: {user.username}
-        </p>
+      <div className="profile-edit-avatar-wrap">
+        <span className="profile-avatar-ring profile-avatar-ring--lg" aria-hidden="true">
+          <span className="profile-avatar-circle">
+            <User size={40} strokeWidth={1.75} />
+          </span>
+        </span>
+      </div>
 
-        {editingName ? (
-          <>
-            <label className="field-label" htmlFor="account-name-edit">
-              {t('userAccount.nameLabel')}
-            </label>
-            <input
-              id="account-name-edit"
-              type="text"
-              className="text-input"
-              autoFocus
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              maxLength={60}
-            />
-            {nameError && <p className="field-error">{nameError}</p>}
-            <div className="sheet-footer-row">
-              <button type="button" className="btn" disabled={nameBusy} onClick={() => setEditingName(false)}>
-                {t('common.cancel')}
-              </button>
-              <button type="button" className="btn btn-primary btn-grow" disabled={nameBusy || !nameInput.trim()} onClick={handleSaveName}>
-                {nameBusy ? t('userAccount.busy') : t('common.save')}
-              </button>
-            </div>
-          </>
-        ) : (
-          <p className="settings-hint">
-            {t('userAccount.nameLabel')}: {user.name || t('userAccount.noName')}{' '}
-            <button type="button" className="btn-link" onClick={handleStartEditName}>
-              {t('common.edit')}
-            </button>
-          </p>
-        )}
+      <p className="settings-hint">{t('userAccount.syncHint')}</p>
 
-        {editingEmail ? (
-          <>
-            <label className="field-label" htmlFor="account-email-edit">
-              {t('userAccount.emailLabel')}
-            </label>
-            <input
-              id="account-email-edit"
-              type="email"
-              className="text-input"
-              autoFocus
-              value={emailInput}
-              onChange={(e) => setEmailInput(e.target.value)}
-              maxLength={200}
-            />
-            {emailError && <p className="field-error">{emailError}</p>}
-            <div className="sheet-footer-row">
-              <button type="button" className="btn" disabled={emailBusy} onClick={() => setEditingEmail(false)}>
-                {t('common.cancel')}
-              </button>
-              <button type="button" className="btn btn-primary btn-grow" disabled={emailBusy || !emailInput.trim()} onClick={handleSaveEmail}>
-                {emailBusy ? t('userAccount.busy') : t('common.save')}
-              </button>
-            </div>
-          </>
-        ) : (
-          <p className={user.email ? 'settings-hint' : 'settings-status settings-status--negative'}>
-            {t('userAccount.emailLabel')}: {user.email || t('userAccount.noEmail')}{' '}
-            <button type="button" className="btn-link" onClick={handleStartEditEmail}>
-              {t('common.edit')}
-            </button>
-          </p>
-        )}
+      <label className="field-label" htmlFor="profile-name">
+        {t('userAccount.nameLabel')}
+      </label>
+      <input
+        id="profile-name"
+        type="text"
+        className="text-input"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder={t('userAccount.noName')}
+        maxLength={60}
+      />
 
-        <p className="settings-hint">{t('userAccount.syncHint')}</p>
-      </section>
+      <label className="field-label" htmlFor="profile-username">
+        {t('userAccount.usernameLabel')}
+      </label>
+      <input id="profile-username" type="text" className="text-input" value={user.username} disabled />
+      <small className="settings-hint">{t('userAccount.usernameHint')}</small>
+
+      <label className="field-label" htmlFor="profile-email">
+        {t('userAccount.emailLabel')}
+      </label>
+      <input
+        id="profile-email"
+        type="email"
+        className="text-input"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder={t('userAccount.noEmail')}
+        maxLength={200}
+      />
+
+      {error && <p className="field-error">{error}</p>}
+      {status && <p className="settings-status settings-status--positive">{status}</p>}
+
+      <button type="button" className="btn btn-primary btn-block" disabled={busy || !dirty || !name.trim()} onClick={handleSave}>
+        {busy ? t('userAccount.busy') : t('common.save')}
+      </button>
     </div>
   );
 }

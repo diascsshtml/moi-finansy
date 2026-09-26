@@ -300,6 +300,17 @@
   justify-content: center;
 }
 
+.profile-edit-avatar-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
+}
+
+.profile-avatar-ring--lg {
+  width: 104px;
+  height: 104px;
+}
+
 .profile-card-name {
   margin: 0 0 4px;
   font-size: 19px;
@@ -802,6 +813,11 @@
   padding: 11px 12px;
   font-size: 15px;
   color: var(--text-primary);
+}
+
+.text-input:disabled {
+  color: var(--text-muted);
+  cursor: default;
 }
 
 .field-label {
