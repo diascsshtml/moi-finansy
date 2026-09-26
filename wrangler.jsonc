@@ -10,12 +10,6 @@
     "binding": "ASSETS",
     "not_found_handling": "single-page-application"
   },
-  "kv_namespaces": [
-    {
-      "binding": "PUSH_SUBS",
-      "id": "06a144d62c404a25921f9fbfa8fc8873"
-    }
-  ],
   "d1_databases": [
     {
       "binding": "DB",
@@ -23,7 +17,9 @@
       "database_id": "a16f8433-4868-42e3-86dd-c1095fc9ee02"
     }
   ],
-  // Раз в час — шлёт напоминание всем подписанным устройствам (worker/index.ts).
+  // Раз в час — проверяет настройки уведомлений каждого пользователя и шлёт
+  // напоминание тем, у кого сейчас (по их часовому поясу) настал daily_time/
+  // bills_time (см. worker/notifications.ts).
   "triggers": {
     "crons": ["0 * * * *"]
   },

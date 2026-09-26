@@ -4,6 +4,13 @@ import type { RecurringBill, Transaction } from '../types';
 
 export type BillStatusKind = 'paid' | 'overdue' | 'due_soon' | 'upcoming' | 'paused';
 
+/** Порог «скоро наступает» для баннера/бейджа и локальных уведомлений в
+ *  приложении — раньше настраивался по каждому платежу отдельно, теперь
+ *  общий фиксированный, а гибкая настройка времени/дней перенесена в
+ *  push-уведомления (см. utils/pushNotifications.ts, отдельная страница
+ *  «Уведомления» в Настройках) — там это уже реальная персональная настройка. */
+const DUE_SOON_DAYS = 3;
+
 export interface BillStatus {
   bill: RecurringBill;
   status: BillStatusKind;
@@ -48,7 +55,7 @@ export function getBillStatus(bill: RecurringBill, transactions: Transaction[], 
   if (!bill.isActive) status = 'paused';
   else if (paidThisCycle) status = 'paid';
   else if (daysUntilDue < 0) status = 'overdue';
-  else if (daysUntilDue <= bill.reminderDaysBefore) status = 'due_soon';
+  else if (daysUntilDue <= DUE_SOON_DAYS) status = 'due_soon';
   else status = 'upcoming';
 
   return { bill, status, dueDate, daysUntilDue, lastPaymentDate: payments[0]?.date };

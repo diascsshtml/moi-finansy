@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight } from 'lucide-react';
@@ -7,13 +7,6 @@ import { useSheet } from '../context/SheetContext';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { clearAllData } from '../db/operations';
 import { exportDataToExcel } from '../utils/excelExport';
-import {
-  isHourlyReminderSupported,
-  isSubscribedToHourlyReminders,
-  sendTestReminder,
-  subscribeToHourlyReminders,
-  unsubscribeFromHourlyReminders,
-} from '../utils/pushNotifications';
 import { AccountSection } from '../components/AccountSection';
 import { useAccount } from '../context/AccountContext';
 import type { AppLanguage, ThemeMode } from '../types';
@@ -33,58 +26,7 @@ export function SettingsPage() {
   const [customCurrency, setCustomCurrency] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
-  const [reminderSubscribed, setReminderSubscribed] = useState(false);
-  const [reminderBusy, setReminderBusy] = useState(false);
-  const [reminderError, setReminderError] = useState<string | null>(null);
-  const [reminderTestStatus, setReminderTestStatus] = useState<string | null>(null);
-  const reminderSupported = isHourlyReminderSupported();
   const { user: accountUser, setUser: setAccountUser } = useAccount();
-
-  useEffect(() => {
-    if (!reminderSupported) return;
-    isSubscribedToHourlyReminders().then((subscribed) => {
-      setReminderSubscribed(subscribed);
-      // Реальное состояние подписки в браузере важнее любой ошибки из
-      // предыдущей попытки — иначе может повиснуть уже неактуальный текст
-      // ошибки рядом с «Напоминания включены».
-      if (subscribed) setReminderError(null);
-    });
-  }, [reminderSupported]);
-
-  const handleToggleReminders = async (enable: boolean) => {
-    setReminderBusy(true);
-    setReminderError(null);
-    try {
-      if (enable) {
-        await subscribeToHourlyReminders();
-        setReminderSubscribed(true);
-      } else {
-        await unsubscribeFromHourlyReminders();
-        setReminderSubscribed(false);
-      }
-    } catch (e) {
-      setReminderError(
-        e instanceof Error && e.message === 'permission-denied'
-          ? t('settings.remindersPermissionDenied')
-          : t('settings.remindersError'),
-      );
-    } finally {
-      setReminderBusy(false);
-    }
-  };
-
-  const handleTestReminder = async () => {
-    setReminderBusy(true);
-    setReminderTestStatus(null);
-    try {
-      await sendTestReminder();
-      setReminderTestStatus(t('settings.remindersTestSent'));
-    } catch (e) {
-      setReminderTestStatus(e instanceof Error ? e.message : String(e));
-    } finally {
-      setReminderBusy(false);
-    }
-  };
 
   const handleExportExcel = async () => {
     await exportDataToExcel(t, settings.currency);
@@ -208,29 +150,11 @@ export function SettingsPage() {
       </section>
 
       <section className="settings-section">
-        <h2>{t('settings.remindersSection')}</h2>
-        <p className="settings-hint">{t('settings.remindersHint')}</p>
-        {!reminderSupported ? (
-          <p className="settings-status">{t('settings.remindersUnsupported')}</p>
-        ) : reminderSubscribed ? (
-          <>
-            <p className="settings-status settings-status--positive">{t('settings.remindersEnabledStatus')}</p>
-            <div className="sheet-footer-row">
-              <button type="button" className="btn btn-secondary btn-grow" disabled={reminderBusy} onClick={handleTestReminder}>
-                {t('settings.remindersTestButton')}
-              </button>
-              <button type="button" className="btn btn-danger" disabled={reminderBusy} onClick={() => handleToggleReminders(false)}>
-                {t('settings.remindersDisableButton')}
-              </button>
-            </div>
-            {reminderTestStatus && <p className="settings-status">{reminderTestStatus}</p>}
-          </>
-        ) : (
-          <button type="button" className="btn btn-primary btn-block" disabled={reminderBusy} onClick={() => handleToggleReminders(true)}>
-            {t('settings.remindersEnableButton')}
-          </button>
-        )}
-        {reminderError && <p className="field-error">{reminderError}</p>}
+        <h2>{t('settings.notificationsSection')}</h2>
+        <Link to="/settings/notifications" className="settings-link-row">
+          <span>{t('settings.notificationsLink')}</span>
+          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
+        </Link>
       </section>
 
       <section className="settings-section">

@@ -875,6 +875,85 @@
   font-size: 13px;
 }
 
+/* ============ Notifications settings page ============ */
+
+.notif-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notif-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.notif-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.notif-row-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.notif-time-input {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.toggle-switch {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.toggle-switch::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface-1);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease;
+}
+
+.toggle-switch:checked {
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
+}
+
+.toggle-switch:checked::before {
+  transform: translateX(18px);
+  background: var(--on-accent);
+}
+
 .search-input {
   margin-top: 2px;
 }

@@ -16,7 +16,6 @@ import { EmojiIcon } from '../utils/icons';
 import { getNotificationPermission, requestNotificationPermission } from '../utils/notifications';
 import type { RecurringBill } from '../types';
 
-const REMINDER_OPTIONS = [0, 1, 2, 3, 5, 7, 10, 14];
 const ICONS = [
   '💳', '🏦', '📱', '📺', '🎵', '🌐', '🏠', '🚗', '💊', '🎓', '🛡️', '📦',
   '💡', '🚰', '🔥', '♨️', '🗑️', '🏢', '🎬', '▶️', '☁️', '🟡', '🏋️',
@@ -39,7 +38,6 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
   const [name, setName] = useState(bill.name);
   const [amount, setAmount] = useState(String(bill.amount));
   const [dueDate, setDueDate] = useState(dateToISO(getDueDateInMonth(bill.dayOfMonth, new Date())));
-  const [reminderDaysBefore, setReminderDaysBefore] = useState(bill.reminderDaysBefore);
   const [categoryIdOverride, setCategoryIdOverride] = useState<string | null>(bill.categoryId);
   const [accountIdOverride, setAccountIdOverride] = useState<string | null>(bill.accountId);
   const [icon, setIcon] = useState(bill.icon);
@@ -73,7 +71,6 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
       name,
       amount: numericAmount,
       dayOfMonth,
-      reminderDaysBefore,
       categoryId,
       accountId,
       icon,
@@ -121,38 +118,11 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
 
       <AmountInput value={amount} onChange={setAmount} currency={settings.currency} />
 
-      <div className="field-row">
-        <div>
-          <label className="field-label" htmlFor="bill-day">
-            {t('bills.form.dayOfMonth')}
-          </label>
-          <input
-            id="bill-day"
-            type="date"
-            className="text-input"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-          <small className="settings-hint">{t('bills.form.dayOfMonthHint')}</small>
-        </div>
-        <div>
-          <label className="field-label" htmlFor="bill-reminder">
-            {t('bills.form.reminderDays')}
-          </label>
-          <select
-            id="bill-reminder"
-            className="select-input"
-            value={reminderDaysBefore}
-            onChange={(e) => setReminderDaysBefore(Number(e.target.value))}
-          >
-            {REMINDER_OPTIONS.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      <label className="field-label" htmlFor="bill-day">
+        {t('bills.form.dayOfMonth')}
+      </label>
+      <input id="bill-day" type="date" className="text-input" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+      <small className="settings-hint">{t('bills.form.dayOfMonthHint')}</small>
 
       {showAccountPicker && (
         <>

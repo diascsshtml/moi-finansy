@@ -1,12 +1,23 @@
-// Часовые напоминания через настоящий Web Push (нужен воркер-бэкенд — см.
-// worker/index.ts). В отличие от notifications.ts (уведомления о платежах,
-// показываются только пока приложение открыто), это работает и когда
-// приложение полностью закрыто: сервер сам будит его раз в час.
-// Никакие финансовые данные при этом никуда не уходят — на сервере хранится
-// только подписка (endpoint + ключи шифрования от браузера), присланная
-// самим браузером при подписке.
+// Настоящие push-уведомления через Web Push (нужен воркер-бэкенд — см.
+// worker/index.ts, worker/notifications.ts). В отличие от notifications.ts
+// (уведомления о платежах, показываются только пока приложение открыто),
+// это работает и когда приложение полностью закрыто: сервер сам будит его
+// в настроенное пользователем время (см. NotificationsSettingsPage).
+// Никакие финансовые данные при подписке никуда не уходят — на сервере
+// хранится только подписка устройства (endpoint + ключи шифрования от
+// браузера) и часовой пояс; реальные платежи сервер читает из уже
+// синхронизированного снимка (см. dataSync.ts) только в момент проверки.
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
+
+export interface NotificationPrefs {
+  timezone: string;
+  dailyEnabled: boolean;
+  dailyTime: string;
+  billsEnabled: boolean;
+  billsDaysBefore: number[];
+  billsTime: string;
+}
 
 function urlBase64ToUint8Array(base64url: string): Uint8Array {
   const padding = '='.repeat((4 - (base64url.length % 4)) % 4);
@@ -17,7 +28,7 @@ function urlBase64ToUint8Array(base64url: string): Uint8Array {
   return arr;
 }
 
-export function isHourlyReminderSupported(): boolean {
+export function isPushSupported(): boolean {
   return (
     typeof window !== 'undefined' &&
     'serviceWorker' in navigator &&
@@ -27,23 +38,29 @@ export function isHourlyReminderSupported(): boolean {
   );
 }
 
-export async function isSubscribedToHourlyReminders(): Promise<boolean> {
-  if (!isHourlyReminderSupported()) return false;
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription();
-  return !!subscription;
+function currentTimeZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Almaty';
+  } catch {
+    return 'Asia/Almaty';
+  }
 }
 
-async function postJson(path: string, body: unknown): Promise<void> {
-  const res = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(path, {
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    ...init,
+  });
   if (!res.ok) throw new Error(`request-failed:${path}:${res.status}`);
+  return res.json() as Promise<T>;
 }
 
-/** Запрашивает разрешение на уведомления (если ещё не решено), подписывает
- *  устройство на push и сообщает подписку серверу. Бросает исключение при
- *  отказе/неподдержке — вызывающий код должен показать соответствующее сообщение. */
-export async function subscribeToHourlyReminders(): Promise<void> {
-  if (!isHourlyReminderSupported() || !VAPID_PUBLIC_KEY) {
+/** Подписывает устройство на push (если ещё не подписано) и сообщает
+ *  серверу подписку + часовой пояс. Бросает исключение при отказе/
+ *  неподдержке — вызывающий код должен показать соответствующее сообщение. */
+export async function ensurePushSubscription(): Promise<void> {
+  if (!isPushSupported() || !VAPID_PUBLIC_KEY) {
     throw new Error('push-unsupported');
   }
   const permission = await Notification.requestPermission();
@@ -60,29 +77,39 @@ export async function subscribeToHourlyReminders(): Promise<void> {
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
     }));
 
-  await postJson('/api/push/subscribe', { subscription: subscription.toJSON() });
+  await fetchJson('/api/push/subscribe', {
+    method: 'POST',
+    body: JSON.stringify({ subscription: subscription.toJSON(), timezone: currentTimeZone() }),
+  });
 }
 
-/** Шлёт одно тестовое напоминание прямо сейчас — чтобы проверить, что всё
- *  настроено верно, не дожидаясь ближайшего часа. Сообщение исключения —
- *  реальная причина (от сервера или браузера), чтобы её можно было показать
- *  пользователю напрямую при диагностике. */
-export async function sendTestReminder(): Promise<void> {
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription();
-  if (!subscription) throw new Error('Нет активной подписки в этом браузере — сначала включите напоминания заново');
+export async function getNotificationPrefs(): Promise<NotificationPrefs> {
+  return fetchJson<NotificationPrefs>('/api/push/prefs');
+}
 
+/** Сохраняет настройки на сервере. Если включают хотя бы одно напоминание —
+ *  сначала гарантирует подписку устройства (иначе серверу некому слать). */
+export async function saveNotificationPrefs(prefs: NotificationPrefs): Promise<void> {
+  if (prefs.dailyEnabled || prefs.billsEnabled) {
+    await ensurePushSubscription();
+  }
+  await fetchJson('/api/push/prefs', {
+    method: 'PUT',
+    body: JSON.stringify({ ...prefs, timezone: currentTimeZone() }),
+  });
+}
+
+/** Шлёт тестовое уведомление прямо сейчас на все подписки текущего
+ *  аккаунта — чтобы проверить, что всё настроено верно, не дожидаясь
+ *  настроенного времени. Сообщение исключения — реальная причина (от
+ *  сервера или браузера), чтобы её можно было показать пользователю. */
+export async function sendTestReminder(): Promise<void> {
   let res: Response;
   try {
-    res = await fetch('/api/push/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ endpoint: subscription.endpoint }),
-    });
+    res = await fetch('/api/push/test', { method: 'POST', credentials: 'same-origin' });
   } catch (e) {
     throw new Error(`Сеть: не удалось достучаться до сервера (${e instanceof Error ? e.message : String(e)})`);
   }
-
   if (!res.ok) {
     let detail = '';
     try {
@@ -93,14 +120,4 @@ export async function sendTestReminder(): Promise<void> {
     }
     throw new Error(`Сервер вернул ${res.status}${detail ? `: ${detail}` : ''}`);
   }
-}
-
-export async function unsubscribeFromHourlyReminders(): Promise<void> {
-  if (!('serviceWorker' in navigator)) return;
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription();
-  if (!subscription) return;
-  const endpoint = subscription.endpoint;
-  await subscription.unsubscribe();
-  await postJson('/api/push/unsubscribe', { endpoint });
 }

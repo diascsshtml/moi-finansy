@@ -33,3 +33,32 @@ CREATE TABLE IF NOT EXISTS user_data (
   snapshot TEXT NOT NULL, -- JSON: { categories, transactions, people, debts, debtPayments, accounts, transfers, bills }
   updated_at TEXT NOT NULL
 );
+
+-- Push-подписки устройств (замена анонимному KV-хранилищу PUSH_SUBS — теперь
+-- привязаны к аккаунту, чтобы часовой cron (см. worker/notifications.ts) мог
+-- сопоставить подписку с настройками уведомлений и реальными платежами
+-- именно этого пользователя, а не слать всем один и тот же текст.
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  endpoint TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+-- Настройки уведомлений — одна строка на пользователя. bills_days_before
+-- хранит JSON-массив чисел (напр. "[2,1]" — напомнить за 2 дня и за 1 день);
+-- 0 в массиве означает «в день платежа». timezone — IANA-строка (напр.
+-- "Asia/Almaty"), присылается браузером при первой подписке, нужна серверу,
+-- чтобы понимать, что для пользователя сейчас именно daily_time/bills_time
+-- по его локальному времени, а не по UTC.
+CREATE TABLE IF NOT EXISTS notification_prefs (
+  user_id TEXT PRIMARY KEY REFERENCES users(id),
+  timezone TEXT NOT NULL DEFAULT 'Asia/Almaty',
+  daily_enabled BOOLEAN NOT NULL DEFAULT false,
+  daily_time TEXT NOT NULL DEFAULT '20:00',
+  bills_enabled BOOLEAN NOT NULL DEFAULT false,
+  bills_days_before TEXT NOT NULL DEFAULT '[1]',
+  bills_time TEXT NOT NULL DEFAULT '10:00',
+  updated_at TEXT NOT NULL
+);

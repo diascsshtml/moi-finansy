@@ -78,10 +78,6 @@ export function BillDetail() {
             <dt>{t('bills.detail.dayOfMonth')}</dt>
             <dd>{bill.dayOfMonth}</dd>
           </div>
-          <div>
-            <dt>{t('bills.form.reminderDays')}</dt>
-            <dd>{t('bills.detail.reminder', { days: bill.reminderDaysBefore })}</dd>
-          </div>
           {category && (
             <div>
               <dt>{t('transaction.category')}</dt>

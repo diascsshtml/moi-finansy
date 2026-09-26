@@ -26,6 +26,7 @@ import { NewDebtPage } from './pages/NewDebtPage';
 import { NewTransferPage } from './pages/NewTransferPage';
 import { NewBillCatalogPage } from './pages/NewBillCatalogPage';
 import { NewBillFormPage } from './pages/NewBillFormPage';
+import { NotificationsSettingsPage } from './pages/NotificationsSettingsPage';
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
                       <Route path="/transfers/new" element={<NewTransferPage />} />
                       <Route path="/settings" element={<ProfileHub />} />
                       <Route path="/settings/preferences" element={<SettingsPage />} />
+                      <Route path="/settings/notifications" element={<NotificationsSettingsPage />} />
                       <Route path="/settings/categories" element={<Categories />} />
                       <Route path="/settings/accounts" element={<Accounts />} />
                       <Route path="/settings/profile" element={<Profile />} />
