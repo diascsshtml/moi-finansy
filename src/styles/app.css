@@ -558,6 +558,201 @@
   color: var(--text-primary);
 }
 
+/* ============ History: month nav, summary card, filter chips ============ */
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.month-nav-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.month-nav-arrow:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.month-nav-label {
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 160px;
+  text-align: center;
+}
+
+.period-summary-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.period-summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.period-summary-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.period-summary-col:nth-child(2) {
+  align-items: center;
+}
+
+.period-summary-col:nth-child(3) {
+  align-items: flex-end;
+}
+
+.period-summary-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.period-summary-value {
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: proportional-nums;
+}
+
+.period-summary-card .debt-progress-track {
+  margin-top: 14px;
+}
+
+.period-summary-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.chip-scroll-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chip-scroll-row::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-chip {
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.filter-chip.active {
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
+  color: var(--on-accent);
+}
+
+.filter-chip--account {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  width: fit-content;
+}
+
+.history-group-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.history-group-header .history-group-date {
+  margin: 0;
+}
+
+.history-group-total {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: proportional-nums;
+}
+
+.category-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.category-breakdown-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.category-breakdown-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.category-breakdown-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.mini-progress-track {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--grid);
+  overflow: hidden;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
 /* ============ Buttons & inputs ============ */
 
 .btn {
@@ -702,12 +897,6 @@
 
 .search-input {
   margin-top: 2px;
-}
-
-.filter-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
 }
 
 /* ============ Segmented control ============ */
