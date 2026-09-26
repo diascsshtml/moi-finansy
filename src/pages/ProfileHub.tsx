@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { BarChart3, ChevronRight, Download, Handshake, Info, SlidersHorizontal, User } from 'lucide-react';
+import { BarChart3, ChevronRight, Code2, Download, Handshake, Info, SlidersHorizontal, User } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useAccount } from '../context/AccountContext';
 import { Sheet } from '../components/Sheet';
@@ -14,6 +14,7 @@ export function ProfileHub() {
   const { settings } = useSettings();
   const { user } = useAccount();
   const [showAbout, setShowAbout] = useState(false);
+  const [showDeveloper, setShowDeveloper] = useState(false);
   const [exportStatus, setExportStatus] = useState<string | null>(null);
 
   const handleExport = async () => {
@@ -105,12 +106,32 @@ export function ProfileHub() {
           <span className="grouped-list-trailing">{__APP_VERSION__}</span>
           <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
         </button>
+
+        <button type="button" className="grouped-list-row" onClick={() => setShowDeveloper(true)}>
+          <span className="grouped-list-icon" aria-hidden="true">
+            <Code2 size={16} strokeWidth={2.25} />
+          </span>
+          <span className="grouped-list-info">
+            <span className="grouped-list-name">{t('profileHub.developerTitle')}</span>
+            <span className="grouped-list-hint">{t('profileHub.developerName')}</span>
+          </span>
+          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
+        </button>
       </div>
 
       {showAbout && (
         <Sheet title={t('profileHub.aboutTitle')} onClose={() => setShowAbout(false)}>
           <p className="settings-hint">{t('profileHub.aboutSheetBody')}</p>
           <p className="settings-hint">v{__APP_VERSION__}</p>
+        </Sheet>
+      )}
+
+      {showDeveloper && (
+        <Sheet title={t('profileHub.developerTitle')} onClose={() => setShowDeveloper(false)}>
+          <p className="settings-hint">{t('profileHub.developerName')}</p>
+          <a href={`mailto:${SUPPORT_EMAIL}`} className="btn-link">
+            {SUPPORT_EMAIL}
+          </a>
         </Sheet>
       )}
     </div>
