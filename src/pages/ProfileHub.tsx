@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { differenceInCalendarDays, parseISO } from 'date-fns';
-import { BarChart3, ChevronRight, Download, Handshake, Info, RefreshCw, SlidersHorizontal, User } from 'lucide-react';
-import { db } from '../db/db';
+import { BarChart3, ChevronRight, Download, Handshake, Info, SlidersHorizontal, User } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useAccount } from '../context/AccountContext';
 import { Sheet } from '../components/Sheet';
@@ -18,11 +15,6 @@ export function ProfileHub() {
   const { user } = useAccount();
   const [showAbout, setShowAbout] = useState(false);
   const [exportStatus, setExportStatus] = useState<string | null>(null);
-
-  const accountsCount = useLiveQuery(() => db.accounts.count(), []);
-  const transactionsCount = useLiveQuery(() => db.transactions.count(), []);
-
-  const daysWithUs = user?.createdAt ? Math.max(0, differenceInCalendarDays(new Date(), parseISO(user.createdAt))) : 0;
 
   const handleExport = async () => {
     await exportDataToExcel(t, settings.currency);
@@ -54,23 +46,6 @@ export function ProfileHub() {
             </Link>
           </div>
         </div>
-
-        <div className="profile-card-divider" />
-
-        <div className="profile-card-stats">
-          <div>
-            <strong>{accountsCount ?? 0}</strong>
-            <span>{t('profileHub.statsAccounts')}</span>
-          </div>
-          <div>
-            <strong>{transactionsCount ?? 0}</strong>
-            <span>{t('profileHub.statsTransactions')}</span>
-          </div>
-          <div>
-            <strong>{t('profileHub.statsDays', { count: daysWithUs })}</strong>
-            <span>{t('profileHub.statsDaysLabel')}</span>
-          </div>
-        </div>
       </div>
 
       <h2>{t('profileHub.quickActionsTitle')}</h2>
@@ -97,17 +72,6 @@ export function ProfileHub() {
       {exportStatus && <p className="settings-status">{exportStatus}</p>}
 
       <div className="grouped-list">
-        <Link to="/bills" className="grouped-list-row">
-          <span className="grouped-list-icon" aria-hidden="true">
-            <RefreshCw size={16} strokeWidth={2.25} />
-          </span>
-          <span className="grouped-list-info">
-            <span className="grouped-list-name">{t('profileHub.subscriptionsTitle')}</span>
-            <span className="grouped-list-hint">{t('profileHub.subscriptionsHint')}</span>
-          </span>
-          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
-        </Link>
-
         <Link to="/settings/preferences" className="grouped-list-row">
           <span className="grouped-list-icon" aria-hidden="true">
             <SlidersHorizontal size={16} strokeWidth={2.25} />
