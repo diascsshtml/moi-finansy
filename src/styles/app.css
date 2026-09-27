@@ -1776,6 +1776,193 @@
   font-weight: 700;
 }
 
+/* ============ Credit schedule + payment sheet ============ */
+
+.payment-schedule-bars {
+  display: flex;
+  gap: 6px;
+}
+
+.payment-schedule-bar {
+  flex: 1;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  background: var(--danger);
+  opacity: 0.55;
+}
+
+.radio-dot {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+}
+
+.radio-dot.selected {
+  border-width: 6px;
+  border-color: var(--accent);
+}
+
+.payment-context-box {
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 4px;
+}
+
+.quick-amount-row {
+  display: flex;
+  gap: 8px;
+}
+
+.quick-amount-chip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: center;
+}
+
+.quick-amount-chip-label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.quick-amount-chip-value {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.payment-back-link {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.credit-confirm-parties {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.credit-confirm-party {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.credit-confirm-party-name {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.credit-confirm-party-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.credit-confirm-arrow {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 18px;
+}
+
+.credit-confirm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.credit-confirm-row--highlight {
+  padding: 10px 12px;
+  margin: 4px 0;
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  border-bottom: none;
+}
+
+.credit-confirm-row-label {
+  color: var(--text-muted);
+}
+
+.credit-confirm-row-value {
+  font-weight: 700;
+}
+
+.payment-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 8px 0 16px;
+}
+
+.payment-success-check {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--money-positive);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.payment-success-title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.payment-success-amount {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: proportional-nums;
+  margin-bottom: 12px;
+}
+
+.payment-success-summary {
+  width: 100%;
+  cursor: default;
+}
+
+.payment-success-summary-list {
+  width: 100%;
+  gap: 2px;
+}
+
+.payment-success-summary .credit-confirm-row {
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: none;
+}
+
+.payment-success-link {
+  margin-top: 8px;
+}
+
 .debt-badge {
   flex-shrink: 0;
   font-size: 11px;

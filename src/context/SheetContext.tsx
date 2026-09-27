@@ -12,6 +12,7 @@ export type SheetState =
   | { kind: 'pin-setup'; mode: PinSetupMode }
   | { kind: 'edit-bill'; bill: RecurringBill }
   | { kind: 'mark-bill-paid'; bill: RecurringBill }
+  | { kind: 'credit-payment'; bill: RecurringBill }
   | { kind: 'month-picker'; selected: Date; onSelect: (date: Date) => void };
 
 interface SheetContextValue {

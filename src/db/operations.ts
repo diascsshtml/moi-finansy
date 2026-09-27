@@ -490,8 +490,10 @@ export async function deleteBill(id: string) {
 }
 
 /** Отмечает платёж оплаченным в текущем месяце — создаёт обычную расходную
- *  операцию, привязанную к платежу (billId), так же как оплата долга. */
-export async function markBillPaid(input: { billId: string; amount: number; date: string; note?: string }) {
+ *  операцию, привязанную к платежу (billId), так же как оплата долга. Счёт
+ *  списания по умолчанию — счёт платежа, но экран внесения платежа по
+ *  кредиту (см. CreditPaymentSheet) даёт выбрать другой счёт на разовой основе. */
+export async function markBillPaid(input: { billId: string; amount: number; date: string; note?: string; accountId?: string }) {
   const bill = await db.bills.get(input.billId);
   if (!bill) throw new Error('Платёж не найден');
   const t: Transaction = {
@@ -499,7 +501,7 @@ export async function markBillPaid(input: { billId: string; amount: number; date
     type: 'expense',
     amount: input.amount,
     categoryId: bill.categoryId,
-    accountId: bill.accountId,
+    accountId: input.accountId ?? bill.accountId,
     date: input.date,
     note: input.note?.trim() || bill.name,
     createdAt: nowISO(),

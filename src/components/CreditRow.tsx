@@ -38,13 +38,13 @@ export function CreditRow({ status, progress, currency }: CreditRowProps) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                open({ kind: 'mark-bill-paid', bill });
+                open({ kind: 'credit-payment', bill });
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
                   e.stopPropagation();
-                  open({ kind: 'mark-bill-paid', bill });
+                  open({ kind: 'credit-payment', bill });
                 }
               }}
             >

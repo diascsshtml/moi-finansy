@@ -2,23 +2,26 @@ import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
+import { Landmark, Pencil } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { useSheet } from '../context/SheetContext';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { EmptyState } from '../components/EmptyState';
+import { CircularProgress } from '../components/CircularProgress';
 import { dateToISO, formatDateShort, formatMoney } from '../utils/format';
 import { categoryDisplayName, accountDisplayName } from '../utils/displayName';
 import { getBillStatus, getCreditProgress, getDueRelativeLabel } from '../utils/bills';
 import { deleteBill, updateBill } from '../db/operations';
 import { isMonogramIcon } from '../data/billCatalog';
+import { toDisplayColor } from '../styles/palette';
 import { EmojiIcon } from '../utils/icons';
 
 export function BillDetail() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { settings } = useSettings();
+  const { settings, isDark } = useSettings();
   const { open } = useSheet();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -51,6 +54,11 @@ export function BillDetail() {
     await updateBill(bill.id, { isActive: !bill.isActive });
   };
 
+  const isCredit = bill.kind === 'credit';
+  const billIcon = isMonogramIcon(bill.icon) ? bill.icon : <EmojiIcon icon={bill.icon} size={22} />;
+  const billColor = toDisplayColor(bill.color, isDark);
+  const paymentsLeft = creditProgress && bill.amount > 0 ? Math.max(Math.ceil(creditProgress.remaining / bill.amount), 0) : 0;
+
   return (
     <div className="page">
       <header className="page-header">
@@ -59,41 +67,78 @@ export function BillDetail() {
         </button>
       </header>
 
-      <div className="debt-detail-card">
-        <span className="debt-detail-badge">
-          {isMonogramIcon(bill.icon) ? bill.icon : <EmojiIcon icon={bill.icon} size={16} className="inline-icon" />} {bill.name}
-        </span>
-        <div className="debt-detail-amount tone-negative">{formatMoney(bill.amount, settings.currency)}</div>
+      {isCredit && (
+        <div className="debt-detail-header-row">
+          <span className="debt-detail-icon" style={{ background: `${billColor}26`, color: billColor }} aria-hidden="true">
+            {billIcon}
+          </span>
+          <div className="debt-detail-name-col">
+            <h1 className="debt-detail-name">{bill.name}</h1>
+            <span className="debt-detail-badge">{t('bills.kindCredit')}</span>
+          </div>
+        </div>
+      )}
 
-        {creditProgress && creditProgress.totalAmount > 0 && (
+      <div className="debt-detail-card">
+        {!isCredit && (
+          <span className="debt-detail-badge">
+            {isMonogramIcon(bill.icon) ? bill.icon : <EmojiIcon icon={bill.icon} size={16} className="inline-icon" />} {bill.name}
+          </span>
+        )}
+
+        {isCredit && creditProgress ? (
           <>
-            <div className="debt-progress-track">
-              <div className="debt-progress-fill" style={{ width: `${creditProgress.progressPct}%`, background: 'var(--danger)' }} />
+            <div className="debt-detail-summary-row">
+              <div>
+                <p className="debt-detail-summary-label">{t('bills.detail.remainingLabel')}</p>
+                <div className="debt-detail-amount tone-negative">{formatMoney(creditProgress.remaining, settings.currency)}</div>
+                {creditProgress.totalAmount > 0 && (
+                  <p className="debt-detail-hint">{t('bills.detail.outOf', { amount: formatMoney(creditProgress.totalAmount, settings.currency) })}</p>
+                )}
+              </div>
+              <CircularProgress percent={creditProgress.progressPct} />
             </div>
-            <div className="debt-row-progress-summary">
-              <span>{t('debtDetail.progressRemaining', { amount: formatMoney(creditProgress.remaining, settings.currency) })}</span>
-              <span>{t('debtDetail.progressPaidPct', { pct: creditProgress.progressPct })}</span>
+
+            <div className="debt-detail-divider" />
+
+            <div className="debt-detail-meta-grid">
+              <div>
+                <span className="debt-detail-meta-label">{t('bills.detail.monthlyPayment')}</span>
+                <span className="debt-detail-meta-value">{formatMoney(bill.amount, settings.currency)}</span>
+              </div>
+              <div>
+                <span className="debt-detail-meta-label">{t('bills.detail.nextDue')}</span>
+                <span className="debt-detail-meta-value">
+                  {formatDateShort(dateToISO(status.dueDate))}
+                  <button
+                    type="button"
+                    className="icon-btn"
+                    aria-label={t('bills.detail.editButton')}
+                    onClick={() => open({ kind: 'edit-bill', bill })}
+                  >
+                    <Pencil size={13} />
+                  </button>
+                </span>
+              </div>
             </div>
           </>
+        ) : (
+          <div className="debt-detail-amount tone-negative">{formatMoney(bill.amount, settings.currency)}</div>
         )}
 
         <dl className="debt-detail-meta">
-          {creditProgress && creditProgress.totalAmount > 0 && (
-            <div>
-              <dt>{t('bills.detail.totalAmount')}</dt>
-              <dd>{formatMoney(creditProgress.totalAmount, settings.currency)}</dd>
-            </div>
-          )}
           {bill.interestRate && (
             <div>
               <dt>{t('bills.detail.interestRate')}</dt>
               <dd>{bill.interestRate.toFixed(1)}%</dd>
             </div>
           )}
-          <div>
-            <dt>{t('bills.detail.nextDue')}</dt>
-            <dd>{formatDateShort(dateToISO(status.dueDate))}</dd>
-          </div>
+          {!isCredit && (
+            <div>
+              <dt>{t('bills.detail.nextDue')}</dt>
+              <dd>{formatDateShort(dateToISO(status.dueDate))}</dd>
+            </div>
+          )}
           {status.status !== 'paid' && status.status !== 'paused' && (
             <div>
               <dt>{t('bills.detail.daysLeft')}</dt>
@@ -132,8 +177,12 @@ export function BillDetail() {
 
         <div className="debt-detail-actions">
           {status.status !== 'paid' && bill.isActive && (
-            <button type="button" className="btn btn-primary btn-grow" onClick={() => open({ kind: 'mark-bill-paid', bill })}>
-              {t('bills.markPaidButton')}
+            <button
+              type="button"
+              className="btn btn-primary btn-grow"
+              onClick={() => open(isCredit ? { kind: 'credit-payment', bill } : { kind: 'mark-bill-paid', bill })}
+            >
+              {isCredit && <Landmark size={16} strokeWidth={2.25} className="inline-icon" />} {isCredit ? t('bills.payment.title') : t('bills.markPaidButton')}
             </button>
           )}
           <button type="button" className="btn btn-ghost" onClick={() => open({ kind: 'edit-bill', bill })}>
@@ -146,6 +195,20 @@ export function BillDetail() {
           </button>
         </div>
       </div>
+
+      {isCredit && creditProgress && creditProgress.totalAmount > 0 && (
+        <section className="recent-section">
+          <div className="section-header">
+            <h2>{t('bills.detail.scheduleTitle')}</h2>
+          </div>
+          <p className="settings-hint">{t('bills.detail.paymentsLeft', { count: paymentsLeft })}</p>
+          <div className="payment-schedule-bars">
+            {Array.from({ length: Math.min(Math.max(paymentsLeft, 1), 10) }).map((_, i) => (
+              <div key={i} className="payment-schedule-bar" />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="recent-section">
         <div className="section-header">
