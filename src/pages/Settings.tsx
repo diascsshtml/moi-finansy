@@ -5,7 +5,7 @@ import { ChevronRight } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useSheet } from '../context/SheetContext';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { clearAllData } from '../db/operations';
+import { clearAllBills, clearAllData, clearAllTransactions } from '../db/operations';
 import { exportDataToExcel } from '../utils/excelExport';
 import { AccountSection } from '../components/AccountSection';
 import { useAccount } from '../context/AccountContext';
@@ -24,7 +24,7 @@ export function SettingsPage() {
   const { open } = useSheet();
   const pinEnabled = !!settings.pinHash;
   const [customCurrency, setCustomCurrency] = useState('');
-  const [confirmClear, setConfirmClear] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<'bills' | 'transactions' | 'all' | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const { user: accountUser, setUser: setAccountUser } = useAccount();
 
@@ -33,9 +33,21 @@ export function SettingsPage() {
     setStatus(t('settings.exportedExcelStatus'));
   };
 
-  const handleClear = async () => {
+  const handleClearBills = async () => {
+    await clearAllBills();
+    setConfirmAction(null);
+    setStatus(t('settings.clearedBillsStatus'));
+  };
+
+  const handleClearTransactions = async () => {
+    await clearAllTransactions();
+    setConfirmAction(null);
+    setStatus(t('settings.clearedTransactionsStatus'));
+  };
+
+  const handleClearAll = async () => {
     await clearAllData();
-    setConfirmClear(false);
+    setConfirmAction(null);
     setStatus(t('settings.clearedStatus'));
     window.location.reload();
   };
@@ -179,7 +191,13 @@ export function SettingsPage() {
         <button type="button" className="btn btn-secondary btn-block" onClick={handleExportExcel}>
           {t('settings.exportExcelButton')}
         </button>
-        <button type="button" className="btn btn-danger btn-block" onClick={() => setConfirmClear(true)}>
+        <button type="button" className="btn btn-danger btn-block" onClick={() => setConfirmAction('bills')}>
+          {t('settings.clearBillsButton')}
+        </button>
+        <button type="button" className="btn btn-danger btn-block" onClick={() => setConfirmAction('transactions')}>
+          {t('settings.clearTransactionsButton')}
+        </button>
+        <button type="button" className="btn btn-danger btn-block" onClick={() => setConfirmAction('all')}>
           {t('settings.clearButton')}
         </button>
         {status && <p className="settings-status">{status}</p>}
@@ -187,14 +205,34 @@ export function SettingsPage() {
 
       <p className="settings-about">{t('settings.about')}</p>
 
-      {confirmClear && (
+      {confirmAction === 'bills' && (
+        <ConfirmDialog
+          title={t('settings.clearBillsTitle')}
+          message={t('settings.clearBillsMessage')}
+          confirmLabel={t('common.delete')}
+          danger
+          onConfirm={handleClearBills}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
+      {confirmAction === 'transactions' && (
+        <ConfirmDialog
+          title={t('settings.clearTransactionsTitle')}
+          message={t('settings.clearTransactionsMessage')}
+          confirmLabel={t('common.delete')}
+          danger
+          onConfirm={handleClearTransactions}
+          onCancel={() => setConfirmAction(null)}
+        />
+      )}
+      {confirmAction === 'all' && (
         <ConfirmDialog
           title={t('settings.clearAllTitle')}
           message={t('settings.clearAllMessage')}
           confirmLabel={t('settings.clearAllConfirm')}
           danger
-          onConfirm={handleClear}
-          onCancel={() => setConfirmClear(false)}
+          onConfirm={handleClearAll}
+          onCancel={() => setConfirmAction(null)}
         />
       )}
     </div>

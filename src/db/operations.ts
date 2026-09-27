@@ -400,6 +400,20 @@ export async function clearAllData() {
   });
 }
 
+/** Точечная очистка только кредитов/подписок — в отличие от clearAllData не
+ *  трогает долги, счета и категории. Платежи по этим кредитам (транзакции
+ *  с billId) остаются в истории как обычные операции — просто теряют связь
+ *  с удалённым платежом. */
+export async function clearAllBills() {
+  await db.bills.clear();
+}
+
+/** Точечная очистка только истории операций (доходы/расходы) — долги,
+ *  кредиты/подписки, счета и категории не трогает. */
+export async function clearAllTransactions() {
+  await db.transactions.clear();
+}
+
 export function defaultDate(): string {
   return todayISO();
 }
