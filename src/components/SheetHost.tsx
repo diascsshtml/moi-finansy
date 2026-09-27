@@ -5,7 +5,6 @@ import { AddDebtPaymentSheet } from './AddDebtPaymentSheet';
 import { CategoryFormSheet } from './CategoryFormSheet';
 import { AccountFormSheet } from './AccountFormSheet';
 import { PinSetupSheet } from './PinSetupSheet';
-import { AddBillSheet } from './AddBillSheet';
 import { MarkBillPaidSheet } from './MarkBillPaidSheet';
 import { CreditPaymentSheet } from './CreditPaymentSheet';
 import { MonthPickerSheet } from './MonthPickerSheet';
@@ -26,8 +25,6 @@ export function SheetHost() {
       return <AccountFormSheet onClose={close} account={sheet.account} />;
     case 'pin-setup':
       return <PinSetupSheet onClose={close} mode={sheet.mode} />;
-    case 'edit-bill':
-      return <AddBillSheet onClose={close} bill={sheet.bill} />;
     case 'mark-bill-paid':
       return <MarkBillPaidSheet onClose={close} bill={sheet.bill} />;
     case 'credit-payment':

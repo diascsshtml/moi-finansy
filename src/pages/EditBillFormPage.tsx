@@ -1,11 +1,11 @@
 import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { Sheet } from './Sheet';
-import { AmountInput } from './AmountInput';
-import { CategoryPicker } from './CategoryPicker';
-import { AccountPicker } from './AccountPicker';
-import { ConfirmDialog } from './ConfirmDialog';
+import { AmountInput } from '../components/AmountInput';
+import { CategoryPicker } from '../components/CategoryPicker';
+import { AccountPicker } from '../components/AccountPicker';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { useSettings } from '../context/SettingsContext';
 import { deleteBill, updateBill } from '../db/operations';
 import { db } from '../db/db';
@@ -22,16 +22,21 @@ const ICONS = [
 ];
 const SWATCHES = CATEGORICAL_LIGHT;
 
-interface AddBillSheetProps {
-  onClose: () => void;
-  bill: RecurringBill;
+/** Редактирование существующего регулярного платежа — отдельная страница
+ *  вместо нижнего листа, как и создание (см. NewBillCatalogPage/NewBillFormPage).
+ *  Само поле формы вынесено в EditBillForm — ждём загрузки bill из Dexie,
+ *  чтобы вся начальная state формы инициализировалась уже реальными
+ *  значениями (а не переинициализировалась постфактум через useEffect). */
+export function EditBillFormPage() {
+  const { id } = useParams<{ id: string }>();
+  const bill = useLiveQuery(() => (id ? db.bills.get(id) : undefined), [id]);
+
+  return bill ? <EditBillForm bill={bill} /> : null;
 }
 
-/** Редактирование существующего регулярного платежа — создание нового
- *  перенесено на отдельную страницу (см. NewBillCatalogPage/NewBillFormPage),
- *  этот лист теперь только для правки уже созданного платежа. */
-export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
+function EditBillForm({ bill }: { bill: RecurringBill }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { settings } = useSettings();
   const accounts = useLiveQuery(() => db.accounts.orderBy('order').toArray(), []);
 
@@ -71,10 +76,6 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
       setError(t('bills.form.error'));
       return;
     }
-    // Включили уведомления по этому платежу — если разрешение браузера ещё
-    // не запрашивали, спрашиваем прямо сейчас. Если откажут — просто не
-    // покажется само уведомление, remindersDaysBefore/бейдж в приложении на
-    // это не завязаны.
     if (notifyEnabled && getNotificationPermission() === 'default') {
       await requestNotificationPermission();
     }
@@ -93,29 +94,23 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
       isActive,
       notifyEnabled,
     });
-    onClose();
+    navigate(-1);
   };
 
   const handleDelete = async () => {
     await deleteBill(bill.id);
-    onClose();
+    navigate('/bills', { replace: true });
   };
 
   return (
-    <Sheet
-      title={t('bills.form.editTitle')}
-      onClose={onClose}
-      footer={
-        <div className="sheet-footer-row">
-          <button type="button" className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
-            {t('common.delete')}
-          </button>
-          <button type="button" className="btn btn-primary btn-grow" disabled={!canSave} onClick={handleSave}>
-            {t('common.save')}
-          </button>
-        </div>
-      }
-    >
+    <div className="page">
+      <header className="page-header">
+        <button type="button" className="btn-link" onClick={() => navigate(-1)}>
+          ← {t('common.cancel')}
+        </button>
+        <h1>{t('bills.form.editTitle')}</h1>
+      </header>
+
       <label className="field-label" htmlFor="bill-name">
         {t('common.name')}
       </label>
@@ -246,6 +241,15 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
 
       {error && <p className="field-error">{error}</p>}
 
+      <div className="sheet-footer-row">
+        <button type="button" className="btn btn-danger" onClick={() => setConfirmDelete(true)}>
+          {t('common.delete')}
+        </button>
+        <button type="button" className="btn btn-primary btn-grow" disabled={!canSave} onClick={handleSave}>
+          {t('common.save')}
+        </button>
+      </div>
+
       {confirmDelete && (
         <ConfirmDialog
           title={t('bills.form.deleteTitle')}
@@ -256,6 +260,6 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
           onCancel={() => setConfirmDelete(false)}
         />
       )}
-    </Sheet>
+    </div>
   );
 }

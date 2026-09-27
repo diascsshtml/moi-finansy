@@ -10,7 +10,6 @@ export type SheetState =
   | { kind: 'edit-category'; type: TransactionType; category?: Category }
   | { kind: 'edit-account'; account?: Account }
   | { kind: 'pin-setup'; mode: PinSetupMode }
-  | { kind: 'edit-bill'; bill: RecurringBill }
   | { kind: 'mark-bill-paid'; bill: RecurringBill }
   | { kind: 'credit-payment'; bill: RecurringBill }
   | { kind: 'month-picker'; selected: Date; onSelect: (date: Date) => void };

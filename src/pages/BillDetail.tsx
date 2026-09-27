@@ -114,7 +114,7 @@ export function BillDetail() {
                     type="button"
                     className="icon-btn"
                     aria-label={t('bills.detail.editButton')}
-                    onClick={() => open({ kind: 'edit-bill', bill })}
+                    onClick={() => navigate(`/bills/${bill.id}/edit`)}
                   >
                     <Pencil size={13} />
                   </button>
@@ -185,7 +185,7 @@ export function BillDetail() {
               {isCredit && <Landmark size={16} strokeWidth={2.25} className="inline-icon" />} {isCredit ? t('bills.payment.title') : t('bills.markPaidButton')}
             </button>
           )}
-          <button type="button" className="btn btn-ghost" onClick={() => open({ kind: 'edit-bill', bill })}>
+          <button type="button" className="btn btn-ghost" onClick={() => navigate(`/bills/${bill.id}/edit`)}>
             {t('bills.detail.editButton')}
           </button>
         </div>

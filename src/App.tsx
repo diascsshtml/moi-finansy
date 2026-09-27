@@ -26,6 +26,7 @@ import { NewDebtPage } from './pages/NewDebtPage';
 import { NewTransferPage } from './pages/NewTransferPage';
 import { NewBillCatalogPage } from './pages/NewBillCatalogPage';
 import { NewBillFormPage } from './pages/NewBillFormPage';
+import { EditBillFormPage } from './pages/EditBillFormPage';
 import { NotificationsSettingsPage } from './pages/NotificationsSettingsPage';
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
                       <Route path="/bills/new" element={<NewBillCatalogPage />} />
                       <Route path="/bills/new/form" element={<NewBillFormPage />} />
                       <Route path="/bills/:id" element={<BillDetail />} />
+                      <Route path="/bills/:id/edit" element={<EditBillFormPage />} />
                       <Route path="/transactions/new/:type" element={<NewTransactionPage />} />
                       <Route path="/transfers/new" element={<NewTransferPage />} />
                       <Route path="/settings" element={<ProfileHub />} />
