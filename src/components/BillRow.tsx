@@ -10,9 +10,12 @@ interface BillRowProps {
   status: BillStatus;
   currency: string;
   isDark: boolean;
+  /** Куда ведёт строка — /bills (кредиты/рассрочки, крайне редко попадают
+   *  сюда напрямую) или /subscriptions (подписки, см. SubscriptionsPage). */
+  linkBase?: string;
 }
 
-export function BillRow({ status, currency, isDark }: BillRowProps) {
+export function BillRow({ status, currency, isDark, linkBase = '/bills' }: BillRowProps) {
   const { t } = useTranslation();
   const { bill } = status;
 
@@ -34,7 +37,7 @@ export function BillRow({ status, currency, isDark }: BillRowProps) {
   const isUnpaidActive = status.status === 'overdue' || status.status === 'due_soon' || status.status === 'upcoming';
 
   return (
-    <Link to={`/bills/${bill.id}`} className={`bill-row${inactive ? ' debt-row--closed' : ''}`}>
+    <Link to={`${linkBase}/${bill.id}`} className={`bill-row${inactive ? ' debt-row--closed' : ''}`}>
       <span className="bill-row-icon-wrap">
         <span
           className={`history-row-icon${isMonogramIcon(bill.icon) ? ' icon-monogram' : ''}`}

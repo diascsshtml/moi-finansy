@@ -11,7 +11,7 @@ import { EmptyState } from '../components/EmptyState';
 import { CircularProgress } from '../components/CircularProgress';
 import { dateToISO, formatDateShort, formatMoney } from '../utils/format';
 import { categoryDisplayName, accountDisplayName } from '../utils/displayName';
-import { getBillStatus, getCreditProgress, getDueRelativeLabel } from '../utils/bills';
+import { getBillStatus, getCreditProgress, getDueRelativeLabel, isLoanKind } from '../utils/bills';
 import { deleteBill, updateBill } from '../db/operations';
 import { isMonogramIcon } from '../data/billCatalog';
 import { toDisplayColor } from '../styles/palette';
@@ -36,7 +36,7 @@ export function BillDetail() {
 
   const status = useMemo(() => (bill && payments ? getBillStatus(bill, payments) : null), [bill, payments]);
   const creditProgress = useMemo(
-    () => (bill && payments && bill.kind === 'credit' ? getCreditProgress(bill, payments) : null),
+    () => (bill && payments && isLoanKind(bill.kind ?? 'subscription') ? getCreditProgress(bill, payments) : null),
     [bill, payments],
   );
 
@@ -54,7 +54,7 @@ export function BillDetail() {
     await updateBill(bill.id, { isActive: !bill.isActive });
   };
 
-  const isCredit = bill.kind === 'credit';
+  const isCredit = isLoanKind(bill.kind ?? 'subscription');
   const billIcon = isMonogramIcon(bill.icon) ? bill.icon : <EmojiIcon icon={bill.icon} size={22} />;
   const billColor = toDisplayColor(bill.color, isDark);
   const paymentsLeft = creditProgress && bill.amount > 0 ? Math.max(Math.ceil(creditProgress.remaining / bill.amount), 0) : 0;
@@ -74,7 +74,7 @@ export function BillDetail() {
           </span>
           <div className="debt-detail-name-col">
             <h1 className="debt-detail-name">{bill.name}</h1>
-            <span className="debt-detail-badge">{t('bills.kindCredit')}</span>
+            <span className="debt-detail-badge">{bill.kind === 'installment' ? t('bills.kindInstallment') : t('bills.kindCredit')}</span>
           </div>
         </div>
       )}
@@ -127,6 +127,12 @@ export function BillDetail() {
         )}
 
         <dl className="debt-detail-meta">
+          {bill.termMonths && (
+            <div>
+              <dt>{t('bills.detail.termMonths')}</dt>
+              <dd>{t('bills.detail.termMonthsValue', { count: bill.termMonths })}</dd>
+            </div>
+          )}
           {bill.interestRate && (
             <div>
               <dt>{t('bills.detail.interestRate')}</dt>

@@ -95,9 +95,15 @@ export function getDueRelativeLabel(status: BillStatus, t: TFunction): string {
  *  введения — по категории (историческая эвристика): банковские кредиты и
  *  рассрочки заводились в категории «Кредиты и платежи». Всё остальное —
  *  подписки/тарифы. */
-export function resolveBillKind(bill: RecurringBill, category?: Category): 'credit' | 'subscription' {
+export function resolveBillKind(bill: RecurringBill, category?: Category): 'credit' | 'installment' | 'subscription' {
   if (bill.kind) return bill.kind;
   return category?.nameKey === 'categoryNames.loanPayments' ? 'credit' : 'subscription';
+}
+
+/** Кредит или рассрочка — оба вместе образуют раздел «Активные кредиты»
+ *  на странице «Кредиты и подписки», в отличие от подписок. */
+export function isLoanKind(kind: 'credit' | 'installment' | 'subscription'): boolean {
+  return kind === 'credit' || kind === 'installment';
 }
 
 export interface CreditProgress {

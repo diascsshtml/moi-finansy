@@ -482,6 +482,11 @@
   color: #7c5cfc;
 }
 
+.overview-icon--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
 .stat-card {
   background: var(--surface-1);
   border: 1px solid var(--border);
@@ -1774,6 +1779,97 @@
 
 .credit-row-footer-next {
   font-weight: 700;
+}
+
+/* ============ New-debt mode tiles (Мне должны / Я должен / Кредит / Рассрочка) ============ */
+
+.mini-stat-row {
+  display: flex;
+  gap: 8px;
+}
+
+.mini-stat-box {
+  flex: 1;
+  text-align: center;
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  padding: 10px 6px;
+}
+
+.mini-stat-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.mini-stat-value {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.subscription-next-charge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  margin-top: 12px;
+  border-radius: var(--radius-md);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.subscription-next-charge-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: var(--surface-1);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.condition-row {
+  position: relative;
+  cursor: pointer;
+}
+
+.condition-row-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+.mode-tile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mode-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface-1);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mode-tile.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
 /* ============ Credit schedule + payment sheet ============ */

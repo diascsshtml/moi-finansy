@@ -11,6 +11,7 @@ import { db } from '../db/db';
 import { SYSTEM_CATEGORY_IDS } from '../db/constants';
 import { CATEGORICAL_LIGHT } from '../styles/palette';
 import { todayISO } from '../utils/format';
+import { isLoanKind } from '../utils/bills';
 import { EmojiIcon } from '../utils/icons';
 import { getNotificationPermission, requestNotificationPermission } from '../utils/notifications';
 import type { BillPreset } from '../types';
@@ -36,10 +37,11 @@ export function NewBillFormPage() {
   }, [defaultCategoryNameKey]);
 
   const [name, setName] = useState(preset?.name ?? '');
-  const [kind, setKind] = useState<'credit' | 'subscription'>(preset?.kind ?? 'credit');
+  const [kind, setKind] = useState<'credit' | 'installment' | 'subscription'>(preset?.kind ?? 'credit');
   const [amount, setAmount] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [interestRate, setInterestRate] = useState('');
+  const [termMonths, setTermMonths] = useState('');
   const [dueDate, setDueDate] = useState(todayISO());
   const [categoryIdOverride, setCategoryIdOverride] = useState<string | null>(null);
   const [accountIdOverride, setAccountIdOverride] = useState<string | null>(null);
@@ -54,14 +56,11 @@ export function NewBillFormPage() {
   const numericAmount = Number(amount);
   const numericTotalAmount = Number(totalAmount);
   const numericInterestRate = Number(interestRate);
+  const numericTermMonths = Number(termMonths);
+  const isLoan = isLoanKind(kind);
   const dayOfMonth = dueDate ? Number(dueDate.split('-')[2]) : 0;
   const canSave =
-    name.trim().length > 0 &&
-    numericAmount > 0 &&
-    dayOfMonth > 0 &&
-    !!categoryId &&
-    !!accountId &&
-    (kind !== 'credit' || numericTotalAmount > 0);
+    name.trim().length > 0 && numericAmount > 0 && dayOfMonth > 0 && !!categoryId && !!accountId && (!isLoan || numericTotalAmount > 0);
   const showAccountPicker = accounts && accounts.length > 1;
 
   const handleSave = async () => {
@@ -82,8 +81,9 @@ export function NewBillFormPage() {
       icon,
       color,
       kind,
-      totalAmount: kind === 'credit' ? numericTotalAmount : undefined,
-      interestRate: kind === 'credit' && numericInterestRate > 0 ? numericInterestRate : undefined,
+      totalAmount: isLoan ? numericTotalAmount : undefined,
+      interestRate: isLoan && numericInterestRate > 0 ? numericInterestRate : undefined,
+      termMonths: isLoan && numericTermMonths > 0 ? numericTermMonths : undefined,
       note,
       notifyEnabled,
     });
@@ -121,6 +121,15 @@ export function NewBillFormPage() {
         <button
           type="button"
           role="tab"
+          aria-selected={kind === 'installment'}
+          className={kind === 'installment' ? 'active' : ''}
+          onClick={() => setKind('installment')}
+        >
+          {t('bills.kindInstallment')}
+        </button>
+        <button
+          type="button"
+          role="tab"
           aria-selected={kind === 'subscription'}
           className={kind === 'subscription' ? 'active' : ''}
           onClick={() => setKind('subscription')}
@@ -129,25 +138,43 @@ export function NewBillFormPage() {
         </button>
       </div>
 
-      {kind === 'credit' && (
+      {isLoan && (
         <>
           <label className="field-label" htmlFor="bill-total-amount">
             {t('bills.form.totalAmountLabel')}
           </label>
           <AmountInput id="bill-total-amount" value={totalAmount} onChange={setTotalAmount} currency={settings.currency} />
 
-          <label className="field-label" htmlFor="bill-interest-rate">
-            {t('bills.form.interestRateLabel')}
-          </label>
-          <input
-            id="bill-interest-rate"
-            type="text"
-            inputMode="decimal"
-            className="text-input"
-            placeholder="0"
-            value={interestRate}
-            onChange={(e) => setInterestRate(e.target.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
-          />
+          <div className="field-row">
+            <div>
+              <label className="field-label" htmlFor="bill-term-months">
+                {t('bills.form.termMonthsLabel')}
+              </label>
+              <input
+                id="bill-term-months"
+                type="text"
+                inputMode="numeric"
+                className="text-input"
+                placeholder="0"
+                value={termMonths}
+                onChange={(e) => setTermMonths(e.target.value.replace(/[^0-9]/g, ''))}
+              />
+            </div>
+            <div>
+              <label className="field-label" htmlFor="bill-interest-rate">
+                {t('bills.form.interestRateLabel')}
+              </label>
+              <input
+                id="bill-interest-rate"
+                type="text"
+                inputMode="decimal"
+                className="text-input"
+                placeholder="0"
+                value={interestRate}
+                onChange={(e) => setInterestRate(e.target.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
+              />
+            </div>
+          </div>
 
           <label className="field-label">{t('bills.form.monthlyPaymentLabel')}</label>
         </>

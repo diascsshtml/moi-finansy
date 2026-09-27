@@ -27,6 +27,9 @@ import { NewTransferPage } from './pages/NewTransferPage';
 import { NewBillCatalogPage } from './pages/NewBillCatalogPage';
 import { NewBillFormPage } from './pages/NewBillFormPage';
 import { EditBillFormPage } from './pages/EditBillFormPage';
+import { SubscriptionsPage } from './pages/SubscriptionsPage';
+import { NewSubscriptionPage } from './pages/NewSubscriptionPage';
+import { SubscriptionDetailPage } from './pages/SubscriptionDetailPage';
 import { NotificationsSettingsPage } from './pages/NotificationsSettingsPage';
 
 function App() {
@@ -52,6 +55,9 @@ function App() {
                       <Route path="/bills/new/form" element={<NewBillFormPage />} />
                       <Route path="/bills/:id" element={<BillDetail />} />
                       <Route path="/bills/:id/edit" element={<EditBillFormPage />} />
+                      <Route path="/subscriptions" element={<SubscriptionsPage />} />
+                      <Route path="/subscriptions/new" element={<NewSubscriptionPage />} />
+                      <Route path="/subscriptions/:id" element={<SubscriptionDetailPage />} />
                       <Route path="/transactions/new/:type" element={<NewTransactionPage />} />
                       <Route path="/transfers/new" element={<NewTransferPage />} />
                       <Route path="/settings" element={<ProfileHub />} />

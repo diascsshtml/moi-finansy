@@ -11,7 +11,7 @@ import { deleteBill, updateBill } from '../db/operations';
 import { db } from '../db/db';
 import { CATEGORICAL_LIGHT } from '../styles/palette';
 import { dateToISO } from '../utils/format';
-import { getDueDateInMonth } from '../utils/bills';
+import { getDueDateInMonth, isLoanKind } from '../utils/bills';
 import { EmojiIcon } from '../utils/icons';
 import { getNotificationPermission, requestNotificationPermission } from '../utils/notifications';
 import type { RecurringBill } from '../types';
@@ -41,10 +41,11 @@ function EditBillForm({ bill }: { bill: RecurringBill }) {
   const accounts = useLiveQuery(() => db.accounts.orderBy('order').toArray(), []);
 
   const [name, setName] = useState(bill.name);
-  const [kind, setKind] = useState<'credit' | 'subscription'>(bill.kind ?? 'credit');
+  const [kind, setKind] = useState<'credit' | 'installment' | 'subscription'>(bill.kind ?? 'credit');
   const [amount, setAmount] = useState(String(bill.amount));
   const [totalAmount, setTotalAmount] = useState(bill.totalAmount ? String(bill.totalAmount) : '');
   const [interestRate, setInterestRate] = useState(bill.interestRate ? String(bill.interestRate) : '');
+  const [termMonths, setTermMonths] = useState(bill.termMonths ? String(bill.termMonths) : '');
   const [dueDate, setDueDate] = useState(dateToISO(getDueDateInMonth(bill.dayOfMonth, new Date())));
   const [categoryIdOverride, setCategoryIdOverride] = useState<string | null>(bill.categoryId);
   const [accountIdOverride, setAccountIdOverride] = useState<string | null>(bill.accountId);
@@ -61,14 +62,11 @@ function EditBillForm({ bill }: { bill: RecurringBill }) {
   const numericAmount = Number(amount);
   const numericTotalAmount = Number(totalAmount);
   const numericInterestRate = Number(interestRate);
+  const numericTermMonths = Number(termMonths);
+  const isLoan = isLoanKind(kind);
   const dayOfMonth = dueDate ? Number(dueDate.split('-')[2]) : 0;
   const canSave =
-    name.trim().length > 0 &&
-    numericAmount > 0 &&
-    dayOfMonth > 0 &&
-    !!categoryId &&
-    !!accountId &&
-    (kind !== 'credit' || numericTotalAmount > 0);
+    name.trim().length > 0 && numericAmount > 0 && dayOfMonth > 0 && !!categoryId && !!accountId && (!isLoan || numericTotalAmount > 0);
   const showAccountPicker = accounts && accounts.length > 1;
 
   const handleSave = async () => {
@@ -88,8 +86,9 @@ function EditBillForm({ bill }: { bill: RecurringBill }) {
       icon,
       color,
       kind,
-      totalAmount: kind === 'credit' ? numericTotalAmount : undefined,
-      interestRate: kind === 'credit' && numericInterestRate > 0 ? numericInterestRate : undefined,
+      totalAmount: isLoan ? numericTotalAmount : undefined,
+      interestRate: isLoan && numericInterestRate > 0 ? numericInterestRate : undefined,
+      termMonths: isLoan && numericTermMonths > 0 ? numericTermMonths : undefined,
       note,
       isActive,
       notifyEnabled,
@@ -133,6 +132,15 @@ function EditBillForm({ bill }: { bill: RecurringBill }) {
         <button
           type="button"
           role="tab"
+          aria-selected={kind === 'installment'}
+          className={kind === 'installment' ? 'active' : ''}
+          onClick={() => setKind('installment')}
+        >
+          {t('bills.kindInstallment')}
+        </button>
+        <button
+          type="button"
+          role="tab"
           aria-selected={kind === 'subscription'}
           className={kind === 'subscription' ? 'active' : ''}
           onClick={() => setKind('subscription')}
@@ -141,25 +149,43 @@ function EditBillForm({ bill }: { bill: RecurringBill }) {
         </button>
       </div>
 
-      {kind === 'credit' && (
+      {isLoan && (
         <>
           <label className="field-label" htmlFor="edit-bill-total-amount">
             {t('bills.form.totalAmountLabel')}
           </label>
           <AmountInput id="edit-bill-total-amount" value={totalAmount} onChange={setTotalAmount} currency={settings.currency} />
 
-          <label className="field-label" htmlFor="edit-bill-interest-rate">
-            {t('bills.form.interestRateLabel')}
-          </label>
-          <input
-            id="edit-bill-interest-rate"
-            type="text"
-            inputMode="decimal"
-            className="text-input"
-            placeholder="0"
-            value={interestRate}
-            onChange={(e) => setInterestRate(e.target.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
-          />
+          <div className="field-row">
+            <div>
+              <label className="field-label" htmlFor="edit-bill-term-months">
+                {t('bills.form.termMonthsLabel')}
+              </label>
+              <input
+                id="edit-bill-term-months"
+                type="text"
+                inputMode="numeric"
+                className="text-input"
+                placeholder="0"
+                value={termMonths}
+                onChange={(e) => setTermMonths(e.target.value.replace(/[^0-9]/g, ''))}
+              />
+            </div>
+            <div>
+              <label className="field-label" htmlFor="edit-bill-interest-rate">
+                {t('bills.form.interestRateLabel')}
+              </label>
+              <input
+                id="edit-bill-interest-rate"
+                type="text"
+                inputMode="decimal"
+                className="text-input"
+                placeholder="0"
+                value={interestRate}
+                onChange={(e) => setInterestRate(e.target.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
+              />
+            </div>
+          </div>
 
           <label className="field-label">{t('bills.form.monthlyPaymentLabel')}</label>
         </>
