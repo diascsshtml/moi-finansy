@@ -38,6 +38,8 @@ export function NewBillFormPage() {
   const [name, setName] = useState(preset?.name ?? '');
   const [kind, setKind] = useState<'credit' | 'subscription'>(preset?.kind ?? 'credit');
   const [amount, setAmount] = useState('');
+  const [totalAmount, setTotalAmount] = useState('');
+  const [interestRate, setInterestRate] = useState('');
   const [dueDate, setDueDate] = useState(todayISO());
   const [categoryIdOverride, setCategoryIdOverride] = useState<string | null>(null);
   const [accountIdOverride, setAccountIdOverride] = useState<string | null>(null);
@@ -50,8 +52,16 @@ export function NewBillFormPage() {
   const categoryId = categoryIdOverride ?? defaultCategoryId ?? null;
   const accountId = accountIdOverride ?? accounts?.[0]?.id ?? null;
   const numericAmount = Number(amount);
+  const numericTotalAmount = Number(totalAmount);
+  const numericInterestRate = Number(interestRate);
   const dayOfMonth = dueDate ? Number(dueDate.split('-')[2]) : 0;
-  const canSave = name.trim().length > 0 && numericAmount > 0 && dayOfMonth > 0 && !!categoryId && !!accountId;
+  const canSave =
+    name.trim().length > 0 &&
+    numericAmount > 0 &&
+    dayOfMonth > 0 &&
+    !!categoryId &&
+    !!accountId &&
+    (kind !== 'credit' || numericTotalAmount > 0);
   const showAccountPicker = accounts && accounts.length > 1;
 
   const handleSave = async () => {
@@ -72,6 +82,8 @@ export function NewBillFormPage() {
       icon,
       color,
       kind,
+      totalAmount: kind === 'credit' ? numericTotalAmount : undefined,
+      interestRate: kind === 'credit' && numericInterestRate > 0 ? numericInterestRate : undefined,
       note,
       notifyEnabled,
     });
@@ -117,6 +129,29 @@ export function NewBillFormPage() {
         </button>
       </div>
 
+      {kind === 'credit' && (
+        <>
+          <label className="field-label" htmlFor="bill-total-amount">
+            {t('bills.form.totalAmountLabel')}
+          </label>
+          <AmountInput id="bill-total-amount" value={totalAmount} onChange={setTotalAmount} currency={settings.currency} />
+
+          <label className="field-label" htmlFor="bill-interest-rate">
+            {t('bills.form.interestRateLabel')}
+          </label>
+          <input
+            id="bill-interest-rate"
+            type="text"
+            inputMode="decimal"
+            className="text-input"
+            placeholder="0"
+            value={interestRate}
+            onChange={(e) => setInterestRate(e.target.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
+          />
+
+          <label className="field-label">{t('bills.form.monthlyPaymentLabel')}</label>
+        </>
+      )}
       <AmountInput value={amount} onChange={setAmount} currency={settings.currency} />
 
       <label className="field-label" htmlFor="bill-day">

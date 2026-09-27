@@ -434,6 +434,8 @@ export async function createBill(input: {
   icon: string;
   color: string;
   kind: 'credit' | 'subscription';
+  totalAmount?: number;
+  interestRate?: number;
   notifyEnabled?: boolean;
   note?: string;
 }): Promise<RecurringBill> {
@@ -448,6 +450,8 @@ export async function createBill(input: {
     icon: input.icon,
     color: input.color,
     kind: input.kind,
+    totalAmount: input.totalAmount,
+    interestRate: input.interestRate,
     notifyEnabled: input.notifyEnabled ?? true,
     isActive: true,
     note: input.note?.trim() || undefined,
@@ -462,7 +466,19 @@ export async function updateBill(
   patch: Partial<
     Pick<
       RecurringBill,
-      'name' | 'amount' | 'dayOfMonth' | 'categoryId' | 'accountId' | 'icon' | 'color' | 'kind' | 'notifyEnabled' | 'note' | 'isActive'
+      | 'name'
+      | 'amount'
+      | 'dayOfMonth'
+      | 'categoryId'
+      | 'accountId'
+      | 'icon'
+      | 'color'
+      | 'kind'
+      | 'totalAmount'
+      | 'interestRate'
+      | 'notifyEnabled'
+      | 'note'
+      | 'isActive'
     >
   >,
 ) {

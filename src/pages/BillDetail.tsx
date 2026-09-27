@@ -9,7 +9,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { EmptyState } from '../components/EmptyState';
 import { dateToISO, formatDateShort, formatMoney } from '../utils/format';
 import { categoryDisplayName, accountDisplayName } from '../utils/displayName';
-import { getBillStatus, getDueRelativeLabel } from '../utils/bills';
+import { getBillStatus, getCreditProgress, getDueRelativeLabel } from '../utils/bills';
 import { deleteBill, updateBill } from '../db/operations';
 import { isMonogramIcon } from '../data/billCatalog';
 import { EmojiIcon } from '../utils/icons';
@@ -32,6 +32,10 @@ export function BillDetail() {
   );
 
   const status = useMemo(() => (bill && payments ? getBillStatus(bill, payments) : null), [bill, payments]);
+  const creditProgress = useMemo(
+    () => (bill && payments && bill.kind === 'credit' ? getCreditProgress(bill, payments) : null),
+    [bill, payments],
+  );
 
   if (bill === undefined || payments === undefined) return null;
   if (!bill || !status) {
@@ -61,7 +65,31 @@ export function BillDetail() {
         </span>
         <div className="debt-detail-amount tone-negative">{formatMoney(bill.amount, settings.currency)}</div>
 
+        {creditProgress && creditProgress.totalAmount > 0 && (
+          <>
+            <div className="debt-progress-track">
+              <div className="debt-progress-fill" style={{ width: `${creditProgress.progressPct}%`, background: 'var(--danger)' }} />
+            </div>
+            <div className="debt-row-progress-summary">
+              <span>{t('debtDetail.progressRemaining', { amount: formatMoney(creditProgress.remaining, settings.currency) })}</span>
+              <span>{t('debtDetail.progressPaidPct', { pct: creditProgress.progressPct })}</span>
+            </div>
+          </>
+        )}
+
         <dl className="debt-detail-meta">
+          {creditProgress && creditProgress.totalAmount > 0 && (
+            <div>
+              <dt>{t('bills.detail.totalAmount')}</dt>
+              <dd>{formatMoney(creditProgress.totalAmount, settings.currency)}</dd>
+            </div>
+          )}
+          {bill.interestRate && (
+            <div>
+              <dt>{t('bills.detail.interestRate')}</dt>
+              <dd>{bill.interestRate.toFixed(1)}%</dd>
+            </div>
+          )}
           <div>
             <dt>{t('bills.detail.nextDue')}</dt>
             <dd>{formatDateShort(dateToISO(status.dueDate))}</dd>

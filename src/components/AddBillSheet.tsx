@@ -38,6 +38,8 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
   const [name, setName] = useState(bill.name);
   const [kind, setKind] = useState<'credit' | 'subscription'>(bill.kind ?? 'credit');
   const [amount, setAmount] = useState(String(bill.amount));
+  const [totalAmount, setTotalAmount] = useState(bill.totalAmount ? String(bill.totalAmount) : '');
+  const [interestRate, setInterestRate] = useState(bill.interestRate ? String(bill.interestRate) : '');
   const [dueDate, setDueDate] = useState(dateToISO(getDueDateInMonth(bill.dayOfMonth, new Date())));
   const [categoryIdOverride, setCategoryIdOverride] = useState<string | null>(bill.categoryId);
   const [accountIdOverride, setAccountIdOverride] = useState<string | null>(bill.accountId);
@@ -52,8 +54,16 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
   const categoryId = categoryIdOverride ?? bill.categoryId;
   const accountId = accountIdOverride ?? accounts?.[0]?.id ?? null;
   const numericAmount = Number(amount);
+  const numericTotalAmount = Number(totalAmount);
+  const numericInterestRate = Number(interestRate);
   const dayOfMonth = dueDate ? Number(dueDate.split('-')[2]) : 0;
-  const canSave = name.trim().length > 0 && numericAmount > 0 && dayOfMonth > 0 && !!categoryId && !!accountId;
+  const canSave =
+    name.trim().length > 0 &&
+    numericAmount > 0 &&
+    dayOfMonth > 0 &&
+    !!categoryId &&
+    !!accountId &&
+    (kind !== 'credit' || numericTotalAmount > 0);
   const showAccountPicker = accounts && accounts.length > 1;
 
   const handleSave = async () => {
@@ -77,6 +87,8 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
       icon,
       color,
       kind,
+      totalAmount: kind === 'credit' ? numericTotalAmount : undefined,
+      interestRate: kind === 'credit' && numericInterestRate > 0 ? numericInterestRate : undefined,
       note,
       isActive,
       notifyEnabled,
@@ -134,6 +146,29 @@ export function AddBillSheet({ onClose, bill }: AddBillSheetProps) {
         </button>
       </div>
 
+      {kind === 'credit' && (
+        <>
+          <label className="field-label" htmlFor="edit-bill-total-amount">
+            {t('bills.form.totalAmountLabel')}
+          </label>
+          <AmountInput id="edit-bill-total-amount" value={totalAmount} onChange={setTotalAmount} currency={settings.currency} />
+
+          <label className="field-label" htmlFor="edit-bill-interest-rate">
+            {t('bills.form.interestRateLabel')}
+          </label>
+          <input
+            id="edit-bill-interest-rate"
+            type="text"
+            inputMode="decimal"
+            className="text-input"
+            placeholder="0"
+            value={interestRate}
+            onChange={(e) => setInterestRate(e.target.value.replace(',', '.').replace(/[^0-9.]/g, ''))}
+          />
+
+          <label className="field-label">{t('bills.form.monthlyPaymentLabel')}</label>
+        </>
+      )}
       <AmountInput value={amount} onChange={setAmount} currency={settings.currency} />
 
       <label className="field-label" htmlFor="bill-day">

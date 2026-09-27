@@ -1760,6 +1760,22 @@
   white-space: nowrap;
 }
 
+.credit-row-footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.credit-row-footer-date {
+  color: var(--text-muted);
+}
+
+.credit-row-footer-next {
+  font-weight: 700;
+}
+
 .debt-badge {
   flex-shrink: 0;
   font-size: 11px;

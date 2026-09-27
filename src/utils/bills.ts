@@ -100,6 +100,26 @@ export function resolveBillKind(bill: RecurringBill, category?: Category): 'cred
   return category?.nameKey === 'categoryNames.loanPayments' ? 'credit' : 'subscription';
 }
 
+export interface CreditProgress {
+  totalAmount: number;
+  paidSoFar: number;
+  remaining: number;
+  progressPct: number;
+}
+
+/** Прогресс погашения кредита/рассрочки — сумма ВСЕХ операций с этим billId
+ *  за всё время (не только текущего цикла, в отличие от getBillStatus), по
+ *  отношению к изначальной сумме кредита (bill.totalAmount). У платежей без
+ *  totalAmount (подписки, старые кредиты без заполненной суммы) прогресс
+ *  считается пустым — карточка тогда просто не показывает полосу. */
+export function getCreditProgress(bill: RecurringBill, transactions: Transaction[]): CreditProgress {
+  const totalAmount = bill.totalAmount ?? 0;
+  const paidSoFar = transactions.filter((t) => t.billId === bill.id).reduce((s, t) => s + t.amount, 0);
+  const remaining = Math.max(totalAmount - paidSoFar, 0);
+  const progressPct = totalAmount > 0 ? Math.round((paidSoFar / totalAmount) * 100) : 0;
+  return { totalAmount, paidSoFar, remaining, progressPct };
+}
+
 /** Платежи, которые нуждаются во внимании прямо сейчас — просроченные и
  *  те, что скоро наступают (и ещё не оплачены). Используется для баннера
  *  на главном экране, бейджа на вкладке и уведомлений. */

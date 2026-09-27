@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { BillRow } from '../components/BillRow';
+import { CreditRow } from '../components/CreditRow';
 import { EmptyState } from '../components/EmptyState';
-import { getAllBillStatuses, resolveBillKind } from '../utils/bills';
+import { getAllBillStatuses, getCreditProgress, resolveBillKind } from '../utils/bills';
 
 export function Bills() {
   const { t } = useTranslation();
@@ -59,7 +60,7 @@ export function Bills() {
             ) : (
               <div className="debts-list">
                 {credits.map((s) => (
-                  <BillRow key={s.bill.id} status={s} currency={settings.currency} isDark={isDark} />
+                  <CreditRow key={s.bill.id} status={s} progress={getCreditProgress(s.bill, transactions!)} currency={settings.currency} />
                 ))}
               </div>
             )}
