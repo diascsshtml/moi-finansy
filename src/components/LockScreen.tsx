@@ -1,25 +1,43 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Lock } from 'lucide-react';
+import { Fingerprint, Lock } from 'lucide-react';
 import { PinDots } from './PinDots';
 import { PinKeypad } from './PinKeypad';
 import { checkPinCode } from '../db/operations';
+import { verifyBiometric } from '../utils/webauthn';
 
 interface LockScreenProps {
   pinLength: number;
+  biometricCredentialId?: string;
   onUnlock: () => void;
 }
 
 const MAX_ATTEMPTS_BEFORE_COOLDOWN = 5;
 const COOLDOWN_SECONDS = 30;
 
-export function LockScreen({ pinLength, onUnlock }: LockScreenProps) {
+export function LockScreen({ pinLength, biometricCredentialId, onUnlock }: LockScreenProps) {
   const { t } = useTranslation();
   const [digits, setDigits] = useState('');
   const [shake, setShake] = useState(false);
   const [checking, setChecking] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [cooldownLeft, setCooldownLeft] = useState(0);
+  const [biometricChecking, setBiometricChecking] = useState(false);
+
+  const tryBiometric = async (credentialId: string) => {
+    setBiometricChecking(true);
+    const ok = await verifyBiometric(credentialId);
+    setBiometricChecking(false);
+    if (ok) onUnlock();
+  };
+
+  // Предлагаем биометрию сразу при показе экрана — как в нативных
+  // приложениях, не дожидаясь, пока человек сам нажмёт кнопку. Срабатывает
+  // только один раз, при монтировании.
+  useEffect(() => {
+    if (biometricCredentialId) void tryBiometric(biometricCredentialId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (cooldownLeft <= 0) return;
@@ -79,6 +97,17 @@ export function LockScreen({ pinLength, onUnlock }: LockScreenProps) {
       </p>
       <PinDots length={pinLength} filled={digits.length} shake={shake} />
       <PinKeypad onDigit={handleDigit} onBackspace={handleBackspace} disabled={locked} />
+      {biometricCredentialId && (
+        <button
+          type="button"
+          className="lock-screen-biometric-button"
+          disabled={biometricChecking}
+          onClick={() => void tryBiometric(biometricCredentialId)}
+        >
+          <Fingerprint size={18} strokeWidth={2} />
+          {t('lock.useBiometric')}
+        </button>
+      )}
     </div>
   );
 }

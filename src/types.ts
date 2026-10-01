@@ -171,6 +171,11 @@ export interface AppSettings {
   pinHash?: string;
   pinSalt?: string;
   pinLength?: number;
+  // Face ID / Touch ID / биометрия Android — id платформенного ключа WebAuthn
+  // (см. utils/webauthn.ts), не сам биометрический образ — он никогда не
+  // покидает устройство. Доступно только поверх уже включённого PIN: он
+  // остаётся резервным способом войти, если биометрия недоступна/отменена.
+  biometricCredentialId?: string;
   onboarded: boolean;
 }
 

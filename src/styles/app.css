@@ -2551,6 +2551,32 @@
   min-height: 18px;
 }
 
+.settings-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
+}
+
+.lock-screen-biometric-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-1);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lock-screen-biometric-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* ============ Account gate (вход/регистрация при открытии) ============ */
 
 .account-gate {

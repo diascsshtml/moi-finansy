@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Fingerprint } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useSheet } from '../context/SheetContext';
+import { useAccount } from '../context/AccountContext';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { clearAllBills, clearAllData, clearAllTransactions } from '../db/operations';
+import { clearAllBills, clearAllData, clearAllTransactions, clearBiometricCredential, setBiometricCredential } from '../db/operations';
 import { exportDataToExcel } from '../utils/excelExport';
+import { isBiometricSupported, registerBiometric } from '../utils/webauthn';
 import type { AppLanguage, ThemeMode } from '../types';
 
 const CURRENCIES = ['₸', '₽', '$', '€', '₴', 'so\'m', '₺', '£'];
@@ -20,10 +22,42 @@ export function SettingsPage() {
   const navigate = useNavigate();
   const { settings, setCurrency, setTheme, setLanguage } = useSettings();
   const { open } = useSheet();
+  const { user } = useAccount();
   const pinEnabled = !!settings.pinHash;
+  const biometricEnabled = !!settings.biometricCredentialId;
   const [customCurrency, setCustomCurrency] = useState('');
   const [confirmAction, setConfirmAction] = useState<'bills' | 'transactions' | 'all' | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [biometricSupported, setBiometricSupported] = useState(false);
+  const [biometricBusy, setBiometricBusy] = useState(false);
+  const [biometricError, setBiometricError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void isBiometricSupported().then(setBiometricSupported);
+  }, []);
+
+  const handleEnableBiometric = async () => {
+    setBiometricBusy(true);
+    setBiometricError(null);
+    try {
+      const label = user?.name || user?.username || 'Мои финансы';
+      const credentialId = await registerBiometric(label);
+      await setBiometricCredential(credentialId);
+    } catch {
+      setBiometricError(t('lock.biometricFailed'));
+    } finally {
+      setBiometricBusy(false);
+    }
+  };
+
+  const handleDisableBiometric = async () => {
+    setBiometricBusy(true);
+    try {
+      await clearBiometricCredential();
+    } finally {
+      setBiometricBusy(false);
+    }
+  };
 
   const handleExportExcel = async () => {
     await exportDataToExcel(t, settings.currency);
@@ -145,6 +179,28 @@ export function SettingsPage() {
                 {t('lock.disableButton')}
               </button>
             </div>
+
+            {biometricSupported && (
+              <>
+                <div className="settings-divider" />
+                <p className="settings-hint">
+                  <Fingerprint size={14} className="inline-icon" /> {t('lock.biometricHint')}
+                </p>
+                {biometricEnabled ? (
+                  <>
+                    <p className="settings-status settings-status--positive">{t('lock.biometricEnabledStatus')}</p>
+                    <button type="button" className="btn btn-danger btn-block" disabled={biometricBusy} onClick={handleDisableBiometric}>
+                      {t('lock.biometricDisableButton')}
+                    </button>
+                  </>
+                ) : (
+                  <button type="button" className="btn btn-secondary btn-block" disabled={biometricBusy} onClick={handleEnableBiometric}>
+                    {t('lock.biometricEnableButton')}
+                  </button>
+                )}
+                {biometricError && <p className="field-error">{biometricError}</p>}
+              </>
+            )}
           </>
         ) : (
           <button type="button" className="btn btn-primary btn-block" onClick={() => open({ kind: 'pin-setup', mode: 'create' })}>

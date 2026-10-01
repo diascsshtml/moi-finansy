@@ -49,6 +49,7 @@ export function AppLockGate({ children }: AppLockGateProps) {
     return (
       <LockScreen
         pinLength={settings.pinLength || PIN_MIN_LENGTH}
+        biometricCredentialId={settings.biometricCredentialId}
         onUnlock={() => setState((s) => ({ ...s, unlocked: true }))}
       />
     );

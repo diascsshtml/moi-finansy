@@ -68,6 +68,12 @@ export const kk = {
     chooseNewPin: 'Жаңа PIN-код ойлап табыңыз (4–6 сан)',
     confirmNewPin: 'Жаңа PIN-кодты қайталаңыз',
     pinMismatch: 'PIN-кодтар сәйкес келмеді, қайталап көріңіз',
+    useBiometric: 'Face ID арқылы кіру',
+    biometricHint: 'PIN-кодқа қосымша — Face ID, Touch ID немесе саусақ ізі арқылы жылдам кіру. PIN әрқашан қосалқы тәсіл болып қалады.',
+    biometricEnabledStatus: 'Face ID / Touch ID арқылы кіру қосулы',
+    biometricEnableButton: 'Face ID / Touch ID қосу',
+    biometricDisableButton: 'Face ID / Touch ID өшіру',
+    biometricFailed: 'Баптау сәтсіз аяқталды — құрылғыда биометрия қосулы ма, тексеріңіз',
   },
   nav: {
     ariaLabel: 'Негізгі навигация',

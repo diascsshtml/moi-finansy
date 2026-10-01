@@ -427,13 +427,31 @@ export async function setPinCode(pin: string): Promise<void> {
 }
 
 export async function clearPinCode(): Promise<void> {
-  await db.settings.update(SETTINGS_ID, { pinHash: undefined, pinSalt: undefined, pinLength: undefined });
+  // Биометрия — только поверх PIN (см. doc-комментарий у biometricCredentialId
+  // в types.ts), так что отключение PIN заодно отключает и её — иначе
+  // биометрия осталась бы единственным гейтом без резервного способа войти.
+  await db.settings.update(SETTINGS_ID, {
+    pinHash: undefined,
+    pinSalt: undefined,
+    pinLength: undefined,
+    biometricCredentialId: undefined,
+  });
 }
 
 export async function checkPinCode(pin: string): Promise<boolean> {
   const settings = await db.settings.get(SETTINGS_ID);
   if (!settings?.pinHash || !settings.pinSalt) return false;
   return verifyPin(pin, settings.pinSalt, settings.pinHash);
+}
+
+// ---------- Биометрия (Face ID / Touch ID) — доп. способ входа поверх PIN ----------
+
+export async function setBiometricCredential(credentialId: string): Promise<void> {
+  await db.settings.update(SETTINGS_ID, { biometricCredentialId: credentialId });
+}
+
+export async function clearBiometricCredential(): Promise<void> {
+  await db.settings.update(SETTINGS_ID, { biometricCredentialId: undefined });
 }
 
 // ---------- Регулярные платежи (кредиты, тарифы, подписки) ----------

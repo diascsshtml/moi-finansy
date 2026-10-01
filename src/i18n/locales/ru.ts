@@ -68,6 +68,12 @@ export const ru = {
     chooseNewPin: 'Придумайте новый PIN-код (4–6 цифр)',
     confirmNewPin: 'Повторите новый PIN-код',
     pinMismatch: 'PIN-коды не совпадают, попробуйте снова',
+    useBiometric: 'Войти по Face ID',
+    biometricHint: 'Дополнительно к PIN-коду — быстрый вход по Face ID, Touch ID или отпечатку. PIN всегда остаётся резервным способом.',
+    biometricEnabledStatus: 'Вход по Face ID / Touch ID включён',
+    biometricEnableButton: 'Включить Face ID / Touch ID',
+    biometricDisableButton: 'Отключить Face ID / Touch ID',
+    biometricFailed: 'Не удалось настроить — проверьте, включена ли биометрия на устройстве',
   },
   nav: {
     ariaLabel: 'Основная навигация',
