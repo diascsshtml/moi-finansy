@@ -634,6 +634,7 @@ export const ru = {
   profileHub: {
     title: 'Личный кабинет',
     addName: 'Добавьте имя',
+    editProfile: 'Редактировать профиль',
     quickActionsTitle: 'Быстрые действия',
     actionDebts: 'Долги и кредиты',
     actionExport: 'Экспорт данных',

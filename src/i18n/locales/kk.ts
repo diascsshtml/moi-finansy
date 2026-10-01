@@ -616,6 +616,7 @@ export const kk = {
   profileHub: {
     title: 'Жеке кабинет',
     addName: 'Атыңызды қосыңыз',
+    editProfile: 'Профильді өңдеу',
     quickActionsTitle: 'Жылдам әрекеттер',
     actionDebts: 'Қарыздар мен кредиттер',
     actionExport: 'Деректерді экспорттау',
