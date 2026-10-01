@@ -59,14 +59,6 @@ export function SettingsPage() {
       </header>
 
       <section className="settings-section">
-        <h2>{t('settings.accountSectionTitle')}</h2>
-        <Link to="/settings/profile" className="settings-link-row">
-          <span>{t('userAccount.profileButton')}</span>
-          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
-        </Link>
-      </section>
-
-      <section className="settings-section">
         <h2>{t('settings.currency')}</h2>
         <div className="currency-grid">
           {CURRENCIES.map((c) => (

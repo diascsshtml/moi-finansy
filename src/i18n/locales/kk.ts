@@ -16,7 +16,6 @@ export const kk = {
     busy: 'Күте тұрыңыз…',
     loggedInAs: 'Сіз «{{username}}» ретінде кірдіңіз',
     noName: 'көрсетілмеген',
-    profileButton: 'Профиль',
     profileTitle: 'Профильді өңдеу',
     profileBack: '← Жеке кабинет',
     usernameHint: 'Логинді өзгерту мүмкін емес',
@@ -312,7 +311,6 @@ export const kk = {
   settings: {
     title: 'Баптаулар',
     back: '← Профиль',
-    accountSectionTitle: 'Аккаунт (кез келген құрылғыдан кіру)',
     currency: 'Валюта',
     customCurrencyPlaceholder: 'Өз белгіңіз',
     appearance: 'Тақырып',

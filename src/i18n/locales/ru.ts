@@ -16,7 +16,6 @@ export const ru = {
     busy: 'Подождите…',
     loggedInAs: 'Вы вошли как «{{username}}»',
     noName: 'не указано',
-    profileButton: 'Профиль',
     profileTitle: 'Редактировать профиль',
     profileBack: '← Личный кабинет',
     usernameHint: 'Логин нельзя изменить',
@@ -315,7 +314,6 @@ export const ru = {
   settings: {
     title: 'Настройки',
     back: '← Профиль',
-    accountSectionTitle: 'Аккаунт (вход с любого устройства)',
     currency: 'Валюта',
     customCurrencyPlaceholder: 'Свой символ',
     appearance: 'Оформление',
