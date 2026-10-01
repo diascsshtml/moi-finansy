@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { User } from 'lucide-react';
 import { useAccount } from '../context/AccountContext';
-import { updateEmail, updateName } from '../utils/accountAuth';
+import { logout, updateEmail, updateName } from '../utils/accountAuth';
+import { clearLocalData, pushSnapshotToServer, setSyncEnabled } from '../utils/dataSync';
+import { ensureSeeded } from '../db/seed';
 
-/** Профиль аккаунта — имя и почта (для восстановления пароля), вынесены с
- *  главной страницы Настроек на отдельную страницу (см. AccountSection —
- *  там только статус входа и переход сюда + выход из аккаунта). */
+/** Профиль аккаунта — имя, почта и вся логика самого аккаунта (статус входа,
+ *  выход) теперь здесь, на одной странице, а не раскидана между этой
+ *  страницей и блоком в Настройках (см. git-историю AccountSection). */
 export function Profile() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -18,6 +20,7 @@ export function Profile() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   if (!user) return null;
 
@@ -44,6 +47,22 @@ export function Profile() {
     }
   };
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      // Сохраняем последние изменения на сервере перед выходом, чтобы
+      // ничего не потерять — дальше локальные данные будут стёрты.
+      await pushSnapshotToServer().catch(() => {});
+      await logout();
+      setSyncEnabled(false);
+      await clearLocalData();
+      await ensureSeeded();
+      setUser(null);
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
   return (
     <div className="page">
       <header className="page-header">
@@ -61,6 +80,7 @@ export function Profile() {
         </span>
       </div>
 
+      <p className="settings-status settings-status--positive">{t('userAccount.loggedInAs', { username: user.username })}</p>
       <p className="settings-hint">{t('userAccount.syncHint')}</p>
 
       <label className="field-label" htmlFor="profile-name">
@@ -100,6 +120,10 @@ export function Profile() {
 
       <button type="button" className="btn btn-primary btn-block" disabled={busy || !dirty || !name.trim()} onClick={handleSave}>
         {busy ? t('userAccount.busy') : t('common.save')}
+      </button>
+
+      <button type="button" className="btn btn-danger btn-block" disabled={loggingOut} onClick={handleLogout}>
+        {t('userAccount.logoutButton')}
       </button>
     </div>
   );

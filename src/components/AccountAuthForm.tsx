@@ -11,9 +11,8 @@ interface AccountAuthFormProps {
   autoFocus?: boolean;
 }
 
-/** Общая форма входа/регистрации/сброса пароля — используется и на
- *  экране-шлюзе при открытии приложения (AccountGate), и в Настройках
- *  (AccountSection), чтобы не дублировать логику в двух местах.
+/** Форма входа/регистрации/сброса пароля — показывается на экране-шлюзе при
+ *  открытии приложения (см. AccountGate), пока пользователь не вошёл.
  *  Восстановление пароля — в два шага: запрос кода на почту (request-reset),
  *  затем код из письма + новый пароль (confirm-reset), см. accountAuth.ts. */
 export function AccountAuthForm({ onSuccess, autoFocus }: AccountAuthFormProps) {
