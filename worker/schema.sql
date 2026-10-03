@@ -14,6 +14,11 @@ CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   username TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL DEFAULT '',
+  -- Фамилия и отчество — отдельные поля (не часть name), чтобы форма
+  -- профиля (три отдельных поля) могла корректно показать их обратно при
+  -- следующем открытии, а не склеивать всё в одну строку и терять разбивку.
+  last_name TEXT,
+  patronymic TEXT,
   email TEXT,
   -- Фото профиля — уменьшенная и сжатая на клиенте картинка (см.
   -- utils/imageResize.ts), целиком как data URL (data:image/jpeg;base64,...).

@@ -16,14 +16,12 @@ export function Profile() {
   const navigate = useNavigate();
   const { user, setUser } = useAccount();
 
-  // Единое поле «Имя» на сервере — но на этой странице его показываем как три
-  // отдельных поля (Имя/Фамилия/Отчество) и при сохранении просто склеиваем
-  // через пробел. Разбивать существующее user.name обратно на три части при
-  // загрузке не пытаемся (неизвестно, в каком порядке оно было введено) —
-  // целиком кладём в «Имя», остальное пользователь донаберёт сам.
+  // Имя/фамилия/отчество — три отдельных поля и на сервере (не склеены в
+  // одну строку), иначе при следующем открытии формы их пришлось бы гадать
+  // обратно из одной строки.
   const [firstName, setFirstName] = useState(user?.name ?? '');
-  const [lastName, setLastName] = useState('');
-  const [patronymic, setPatronymic] = useState('');
+  const [lastName, setLastName] = useState(user?.lastName ?? '');
+  const [patronymic, setPatronymic] = useState(user?.patronymic ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
   const [busy, setBusy] = useState(false);
@@ -68,8 +66,9 @@ export function Profile() {
     }
   };
 
-  const combinedName = [firstName, lastName, patronymic].map((s) => s.trim()).filter(Boolean).join(' ');
-  const dirty = combinedName !== (user.name ?? '') || email.trim() !== (user.email ?? '') || phone.trim() !== (user.phone ?? '');
+  const nameDirty =
+    firstName.trim() !== (user.name ?? '') || lastName.trim() !== (user.lastName ?? '') || patronymic.trim() !== (user.patronymic ?? '');
+  const dirty = nameDirty || email.trim() !== (user.email ?? '') || phone.trim() !== (user.phone ?? '');
 
   const handleSave = async () => {
     setBusy(true);
@@ -77,8 +76,8 @@ export function Profile() {
     setStatus(null);
     try {
       let latest = user;
-      if (combinedName !== (user.name ?? '')) {
-        latest = await updateName(combinedName);
+      if (nameDirty) {
+        latest = await updateName(firstName.trim(), lastName.trim(), patronymic.trim());
       }
       if (email.trim() !== (user.email ?? '')) {
         latest = await updateEmail(email.trim());
@@ -219,7 +218,7 @@ export function Profile() {
       {error && <p className="field-error">{error}</p>}
       {status && <p className="settings-status settings-status--positive">{status}</p>}
 
-      <button type="button" className="btn btn-primary btn-block" disabled={busy || !dirty || !combinedName} onClick={handleSave}>
+      <button type="button" className="btn btn-primary btn-block" disabled={busy || !dirty || !firstName.trim()} onClick={handleSave}>
         {busy ? t('userAccount.busy') : t('common.save')}
       </button>
 

@@ -7,6 +7,10 @@
 export interface AuthUser {
   username: string;
   name: string;
+  // Отдельные поля, не часть name — см. updateName: страница профиля
+  // показывает их как три разных поля и должна уметь получить их обратно.
+  lastName?: string | null;
+  patronymic?: string | null;
   email: string | null;
   // Уменьшенное и сжатое на клиенте фото (data URL) — см. utils/imageResize.ts.
   // Хранится на сервере вместе с именем/почтой, поэтому видно на любом устройстве.
@@ -59,8 +63,8 @@ export async function logout(): Promise<void> {
   await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
 }
 
-export async function updateName(name: string): Promise<AuthUser> {
-  return api<AuthUser>('/api/auth/name', { method: 'PUT', body: JSON.stringify({ name }) });
+export async function updateName(name: string, lastName: string, patronymic: string): Promise<AuthUser> {
+  return api<AuthUser>('/api/auth/name', { method: 'PUT', body: JSON.stringify({ name, lastName, patronymic }) });
 }
 
 export async function updateEmail(email: string): Promise<AuthUser> {

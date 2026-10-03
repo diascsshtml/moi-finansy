@@ -28,6 +28,8 @@ interface UserRow {
   id: string;
   username: string;
   name: string;
+  last_name: string | null;
+  patronymic: string | null;
   email: string | null;
   avatar: string | null;
   phone: string | null;
@@ -107,14 +109,18 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
       VALUES (${id}, ${username}, ${name}, ${email}, ${hash}, ${salt}, ${createdAt})
     `;
     const token = await createSessionToken(id, env.SESSION_SECRET);
-    return json({ ok: true, username, name, email, avatar: null, phone: null, createdAt }, 200, { 'Set-Cookie': sessionCookieHeader(token) });
+    return json(
+      { ok: true, username, name, lastName: null, patronymic: null, email, avatar: null, phone: null, createdAt },
+      200,
+      { 'Set-Cookie': sessionCookieHeader(token) },
+    );
   }
 
   if (url.pathname === '/api/auth/login' && request.method === 'POST') {
     const body = (await request.json().catch(() => ({}))) as { username?: string; password?: string };
     const username = (body.username ?? '').trim();
     const rows = (await sql`
-      SELECT id, username, name, email, avatar, phone, password_hash, password_salt, created_at FROM users WHERE username = ${username}
+      SELECT id, username, name, last_name, patronymic, email, avatar, phone, password_hash, password_salt, created_at FROM users WHERE username = ${username}
     `) as Array<UserRow & { created_at: string }>;
     const user = rows[0] ?? null;
     if (!user || !(await verifyPassword(body.password ?? '', user.password_hash, user.password_salt))) {
@@ -122,7 +128,17 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     }
     const token = await createSessionToken(user.id, env.SESSION_SECRET);
     return json(
-      { ok: true, username: user.username, name: user.name, email: user.email, avatar: user.avatar, phone: user.phone, createdAt: user.created_at },
+      {
+        ok: true,
+        username: user.username,
+        name: user.name,
+        lastName: user.last_name,
+        patronymic: user.patronymic,
+        email: user.email,
+        avatar: user.avatar,
+        phone: user.phone,
+        createdAt: user.created_at,
+      },
       200,
       { 'Set-Cookie': sessionCookieHeader(token) },
     );
@@ -206,9 +222,11 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
   if (url.pathname === '/api/auth/me' && request.method === 'GET') {
     const userId = await currentUserId(request, env);
     if (!userId) return json({ error: 'not authenticated' }, 401);
-    const rows = (await sql`SELECT username, name, email, avatar, phone, created_at FROM users WHERE id = ${userId}`) as Array<{
+    const rows = (await sql`SELECT username, name, last_name, patronymic, email, avatar, phone, created_at FROM users WHERE id = ${userId}`) as Array<{
       username: string;
       name: string;
+      last_name: string | null;
+      patronymic: string | null;
       email: string | null;
       avatar: string | null;
       phone: string | null;
@@ -216,16 +234,33 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     }>;
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'not authenticated' }, 401);
-    return json({ username: user.username, name: user.name, email: user.email, avatar: user.avatar, phone: user.phone, createdAt: user.created_at });
+    return json({
+      username: user.username,
+      name: user.name,
+      lastName: user.last_name,
+      patronymic: user.patronymic,
+      email: user.email,
+      avatar: user.avatar,
+      phone: user.phone,
+      createdAt: user.created_at,
+    });
   }
 
+  // Имя/фамилия/отчество обновляются вместе одним вызовом — на странице
+  // профиля это три отдельных поля, но сохраняются атомарно. Фамилия и
+  // отчество необязательны (NULL, если пусто), имя — обязательно.
   if (url.pathname === '/api/auth/name' && request.method === 'PUT') {
     const userId = await currentUserId(request, env);
     if (!userId) return json({ error: 'not authenticated' }, 401);
-    const body = (await request.json().catch(() => ({}))) as { name?: string };
+    const body = (await request.json().catch(() => ({}))) as { name?: string; lastName?: string; patronymic?: string };
     const name = (body.name ?? '').trim();
+    const lastName = (body.lastName ?? '').trim();
+    const patronymic = (body.patronymic ?? '').trim();
     if (!isValidName(name)) {
       return json({ error: 'Введите имя' }, 400);
+    }
+    if (lastName.length > 60 || patronymic.length > 60) {
+      return json({ error: 'Слишком длинное значение' }, 400);
     }
     const rows = (await sql`SELECT username, email, avatar, phone, created_at FROM users WHERE id = ${userId}`) as Array<{
       username: string;
@@ -236,8 +271,19 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     }>;
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'not authenticated' }, 401);
-    await sql`UPDATE users SET name = ${name} WHERE id = ${userId}`;
-    return json({ username: user.username, name, email: user.email, avatar: user.avatar, phone: user.phone, createdAt: user.created_at });
+    const lastNameValue = lastName.length > 0 ? lastName : null;
+    const patronymicValue = patronymic.length > 0 ? patronymic : null;
+    await sql`UPDATE users SET name = ${name}, last_name = ${lastNameValue}, patronymic = ${patronymicValue} WHERE id = ${userId}`;
+    return json({
+      username: user.username,
+      name,
+      lastName: lastNameValue,
+      patronymic: patronymicValue,
+      email: user.email,
+      avatar: user.avatar,
+      phone: user.phone,
+      createdAt: user.created_at,
+    });
   }
 
   if (url.pathname === '/api/auth/email' && request.method === 'PUT') {
@@ -248,9 +294,11 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     if (!isValidEmail(email)) {
       return json({ error: 'Введите корректную почту' }, 400);
     }
-    const rows = (await sql`SELECT username, name, avatar, phone, created_at FROM users WHERE id = ${userId}`) as Array<{
+    const rows = (await sql`SELECT username, name, last_name, patronymic, avatar, phone, created_at FROM users WHERE id = ${userId}`) as Array<{
       username: string;
       name: string;
+      last_name: string | null;
+      patronymic: string | null;
       avatar: string | null;
       phone: string | null;
       created_at: string;
@@ -258,7 +306,16 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'not authenticated' }, 401);
     await sql`UPDATE users SET email = ${email} WHERE id = ${userId}`;
-    return json({ username: user.username, name: user.name, email, avatar: user.avatar, phone: user.phone, createdAt: user.created_at });
+    return json({
+      username: user.username,
+      name: user.name,
+      lastName: user.last_name,
+      patronymic: user.patronymic,
+      email,
+      avatar: user.avatar,
+      phone: user.phone,
+      createdAt: user.created_at,
+    });
   }
 
   if (url.pathname === '/api/auth/phone' && request.method === 'PUT') {
@@ -269,9 +326,11 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     if (!isValidPhone(phone)) {
       return json({ error: 'Введите корректный номер телефона' }, 400);
     }
-    const rows = (await sql`SELECT username, name, email, avatar, created_at FROM users WHERE id = ${userId}`) as Array<{
+    const rows = (await sql`SELECT username, name, last_name, patronymic, email, avatar, created_at FROM users WHERE id = ${userId}`) as Array<{
       username: string;
       name: string;
+      last_name: string | null;
+      patronymic: string | null;
       email: string | null;
       avatar: string | null;
       created_at: string;
@@ -280,7 +339,16 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     if (!user) return json({ error: 'not authenticated' }, 401);
     const phoneValue = phone.length > 0 ? phone : null;
     await sql`UPDATE users SET phone = ${phoneValue} WHERE id = ${userId}`;
-    return json({ username: user.username, name: user.name, email: user.email, avatar: user.avatar, phone: phoneValue, createdAt: user.created_at });
+    return json({
+      username: user.username,
+      name: user.name,
+      lastName: user.last_name,
+      patronymic: user.patronymic,
+      email: user.email,
+      avatar: user.avatar,
+      phone: phoneValue,
+      createdAt: user.created_at,
+    });
   }
 
   if (url.pathname === '/api/auth/avatar' && request.method === 'PUT') {
@@ -296,9 +364,11 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
         return json({ error: 'Фото слишком большое' }, 400);
       }
     }
-    const rows = (await sql`SELECT username, name, email, phone, created_at FROM users WHERE id = ${userId}`) as Array<{
+    const rows = (await sql`SELECT username, name, last_name, patronymic, email, phone, created_at FROM users WHERE id = ${userId}`) as Array<{
       username: string;
       name: string;
+      last_name: string | null;
+      patronymic: string | null;
       email: string | null;
       phone: string | null;
       created_at: string;
@@ -306,7 +376,16 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'not authenticated' }, 401);
     await sql`UPDATE users SET avatar = ${avatar} WHERE id = ${userId}`;
-    return json({ username: user.username, name: user.name, email: user.email, avatar, phone: user.phone, createdAt: user.created_at });
+    return json({
+      username: user.username,
+      name: user.name,
+      lastName: user.last_name,
+      patronymic: user.patronymic,
+      email: user.email,
+      avatar,
+      phone: user.phone,
+      createdAt: user.created_at,
+    });
   }
 
   if (url.pathname === '/api/data' && request.method === 'GET') {
