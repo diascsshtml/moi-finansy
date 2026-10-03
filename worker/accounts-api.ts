@@ -29,9 +29,15 @@ interface UserRow {
   username: string;
   name: string;
   email: string | null;
+  avatar: string | null;
   password_hash: string;
   password_salt: string;
 }
+
+// Защита от аномально большого значения, даже если клиент почему-то не сжал
+// фото (см. utils/imageResize.ts) — обычное сжатое превью укладывается в
+// несколько десятков КБ, этого с большим запасом хватает.
+const MAX_AVATAR_LENGTH = 400_000;
 
 interface UserRowWithResetCode {
   id: string;
@@ -94,14 +100,14 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
       VALUES (${id}, ${username}, ${name}, ${email}, ${hash}, ${salt}, ${createdAt})
     `;
     const token = await createSessionToken(id, env.SESSION_SECRET);
-    return json({ ok: true, username, name, email, createdAt }, 200, { 'Set-Cookie': sessionCookieHeader(token) });
+    return json({ ok: true, username, name, email, avatar: null, createdAt }, 200, { 'Set-Cookie': sessionCookieHeader(token) });
   }
 
   if (url.pathname === '/api/auth/login' && request.method === 'POST') {
     const body = (await request.json().catch(() => ({}))) as { username?: string; password?: string };
     const username = (body.username ?? '').trim();
     const rows = (await sql`
-      SELECT id, username, name, email, password_hash, password_salt, created_at FROM users WHERE username = ${username}
+      SELECT id, username, name, email, avatar, password_hash, password_salt, created_at FROM users WHERE username = ${username}
     `) as Array<UserRow & { created_at: string }>;
     const user = rows[0] ?? null;
     if (!user || !(await verifyPassword(body.password ?? '', user.password_hash, user.password_salt))) {
@@ -109,7 +115,7 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     }
     const token = await createSessionToken(user.id, env.SESSION_SECRET);
     return json(
-      { ok: true, username: user.username, name: user.name, email: user.email, createdAt: user.created_at },
+      { ok: true, username: user.username, name: user.name, email: user.email, avatar: user.avatar, createdAt: user.created_at },
       200,
       { 'Set-Cookie': sessionCookieHeader(token) },
     );
@@ -193,15 +199,16 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
   if (url.pathname === '/api/auth/me' && request.method === 'GET') {
     const userId = await currentUserId(request, env);
     if (!userId) return json({ error: 'not authenticated' }, 401);
-    const rows = (await sql`SELECT username, name, email, created_at FROM users WHERE id = ${userId}`) as Array<{
+    const rows = (await sql`SELECT username, name, email, avatar, created_at FROM users WHERE id = ${userId}`) as Array<{
       username: string;
       name: string;
       email: string | null;
+      avatar: string | null;
       created_at: string;
     }>;
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'not authenticated' }, 401);
-    return json({ username: user.username, name: user.name, email: user.email, createdAt: user.created_at });
+    return json({ username: user.username, name: user.name, email: user.email, avatar: user.avatar, createdAt: user.created_at });
   }
 
   if (url.pathname === '/api/auth/name' && request.method === 'PUT') {
@@ -212,15 +219,16 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     if (!isValidName(name)) {
       return json({ error: 'Введите имя' }, 400);
     }
-    const rows = (await sql`SELECT username, email, created_at FROM users WHERE id = ${userId}`) as Array<{
+    const rows = (await sql`SELECT username, email, avatar, created_at FROM users WHERE id = ${userId}`) as Array<{
       username: string;
       email: string | null;
+      avatar: string | null;
       created_at: string;
     }>;
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'not authenticated' }, 401);
     await sql`UPDATE users SET name = ${name} WHERE id = ${userId}`;
-    return json({ username: user.username, name, email: user.email, createdAt: user.created_at });
+    return json({ username: user.username, name, email: user.email, avatar: user.avatar, createdAt: user.created_at });
   }
 
   if (url.pathname === '/api/auth/email' && request.method === 'PUT') {
@@ -231,15 +239,41 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
     if (!isValidEmail(email)) {
       return json({ error: 'Введите корректную почту' }, 400);
     }
-    const rows = (await sql`SELECT username, name, created_at FROM users WHERE id = ${userId}`) as Array<{
+    const rows = (await sql`SELECT username, name, avatar, created_at FROM users WHERE id = ${userId}`) as Array<{
       username: string;
       name: string;
+      avatar: string | null;
       created_at: string;
     }>;
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'not authenticated' }, 401);
     await sql`UPDATE users SET email = ${email} WHERE id = ${userId}`;
-    return json({ username: user.username, name: user.name, email, createdAt: user.created_at });
+    return json({ username: user.username, name: user.name, email, avatar: user.avatar, createdAt: user.created_at });
+  }
+
+  if (url.pathname === '/api/auth/avatar' && request.method === 'PUT') {
+    const userId = await currentUserId(request, env);
+    if (!userId) return json({ error: 'not authenticated' }, 401);
+    const body = (await request.json().catch(() => ({}))) as { avatar?: string | null };
+    const avatar = body.avatar ?? null;
+    if (avatar !== null) {
+      if (typeof avatar !== 'string' || !avatar.startsWith('data:image/')) {
+        return json({ error: 'Некорректное изображение' }, 400);
+      }
+      if (avatar.length > MAX_AVATAR_LENGTH) {
+        return json({ error: 'Фото слишком большое' }, 400);
+      }
+    }
+    const rows = (await sql`SELECT username, name, email, created_at FROM users WHERE id = ${userId}`) as Array<{
+      username: string;
+      name: string;
+      email: string | null;
+      created_at: string;
+    }>;
+    const user = rows[0] ?? null;
+    if (!user) return json({ error: 'not authenticated' }, 401);
+    await sql`UPDATE users SET avatar = ${avatar} WHERE id = ${userId}`;
+    return json({ username: user.username, name: user.name, email: user.email, avatar, createdAt: user.created_at });
   }
 
   if (url.pathname === '/api/data' && request.method === 'GET') {
