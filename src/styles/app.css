@@ -491,6 +491,26 @@
   color: var(--accent);
 }
 
+/* Лёгкая заливка поверх обводки у иконок в цветных круглых "бейджах" —
+   даёт более плотный, "залитый" вид без замены всей библиотеки иконок
+   (Lucide — чисто контурная, у полноценной заливки многие пиктограммы
+   выглядели бы сломанными). Крошечные inline-иконки рядом с текстом сюда
+   не входят — там заливка будет только шуметь. */
+.grouped-list-icon svg,
+.account-list-icon svg,
+.quick-action-icon svg,
+.overview-icon svg,
+.page-header-icon svg,
+.debt-detail-icon svg,
+.category-breakdown-icon svg,
+.fab-option-icon svg,
+.lock-screen-icon svg,
+.account-gate-icon svg,
+.bills-banner-icon svg {
+  fill: currentColor;
+  fill-opacity: 0.16;
+}
+
 .grouped-list-info {
   flex: 1;
   min-width: 0;
