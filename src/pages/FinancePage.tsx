@@ -6,6 +6,7 @@ import { Settings2, TrendingDown, TrendingUp } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { Sparkline } from '../components/Sparkline';
+import { StatCard } from '../components/StatCard';
 import { CATEGORICAL_LIGHT } from '../styles/palette';
 import { formatMoney } from '../utils/format';
 import { getCashBalance } from '../utils/stats';
@@ -193,6 +194,7 @@ export function FinancePage() {
           )}
 
           <p className="section-label">{t('finance.myAssetsTitle')}</p>
+          <StatCard label={t('finance.assetsTotal')} value={formatMoney(moneyTotal, settings.currency)} emphasis />
           <div className="stat-row stat-row-3">
             <div className="stat-card overview-card">
               <span className="stat-card-label">{t('finance.assetsMoney')}</span>

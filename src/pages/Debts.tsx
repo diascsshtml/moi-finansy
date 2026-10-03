@@ -97,6 +97,13 @@ export function Debts() {
         </div>
       </div>
 
+      {owedToMe + iOwe > 0 && (
+        <div className="debts-balance-bar">
+          <div className="debts-balance-bar-fill debts-balance-bar-fill--positive" style={{ width: `${(owedToMe / (owedToMe + iOwe)) * 100}%` }} />
+          <div className="debts-balance-bar-fill debts-balance-bar-fill--negative" style={{ width: `${(iOwe / (owedToMe + iOwe)) * 100}%` }} />
+        </div>
+      )}
+
       <div className="segmented" role="tablist">
         <button
           type="button"

@@ -7,11 +7,17 @@ interface StatCardProps {
   hint?: string;
   emphasis?: boolean;
   action?: ReactNode;
+  icon?: ReactNode;
 }
 
-export function StatCard({ label, value, tone = 'neutral', hint, emphasis, action }: StatCardProps) {
+export function StatCard({ label, value, tone = 'neutral', hint, emphasis, action, icon }: StatCardProps) {
   return (
-    <div className={`stat-card${emphasis ? ' stat-card--hero' : ''}`}>
+    <div className={`stat-card${emphasis ? ' stat-card--hero' : ''}${icon ? ' overview-card' : ''}`}>
+      {icon && (
+        <span className={`overview-icon overview-icon--${tone === 'neutral' ? 'danger' : tone}`} aria-hidden="true">
+          {icon}
+        </span>
+      )}
       <div className="stat-card-top">
         <span className="stat-card-label">{label}</span>
         {action}

@@ -136,23 +136,23 @@ export function History() {
 
       <div className="period-summary-card">
         <div className="period-summary-row">
-          <div className="period-summary-item">
+          <div className="period-summary-item period-summary-item--income">
             <span className="period-summary-label">{t('history.typeIncome')}</span>
             <span className="period-summary-value tone-positive">{formatMoney(monthIncome, settings.currency)}</span>
           </div>
-          <div className="period-summary-item">
+          <div className="period-summary-item period-summary-item--expense">
             <span className="period-summary-label">{t('history.typeExpense')}</span>
             <span className="period-summary-value tone-negative">{formatMoney(monthExpense, settings.currency)}</span>
           </div>
-          <div className="period-summary-item">
+          <div className="period-summary-item period-summary-item--total">
             <span className="period-summary-label">{t('history.summaryTotal')}</span>
             <span className={`period-summary-value tone-${monthNet >= 0 ? 'positive' : 'negative'}`}>
               {formatMoney(monthNet, settings.currency, { signed: true })}
             </span>
           </div>
         </div>
-        <div className="debt-progress-track">
-          <div className="debt-progress-fill" style={{ width: `${barPct}%`, background: barColor }} />
+        <div className="period-progress-track">
+          <div className="period-progress-fill" style={{ width: `${barPct}%`, background: barColor }} />
         </div>
         {barHint && <p className="period-summary-hint">{barHint}</p>}
       </div>

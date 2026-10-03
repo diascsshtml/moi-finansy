@@ -107,6 +107,7 @@ export const kk = {
     noFavorites: 'Сіз әлі таңдаулыға ешбір актив қоспадыңыз — «Баптау» түймесін басыңыз.',
     otherCurrencies: 'Басқа валюталар',
     myAssetsTitle: 'Менің активтерім',
+    assetsTotal: 'Барлық активтер',
     assetsMoney: 'Ақша',
     assetsInvestments: 'Инвестициялар',
     assetsCash: 'Қолма-қол',

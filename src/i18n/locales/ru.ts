@@ -107,6 +107,7 @@ export const ru = {
     noFavorites: 'Вы ещё не добавили ни одного актива в избранное — нажмите «Настроить».',
     otherCurrencies: 'Остальные валюты',
     myAssetsTitle: 'Мои активы',
+    assetsTotal: 'Всего активов',
     assetsMoney: 'Деньги',
     assetsInvestments: 'Инвестиции',
     assetsCash: 'Наличные',

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { Eye, EyeOff, User } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Eye, EyeOff, User } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { useAccount } from '../context/AccountContext';
@@ -191,11 +191,13 @@ export function Dashboard() {
           label={t('dashboard.owedToMe')}
           value={mask(formatMoney(debtTotals.owedToMe, settings.currency))}
           tone={debtTotals.owedToMe > 0 ? 'positive' : 'neutral'}
+          icon={<ArrowDownLeft size={16} strokeWidth={2.25} />}
         />
         <StatCard
           label={t('dashboard.iOwe')}
           value={mask(formatMoney(debtTotals.iOwe, settings.currency))}
           tone={debtTotals.iOwe > 0 ? 'negative' : 'neutral'}
+          icon={<ArrowUpRight size={16} strokeWidth={2.25} />}
         />
       </div>
 
