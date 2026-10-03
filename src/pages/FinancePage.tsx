@@ -145,6 +145,23 @@ export function FinancePage() {
         <p className="field-error">{error}</p>
       ) : (
         <>
+          <p className="section-label">{t('finance.myAssetsTitle')}</p>
+          <StatCard label={t('finance.assetsTotal')} value={formatMoney(moneyTotal, settings.currency)} emphasis />
+          <div className="stat-row stat-row-3">
+            <div className="stat-card overview-card">
+              <span className="stat-card-label">{t('finance.assetsMoney')}</span>
+              <div className="stat-card-value">{formatMoney(moneyTotal, settings.currency)}</div>
+            </div>
+            <div className="stat-card overview-card">
+              <span className="stat-card-label">{t('finance.assetsInvestments')}</span>
+              <div className="stat-card-value">{formatMoney(0, settings.currency)}</div>
+            </div>
+            <div className="stat-card overview-card">
+              <span className="stat-card-label">{t('finance.assetsCash')}</span>
+              <div className="stat-card-value">{formatMoney(0, settings.currency)}</div>
+            </div>
+          </div>
+
           <div className="section-header">
             <h2>{t('finance.favoritesTitle')}</h2>
             <Link to="/finance/customize" className="btn-link finance-customize-link">
@@ -192,23 +209,6 @@ export function FinancePage() {
               </div>
             </>
           )}
-
-          <p className="section-label">{t('finance.myAssetsTitle')}</p>
-          <StatCard label={t('finance.assetsTotal')} value={formatMoney(moneyTotal, settings.currency)} emphasis />
-          <div className="stat-row stat-row-3">
-            <div className="stat-card overview-card">
-              <span className="stat-card-label">{t('finance.assetsMoney')}</span>
-              <div className="stat-card-value">{formatMoney(moneyTotal, settings.currency)}</div>
-            </div>
-            <div className="stat-card overview-card">
-              <span className="stat-card-label">{t('finance.assetsInvestments')}</span>
-              <div className="stat-card-value">{formatMoney(0, settings.currency)}</div>
-            </div>
-            <div className="stat-card overview-card">
-              <span className="stat-card-label">{t('finance.assetsCash')}</span>
-              <div className="stat-card-value">{formatMoney(0, settings.currency)}</div>
-            </div>
-          </div>
         </>
       )}
 
