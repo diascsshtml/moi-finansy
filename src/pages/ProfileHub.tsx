@@ -50,7 +50,6 @@ export function ProfileHub() {
         </div>
       </div>
 
-      <h2>{t('profileHub.quickActionsTitle')}</h2>
       <div className="quick-actions-grid quick-actions-grid--2">
         <button type="button" className="quick-action-tile" onClick={handleExport}>
           <span className="quick-action-icon" aria-hidden="true">

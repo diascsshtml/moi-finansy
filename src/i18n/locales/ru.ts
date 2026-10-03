@@ -596,7 +596,6 @@ export const ru = {
     title: 'Личный кабинет',
     addName: 'Добавьте имя',
     editProfile: 'Редактировать профиль',
-    quickActionsTitle: 'Быстрые действия',
     actionExport: 'Экспорт данных',
     actionStats: 'Аналитика',
     settingsTitle: 'Настройки',

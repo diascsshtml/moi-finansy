@@ -584,7 +584,6 @@ export const kk = {
     title: 'Жеке кабинет',
     addName: 'Атыңызды қосыңыз',
     editProfile: 'Профильді өңдеу',
-    quickActionsTitle: 'Жылдам әрекеттер',
     actionExport: 'Деректерді экспорттау',
     actionStats: 'Аналитика',
     settingsTitle: 'Баптаулар',
