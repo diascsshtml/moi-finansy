@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { User } from 'lucide-react';
+import { Camera, User } from 'lucide-react';
 import { useAccount } from '../context/AccountContext';
-import { logout, updateEmail, updateName } from '../utils/accountAuth';
+import { logout, updateAvatar, updateEmail, updateName } from '../utils/accountAuth';
 import { clearLocalData, pushSnapshotToServer, setSyncEnabled } from '../utils/dataSync';
+import { resizeImageToDataUrl } from '../utils/imageResize';
 import { ensureSeeded } from '../db/seed';
 
 /** Профиль аккаунта — имя, почта и вся логика самого аккаунта (статус входа,
@@ -21,8 +22,43 @@ export function Profile() {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!user) return null;
+
+  const handlePickPhoto = () => fileInputRef.current?.click();
+
+  const handlePhotoSelected = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setAvatarBusy(true);
+    setAvatarError(null);
+    try {
+      const dataUrl = await resizeImageToDataUrl(file);
+      const latest = await updateAvatar(dataUrl);
+      setUser(latest);
+    } catch {
+      setAvatarError(t('userAccount.avatarError'));
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
+
+  const handleRemovePhoto = async () => {
+    setAvatarBusy(true);
+    setAvatarError(null);
+    try {
+      const latest = await updateAvatar(null);
+      setUser(latest);
+    } catch {
+      setAvatarError(t('userAccount.avatarError'));
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
 
   const dirty = name.trim() !== (user.name ?? '') || email.trim() !== (user.email ?? '');
 
@@ -73,12 +109,28 @@ export function Profile() {
       </header>
 
       <div className="profile-edit-avatar-wrap">
-        <span className="profile-avatar-ring profile-avatar-ring--lg" aria-hidden="true">
+        <button type="button" className="profile-avatar-ring profile-avatar-ring--lg profile-avatar-button" onClick={handlePickPhoto} disabled={avatarBusy}>
           <span className="profile-avatar-circle">
-            <User size={40} strokeWidth={1.75} />
+            {user.avatar ? <img src={user.avatar} alt="" className="profile-avatar-photo" /> : <User size={40} strokeWidth={1.75} />}
           </span>
-        </span>
+          <span className="profile-avatar-edit-badge" aria-hidden="true">
+            <Camera size={14} strokeWidth={2.25} />
+          </span>
+        </button>
+        <input ref={fileInputRef} type="file" accept="image/*" className="visually-hidden" onChange={(e) => void handlePhotoSelected(e)} />
       </div>
+
+      <div className="profile-avatar-actions">
+        <button type="button" className="btn-link" disabled={avatarBusy} onClick={handlePickPhoto}>
+          {avatarBusy ? t('userAccount.busy') : t('userAccount.changePhoto')}
+        </button>
+        {user.avatar && (
+          <button type="button" className="btn-link profile-avatar-remove" disabled={avatarBusy} onClick={handleRemovePhoto}>
+            {t('userAccount.removePhoto')}
+          </button>
+        )}
+      </div>
+      {avatarError && <p className="field-error">{avatarError}</p>}
 
       <p className="settings-status settings-status--positive">{t('userAccount.loggedInAs', { username: user.username })}</p>
       <p className="settings-hint">{t('userAccount.syncHint')}</p>

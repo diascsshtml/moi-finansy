@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
+import { Eye, EyeOff, User } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { useAccount } from '../context/AccountContext';
@@ -10,7 +11,7 @@ import { HistoryEntryRow } from '../components/HistoryEntryRow';
 import { EmptyState } from '../components/EmptyState';
 import { BillsAlertBanner } from '../components/BillsAlertBanner';
 import { buildHistory } from '../utils/history';
-import { formatDateHuman, formatMoney, todayISO } from '../utils/format';
+import { formatDateHuman, formatMoney, formatWeekdayDate, todayISO } from '../utils/format';
 import { toDisplayColor } from '../styles/palette';
 import { accountDisplayName } from '../utils/displayName';
 import { EmojiIcon } from '../utils/icons';
@@ -18,10 +19,20 @@ import { getBillsNeedingAttention } from '../utils/bills';
 import { notifyAboutBills } from '../utils/notifications';
 import { getAccountBalances, getCashBalance, getDebtTotals, isWithinCurrentMonth } from '../utils/stats';
 
+function getGreeting(t: (key: string) => string): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return t('dashboard.greetingMorning');
+  if (hour >= 12 && hour < 18) return t('dashboard.greetingDay');
+  if (hour >= 18 && hour < 23) return t('dashboard.greetingEvening');
+  return t('dashboard.greetingNight');
+}
+
 export function Dashboard() {
   const { t } = useTranslation();
-  const { settings, isDark } = useSettings();
+  const { settings, isDark, setHideBalance } = useSettings();
   const { user } = useAccount();
+  const hideBalance = !!settings.hideBalance;
+  const mask = (text: string) => (hideBalance ? t('dashboard.hiddenValue') : text);
   const transactions = useLiveQuery(() => db.transactions.toArray(), []);
   const debts = useLiveQuery(() => db.debts.toArray(), []);
   const categories = useLiveQuery(() => db.categories.toArray(), []);
@@ -98,18 +109,26 @@ export function Dashboard() {
 
   return (
     <div className="page">
-      <header className="page-header">
-        {user ? (
-          <>
-            <h1>{user.name || `@${user.username}`}</h1>
-            {user.name && <p className="page-subtitle">@{user.username}</p>}
-          </>
-        ) : (
-          <>
-            <h1>{t('dashboard.title')}</h1>
-            <p className="page-subtitle">{t('dashboard.subtitle')}</p>
-          </>
-        )}
+      <header className="dashboard-header">
+        <Link to="/settings" className="dashboard-header-avatar" aria-label={t('nav.profile')}>
+          <span className="profile-avatar-ring profile-avatar-ring--sm" aria-hidden="true">
+            <span className="profile-avatar-circle">
+              {user?.avatar ? <img src={user.avatar} alt="" className="profile-avatar-photo" /> : <User size={20} strokeWidth={1.75} />}
+            </span>
+          </span>
+        </Link>
+        <div className="dashboard-header-text">
+          <p className="dashboard-header-date">{formatWeekdayDate(new Date())}</p>
+          <h1 className="dashboard-header-greeting">{getGreeting(t)}</h1>
+        </div>
+        <button
+          type="button"
+          className="icon-btn dashboard-hide-balance-btn"
+          onClick={() => void setHideBalance(!hideBalance)}
+          aria-label={hideBalance ? t('dashboard.showBalance') : t('dashboard.hideBalance')}
+        >
+          {hideBalance ? <EyeOff size={20} strokeWidth={1.75} /> : <Eye size={20} strokeWidth={1.75} />}
+        </button>
       </header>
 
       <BillsAlertBanner statuses={billsNeedingAttention} />
@@ -136,9 +155,9 @@ export function Dashboard() {
 
       <StatCard
         label={scope === 'all' ? t('dashboard.balance') : t('dashboard.balanceOf', { name: accountDisplayName(accountsById.get(scope), t) })}
-        value={formatMoney(balance, settings.currency)}
+        value={mask(formatMoney(balance, settings.currency))}
         tone={balance >= 0 ? 'positive' : 'negative'}
-        hint={t('dashboard.thisMonth', { value: formatMoney(monthNet, settings.currency, { signed: true }) })}
+        hint={t('dashboard.thisMonth', { value: mask(formatMoney(monthNet, settings.currency, { signed: true })) })}
         emphasis
       />
 
@@ -156,7 +175,7 @@ export function Dashboard() {
                 <span className="account-list-name">{accountDisplayName(a, t)}</span>
                 {a.bank && <span className="account-list-bank">{a.bank}</span>}
                 <span className={`account-balance-value tone-${(accountBalances.get(a.id) ?? 0) >= 0 ? 'positive' : 'negative'}`}>
-                  {formatMoney(accountBalances.get(a.id) ?? 0, settings.currency)}
+                  {mask(formatMoney(accountBalances.get(a.id) ?? 0, settings.currency))}
                 </span>
               </span>
             </button>
@@ -167,12 +186,12 @@ export function Dashboard() {
       <div className="stat-row">
         <StatCard
           label={t('dashboard.owedToMe')}
-          value={formatMoney(debtTotals.owedToMe, settings.currency)}
+          value={mask(formatMoney(debtTotals.owedToMe, settings.currency))}
           tone={debtTotals.owedToMe > 0 ? 'positive' : 'neutral'}
         />
         <StatCard
           label={t('dashboard.iOwe')}
-          value={formatMoney(debtTotals.iOwe, settings.currency)}
+          value={mask(formatMoney(debtTotals.iOwe, settings.currency))}
           tone={debtTotals.iOwe > 0 ? 'negative' : 'neutral'}
         />
       </div>

@@ -37,7 +37,7 @@ export function ProfileHub() {
         <div className="profile-card-top">
           <span className="profile-avatar-ring" aria-hidden="true">
             <span className="profile-avatar-circle">
-              <User size={32} strokeWidth={1.75} />
+              {user?.avatar ? <img src={user.avatar} alt="" className="profile-avatar-photo" /> : <User size={32} strokeWidth={1.75} />}
             </span>
           </span>
           <div>

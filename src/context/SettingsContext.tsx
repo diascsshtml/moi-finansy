@@ -15,6 +15,7 @@ interface SettingsContextValue {
   setCurrency: (currency: string) => Promise<void>;
   setTheme: (theme: ThemeMode) => Promise<void>;
   setLanguage: (language: AppLanguage) => Promise<void>;
+  setHideBalance: (hide: boolean) => Promise<void>;
   markOnboarded: () => Promise<void>;
 }
 
@@ -69,6 +70,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       },
       setLanguage: async (language) => {
         await db.settings.update(SETTINGS_ID, { language });
+      },
+      setHideBalance: async (hide) => {
+        await db.settings.update(SETTINGS_ID, { hideBalance: hide });
       },
       markOnboarded: async () => {
         await db.settings.update(SETTINGS_ID, { onboarded: true });

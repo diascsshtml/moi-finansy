@@ -49,6 +49,13 @@ export function formatMonthYearFull(date: Date): string {
   return format(date, 'LLLL yyyy', { locale: dateFnsLocale() });
 }
 
+/** «Суббота, 3 октября» — день недели и дата для приветствия на главном
+ *  экране. date-fns отдаёт день недели со строчной буквы — выравниваем. */
+export function formatWeekdayDate(date: Date): string {
+  const text = format(date, 'EEEE, d MMMM', { locale: dateFnsLocale() });
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 export function todayISO(): string {
   return format(new Date(), 'yyyy-MM-dd');
 }
