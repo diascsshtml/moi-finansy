@@ -180,6 +180,10 @@ export interface AppSettings {
   // чисто локальное отображение, как PIN/тема: ничего не шифрует и не
   // синхронизируется, просто прячет цифры от чужих глаз на этом устройстве.
   hideBalance?: boolean;
+  // Избранные активы на странице «Финансы» — коды вида "currency:USD" или
+  // "crypto:bitcoin", в порядке показа пользователю. undefined — используется
+  // дефолтный набор (см. FinancePage.DEFAULT_FAVORITES).
+  financeFavorites?: string[];
   onboarded: boolean;
 }
 

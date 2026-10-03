@@ -3,13 +3,14 @@ import { sendWebPush, type PushSubscriptionInfo } from './webpush';
 import { handleAccountsApi } from './accounts-api';
 import { readSessionCookie, verifySessionToken } from './auth';
 import { runNotificationSweep } from './notifications';
-import { handleRatesApi } from './rates';
+import { handleCryptoRatesApi, handleRateHistoryApi, handleRatesApi, handleRatesBackfillAdmin, recordDailySnapshot } from './rates';
 
 export interface Env {
   ASSETS: Fetcher;
   DATABASE_URL: string;
   SESSION_SECRET: string;
   ADMIN_KEY: string;
+  RATES_BACKFILL_KEY: string;
   BREVO_API_KEY: string;
   BREVO_SENDER_EMAIL: string;
   VAPID_PUBLIC_KEY: string;
@@ -62,6 +63,15 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
 
   const ratesResponse = await handleRatesApi(request, url);
   if (ratesResponse) return ratesResponse;
+
+  const cryptoRatesResponse = await handleCryptoRatesApi(request, url);
+  if (cryptoRatesResponse) return cryptoRatesResponse;
+
+  const rateHistoryResponse = await handleRateHistoryApi(request, env, url);
+  if (rateHistoryResponse) return rateHistoryResponse;
+
+  const ratesBackfillResponse = await handleRatesBackfillAdmin(request, env, url);
+  if (ratesBackfillResponse) return ratesBackfillResponse;
 
   if (url.pathname.startsWith('/api/push/')) {
     try {
@@ -200,5 +210,10 @@ export default {
 
   async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
     ctx.waitUntil(runNotificationSweep(env));
+    // Независимо от напоминаний — пишет сегодняшний снимок курсов/крипты (не
+    // чаще раза в день) и попутно докатывает недостающую историю в прошлое.
+    // Своя ошибка не должна блокировать runNotificationSweep выше, поэтому —
+    // отдельный waitUntil с собственным catch.
+    ctx.waitUntil(recordDailySnapshot(env).catch((e) => console.error('rates snapshot failed', e)));
   },
 };

@@ -66,3 +66,19 @@ CREATE TABLE IF NOT EXISTS notification_prefs (
   bills_time TEXT NOT NULL DEFAULT '10:00',
   updated_at TEXT NOT NULL
 );
+
+-- Дневные снимки курсов валют (НацБанк РК) и крипты (CoinGecko, пересчитано
+-- в тенге по курсу USD/KZT того же дня) — общие для всех пользователей, не
+-- привязаны к user_id. Наполняются часовым cron (см. worker/rates.ts:
+-- recordDailySnapshot — пишет не чаще раза в день) и разовым бэкфиллом за
+-- прошлые даты через /api/admin/rates-backfill. Нужны для графиков истории
+-- на странице «Финансы» (sparkline в списке, большой график на странице актива).
+CREATE TABLE IF NOT EXISTS rate_history (
+  date DATE NOT NULL,
+  kind TEXT NOT NULL, -- 'currency' | 'crypto'
+  code TEXT NOT NULL, -- код валюты (USD) или id монеты CoinGecko (bitcoin)
+  price_kzt NUMERIC NOT NULL,
+  change_pct NUMERIC,
+  PRIMARY KEY (date, kind, code)
+);
+CREATE INDEX IF NOT EXISTS rate_history_lookup ON rate_history (kind, code, date);

@@ -16,6 +16,7 @@ interface SettingsContextValue {
   setTheme: (theme: ThemeMode) => Promise<void>;
   setLanguage: (language: AppLanguage) => Promise<void>;
   setHideBalance: (hide: boolean) => Promise<void>;
+  setFinanceFavorites: (codes: string[]) => Promise<void>;
   markOnboarded: () => Promise<void>;
 }
 
@@ -73,6 +74,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       },
       setHideBalance: async (hide) => {
         await db.settings.update(SETTINGS_ID, { hideBalance: hide });
+      },
+      setFinanceFavorites: async (codes) => {
+        await db.settings.update(SETTINGS_ID, { financeFavorites: codes });
       },
       markOnboarded: async () => {
         await db.settings.update(SETTINGS_ID, { onboarded: true });

@@ -2655,13 +2655,82 @@
   min-height: 18px;
 }
 
-.rate-row-change {
-  display: flex;
+.finance-group-label {
+  margin-top: 4px;
+}
+
+.finance-customize-link {
+  display: inline-flex;
   align-items: center;
+  gap: 4px;
+}
+
+.rate-row {
+  gap: 10px;
+}
+
+.sparkline {
+  flex-shrink: 0;
+}
+
+.rate-row-trailing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 3px;
   flex-shrink: 0;
-  font-size: 12px;
+}
+
+.rate-row-price {
   font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.rate-change-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.rate-change-pill.tone-positive {
+  background: var(--positive-soft);
+  color: var(--money-positive);
+}
+
+.rate-change-pill.tone-negative {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.finance-customize-row {
+  cursor: default;
+}
+
+.finance-customize-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.finance-customize-actions .icon-btn {
+  width: 28px;
+  height: 28px;
+}
+
+.finance-customize-actions .icon-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.finance-range-tabs {
+  margin-bottom: 4px;
 }
 
 .settings-divider {
