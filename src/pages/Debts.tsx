@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { ArrowDownLeft, ArrowUpRight, Handshake, PieChart, Plus } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Handshake, PieChart } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { DebtRow } from '../components/DebtRow';
@@ -16,7 +16,6 @@ import type { DebtDirection } from '../types';
 export function Debts() {
   const { t } = useTranslation();
   const { settings } = useSettings();
-  const navigate = useNavigate();
   const [direction, setDirection] = useState<DebtDirection>('owed_to_me');
   const [showClosed, setShowClosed] = useState(false);
 
@@ -128,6 +127,7 @@ export function Debts() {
         <span>{t('debts.showClosed')}</span>
       </label>
 
+      <p className="section-label">{t('debts.activeListTitle')}</p>
       {list.length === 0 ? (
         <EmptyState
           icon="🤝"
@@ -147,16 +147,6 @@ export function Debts() {
           ))}
         </div>
       )}
-
-      <div className="debts-action-row">
-        <button type="button" className="btn btn-secondary" onClick={() => navigate(`/debts/new/${direction}?type=credit`)}>
-          {t('debts.addCreditButton')}
-        </button>
-        <button type="button" className="btn btn-primary" onClick={() => navigate(`/debts/new/${direction}`)}>
-          <Plus size={17} strokeWidth={2.5} className="inline-icon" style={{ marginRight: 4 }} />
-          {t('debts.addDebtButton')}
-        </button>
-      </div>
 
       <section className="recent-section">
         <div className="section-header">
