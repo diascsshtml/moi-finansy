@@ -19,15 +19,15 @@
   --money-positive: #006300;
   --money-negative: #b23327;
 
-  /* Мятно-зелёный фирменный цвет. --accent — для текста/ссылок/обводок,
-     достаточно тёмный для контраста с белым фоном (WCAG AA). --accent-bright —
-     тот же цвет, но более сочный, для заливки крупных элементов (кнопка,
-     FAB) — там читаемость обеспечивает --on-accent (тёмный текст на ярком
-     фоне), а не контраст с фоном страницы. */
-  --accent: #047857;
-  --accent-bright: #10b981;
-  --accent-soft: rgba(16, 185, 129, 0.14);
-  --on-accent: #062e1f;
+  /* Синий фирменный цвет. --accent — для текста/ссылок/обводок, достаточно
+     тёмный для контраста с белым фоном (WCAG AA). --accent-bright — тот же
+     цвет, но более сочный, для заливки крупных элементов (кнопка, FAB) —
+     там читаемость обеспечивает --on-accent (белый текст на насыщенном
+     синем), а не контраст с фоном страницы. */
+  --accent: #1d4ed8;
+  --accent-bright: #2563eb;
+  --accent-soft: rgba(37, 99, 235, 0.14);
+  --on-accent: #ffffff;
   --danger: #d03b3b;
   --danger-soft: rgba(208, 59, 59, 0.12);
   --positive-soft: rgba(0, 99, 0, 0.12);
@@ -37,7 +37,7 @@
      там свои, гораздо более тихие значения (см. ниже). */
   --shadow-sm: 0 1px 2px rgba(11, 11, 11, 0.04), 0 2px 6px rgba(11, 11, 11, 0.05);
   --shadow-md: 0 2px 6px rgba(11, 11, 11, 0.05), 0 8px 20px rgba(11, 11, 11, 0.07);
-  --shadow-accent: 0 6px 16px rgba(16, 185, 129, 0.3);
+  --shadow-accent: 0 6px 16px rgba(37, 99, 235, 0.3);
 
   --radius-sm: 10px;
   --radius-md: 14px;
@@ -60,17 +60,17 @@
     --money-positive: #0ca30c;
     --money-negative: #e66767;
 
-    --accent: #34d399;
-    --accent-bright: #34d399;
-    --accent-soft: rgba(52, 211, 153, 0.18);
-    --on-accent: #052e1e;
+    --accent: #60a5fa;
+    --accent-bright: #3b82f6;
+    --accent-soft: rgba(96, 165, 250, 0.18);
+    --on-accent: #ffffff;
     --danger: #e66767;
     --danger-soft: rgba(230, 103, 103, 0.18);
     --positive-soft: rgba(12, 163, 12, 0.18);
 
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
     --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
-    --shadow-accent: 0 6px 16px rgba(52, 211, 153, 0.32);
+    --shadow-accent: 0 6px 16px rgba(59, 130, 246, 0.32);
   }
 }
 
@@ -89,17 +89,17 @@
   --money-positive: #0ca30c;
   --money-negative: #e66767;
 
-  --accent: #34d399;
-  --accent-bright: #34d399;
-  --accent-soft: rgba(52, 211, 153, 0.18);
-  --on-accent: #052e1e;
+  --accent: #60a5fa;
+  --accent-bright: #3b82f6;
+  --accent-soft: rgba(96, 165, 250, 0.18);
+  --on-accent: #ffffff;
   --danger: #e66767;
   --danger-soft: rgba(230, 103, 103, 0.18);
   --positive-soft: rgba(12, 163, 12, 0.18);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
   --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.35);
-  --shadow-accent: 0 6px 16px rgba(52, 211, 153, 0.32);
+  --shadow-accent: 0 6px 16px rgba(59, 130, 246, 0.32);
 }
 
 * {
@@ -124,7 +124,7 @@ body {
   margin: 0;
   background: var(--page);
   color: var(--text-primary);
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   /* Страховка: если какой-то элемент всё же вылезет по ширине (длинное имя,
      нерастягиваемый нативный контрол и т.п.), страницу просто обрежет, а не

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
 import { addMonths, parseISO } from 'date-fns';
@@ -27,9 +27,14 @@ export function NewDebtPage() {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const { direction: directionParam } = useParams<{ direction: string }>();
+  const [searchParams] = useSearchParams();
+  const typeParam = searchParams.get('type');
   const accounts = useLiveQuery(() => db.accounts.orderBy('order').toArray(), []);
 
-  const [mode, setMode] = useState<Mode>(directionParam === 'owed_to_me' ? 'owed_to_me' : 'i_owe');
+  const [mode, setMode] = useState<Mode>(() => {
+    if (typeParam === 'credit' || typeParam === 'installment') return typeParam;
+    return directionParam === 'owed_to_me' ? 'owed_to_me' : 'i_owe';
+  });
 
   // Простой долг человеку — дата возникновения всегда сегодня, отдельного
   // поля для нее в этой форме нет (см. скриншот-референс — там её тоже нет).

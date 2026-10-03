@@ -128,12 +128,6 @@ export function Debts() {
           icon="🤝"
           title={direction === 'owed_to_me' ? t('debts.emptyOwedToMeTitle') : t('debts.emptyIOweTitle')}
           hint={direction === 'owed_to_me' ? t('debts.emptyHint') : t('debts.emptyHintIOwe')}
-          action={
-            <button type="button" className="btn btn-primary" onClick={() => navigate(`/debts/new/${direction}`)}>
-              <Plus size={17} strokeWidth={2.5} className="inline-icon" style={{ marginRight: 4 }} />
-              {t('debts.addButton').replace('+ ', '')}
-            </button>
-          }
         />
       ) : (
         <div className="debts-list">
@@ -149,12 +143,19 @@ export function Debts() {
         </div>
       )}
 
+      <div className="debts-action-row">
+        <button type="button" className="btn btn-secondary" onClick={() => navigate(`/debts/new/${direction}?type=credit`)}>
+          {t('debts.addCreditButton')}
+        </button>
+        <button type="button" className="btn btn-primary" onClick={() => navigate(`/debts/new/${direction}`)}>
+          <Plus size={17} strokeWidth={2.5} className="inline-icon" style={{ marginRight: 4 }} />
+          {t('debts.addDebtButton')}
+        </button>
+      </div>
+
       <section className="recent-section">
         <div className="section-header">
           <h2>{t('bills.sectionCredits')}</h2>
-          <button type="button" className="btn-link" onClick={() => navigate('/bills/new')}>
-            {t('bills.addCreditLink')}
-          </button>
         </div>
         {credits.length === 0 ? (
           <p className="settings-hint">{t('bills.emptyCreditsHint')}</p>

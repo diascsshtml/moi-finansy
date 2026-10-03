@@ -119,7 +119,10 @@ export function Dashboard() {
         </Link>
         <div className="dashboard-header-text">
           <p className="dashboard-header-date">{formatWeekdayDate(new Date())}</p>
-          <h1 className="dashboard-header-greeting">{getGreeting(t)}</h1>
+          <h1 className="dashboard-header-greeting">
+            {getGreeting(t)}
+            {user?.name ? `, ${user.name}` : ''}
+          </h1>
         </div>
         <button
           type="button"

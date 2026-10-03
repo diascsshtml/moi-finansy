@@ -31,15 +31,19 @@ export function BottomNav() {
           end={tab.end}
           className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
         >
-          <span className="bottom-nav-icon-wrap">
-            <span className="bottom-nav-icon">
-              <tab.Icon size={20} strokeWidth={2.25} aria-hidden="true" />
-            </span>
-            {tab.to === '/debts' && attentionCount > 0 && (
-              <span className="bottom-nav-badge">{attentionCount > 9 ? '9+' : attentionCount}</span>
-            )}
-          </span>
-          <span className="bottom-nav-label">{t(tab.key)}</span>
+          {({ isActive }) => (
+            <>
+              <span className="bottom-nav-icon-wrap">
+                <span className="bottom-nav-icon">
+                  <tab.Icon size={20} strokeWidth={2.25} fill={isActive ? 'currentColor' : 'none'} fillOpacity={isActive ? 0.18 : 1} aria-hidden="true" />
+                </span>
+                {tab.to === '/debts' && attentionCount > 0 && (
+                  <span className="bottom-nav-badge">{attentionCount > 9 ? '9+' : attentionCount}</span>
+                )}
+              </span>
+              <span className="bottom-nav-label">{t(tab.key)}</span>
+            </>
+          )}
         </NavLink>
       ))}
     </nav>

@@ -7,7 +7,7 @@ import { ArrowDown, ArrowLeftRight, ArrowUp, Handshake, Plus } from 'lucide-reac
 // Статистика, админка, сами формы добавления) — раньше кнопка всё равно
 // всплывала поверх контента на всех страницах и на некоторых (Настройки,
 // Категории) перекрывала собой другие кнопки и текст.
-const HIDDEN_PREFIXES = ['/settings', '/stats', '/admin', '/transactions/new', '/debts/new', '/transfers/new', '/bills/new'];
+const HIDDEN_PREFIXES = ['/settings', '/stats', '/admin', '/transactions/new', '/debts/new', '/transfers/new'];
 
 export function Fab() {
   const { t } = useTranslation();

@@ -147,17 +147,6 @@ export interface RecurringBill {
   createdAt: string;
 }
 
-/** Заготовка из каталога поставщиков — просто предзаполняет форму нового
- *  платежа (название/иконка/цвет/категория), пользователь всё равно вводит
- *  сумму и день оплаты сам. */
-export interface BillPreset {
-  name: string;
-  icon: string;
-  color: string;
-  categoryNameKey: string;
-  kind: 'credit' | 'subscription';
-}
-
 export type ThemeMode = 'system' | 'light' | 'dark';
 export type AppLanguage = 'ru' | 'kk';
 

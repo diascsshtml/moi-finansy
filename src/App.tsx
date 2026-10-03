@@ -24,12 +24,7 @@ import { ProfileHub } from './pages/ProfileHub';
 import { NewTransactionPage } from './pages/NewTransactionPage';
 import { NewDebtPage } from './pages/NewDebtPage';
 import { NewTransferPage } from './pages/NewTransferPage';
-import { NewBillCatalogPage } from './pages/NewBillCatalogPage';
-import { NewBillFormPage } from './pages/NewBillFormPage';
 import { EditBillFormPage } from './pages/EditBillFormPage';
-import { SubscriptionsPage } from './pages/SubscriptionsPage';
-import { NewSubscriptionPage } from './pages/NewSubscriptionPage';
-import { SubscriptionDetailPage } from './pages/SubscriptionDetailPage';
 import { NotificationsSettingsPage } from './pages/NotificationsSettingsPage';
 import { FinancePage } from './pages/FinancePage';
 import { FinanceCustomize } from './pages/FinanceCustomize';
@@ -57,13 +52,8 @@ function App() {
                       <Route path="/debts/new/:direction" element={<NewDebtPage />} />
                       <Route path="/debts/:id" element={<DebtDetail />} />
                       <Route path="/bills" element={<Bills />} />
-                      <Route path="/bills/new" element={<NewBillCatalogPage />} />
-                      <Route path="/bills/new/form" element={<NewBillFormPage />} />
                       <Route path="/bills/:id" element={<BillDetail />} />
                       <Route path="/bills/:id/edit" element={<EditBillFormPage />} />
-                      <Route path="/subscriptions" element={<SubscriptionsPage />} />
-                      <Route path="/subscriptions/new" element={<NewSubscriptionPage />} />
-                      <Route path="/subscriptions/:id" element={<SubscriptionDetailPage />} />
                       <Route path="/transactions/new/:type" element={<NewTransactionPage />} />
                       <Route path="/transfers/new" element={<NewTransferPage />} />
                       <Route path="/settings" element={<ProfileHub />} />

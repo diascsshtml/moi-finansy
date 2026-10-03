@@ -138,15 +138,6 @@ function EditBillForm({ bill }: { bill: RecurringBill }) {
         >
           {t('bills.kindInstallment')}
         </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={kind === 'subscription'}
-          className={kind === 'subscription' ? 'active' : ''}
-          onClick={() => setKind('subscription')}
-        >
-          {t('bills.kindSubscription')}
-        </button>
       </div>
 
       {isLoan && (
