@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
 import { addMonths, differenceInCalendarMonths, endOfMonth, startOfMonth } from 'date-fns';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { useSheet } from '../context/SheetContext';
@@ -166,7 +166,8 @@ export function History() {
           className="month-nav-label month-nav-label--pickable"
           onClick={() => open({ kind: 'month-picker', selected: monthDate, onSelect: handlePickMonth })}
         >
-          {monthLabel}
+          <Calendar size={15} strokeWidth={2.25} className="inline-icon" /> {monthLabel}
+          <ChevronDown size={15} strokeWidth={2.25} className="inline-icon" />
         </button>
         <button
           type="button"

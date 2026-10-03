@@ -1,15 +1,15 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ClipboardList, CreditCard, Handshake, Home, User } from 'lucide-react';
+import { ArrowLeftRight, Coins, Handshake, Home, User } from 'lucide-react';
 import { db } from '../db/db';
 import { getBillsNeedingAttention } from '../utils/bills';
 
 const TABS = [
   { to: '/', key: 'nav.dashboard', Icon: Home, end: true },
-  { to: '/history', key: 'nav.history', Icon: ClipboardList, end: false },
+  { to: '/finance', key: 'nav.finance', Icon: Coins, end: false },
+  { to: '/history', key: 'nav.history', Icon: ArrowLeftRight, end: false },
   { to: '/debts', key: 'nav.debts', Icon: Handshake, end: false },
-  { to: '/bills', key: 'nav.bills', Icon: CreditCard, end: false },
   { to: '/settings', key: 'nav.profile', Icon: User, end: false },
 ] as const;
 
@@ -17,6 +17,8 @@ export function BottomNav() {
   const { t } = useTranslation();
   const bills = useLiveQuery(() => db.bills.toArray(), []);
   const transactions = useLiveQuery(() => db.transactions.toArray(), []);
+  // Кредиты теперь показываются внутри Долгов (см. Debts.tsx), не отдельной
+  // вкладкой — поэтому и бейдж «нужно внимание» переехал туда же.
   const attentionCount =
     bills && transactions ? getBillsNeedingAttention(bills, transactions).length : 0;
 
@@ -33,7 +35,7 @@ export function BottomNav() {
             <span className="bottom-nav-icon">
               <tab.Icon size={20} strokeWidth={2.25} aria-hidden="true" />
             </span>
-            {tab.to === '/bills' && attentionCount > 0 && (
+            {tab.to === '/debts' && attentionCount > 0 && (
               <span className="bottom-nav-badge">{attentionCount > 9 ? '9+' : attentionCount}</span>
             )}
           </span>

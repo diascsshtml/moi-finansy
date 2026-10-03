@@ -81,9 +81,9 @@ export const kk = {
   nav: {
     ariaLabel: 'Негізгі навигация',
     dashboard: 'Басты бет',
-    history: 'Тарих',
+    finance: 'Қаржы',
+    history: 'Операциялар',
     debts: 'Қарыздар',
-    bills: 'Кредиттер мен жазылымдар',
     profile: 'Профиль',
   },
   fab: {
@@ -93,6 +93,15 @@ export const kk = {
     debt: 'Қарыз',
     expense: 'Шығыс',
     income: 'Кіріс',
+  },
+  finance: {
+    title: 'Қаржы',
+    subtitle: 'ҚР Ұлттық банкінің валюта бағамдары',
+    loading: 'Бағамдар жүктелуде…',
+    loadError: 'Бағамдарды жүктеу сәтсіз аяқталды, кейінірек көріңіз',
+    asOf: '{{date}} жағдай бойынша',
+    otherCurrencies: 'Басқа валюталар',
+    sourceHint: 'Дереккөз — Қазақстан Ұлттық банкінің ресми бағамы, тәулігіне бір рет жаңарады.',
   },
   dashboard: {
     greetingMorning: 'Қайырлы таң',
@@ -120,7 +129,7 @@ export const kk = {
     subtitle: 'Санаттар бойынша шығыстар және айлар бойынша динамика',
   },
   history: {
-    title: 'Операциялар тарихы',
+    title: 'Операциялар',
     searchPlaceholder: 'Ескертпе немесе санат бойынша іздеу',
     filterAll: 'Барлығы',
     typeIncome: 'Кірістер',
@@ -154,7 +163,8 @@ export const kk = {
   },
   debts: {
     title: 'Қарыздар',
-    titleFull: 'Қарыздар',
+    titleFull: 'Қарыздар мен несиелер',
+    overviewLabel: 'Шолу',
     addButton: '+ Қарыз',
     owedToMe: 'Маған қарыз',
     iOwe: 'Менің қарызым',
@@ -422,6 +432,7 @@ export const kk = {
     sectionCredits: 'Белсенді несиелер',
     sectionSubscriptions: 'Жазылымдар',
     addCreditLink: 'Несие қосу',
+    seeAllCredits: 'Барлық несиелер ({{count}})',
     addSubscriptionLink: '+ Жазылым',
     subscriptionsCountHint: 'Айына {{amount}} — {{count}} жазылым',
     paymentOn: '{{date}} төлемі',

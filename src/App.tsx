@@ -31,6 +31,7 @@ import { SubscriptionsPage } from './pages/SubscriptionsPage';
 import { NewSubscriptionPage } from './pages/NewSubscriptionPage';
 import { SubscriptionDetailPage } from './pages/SubscriptionDetailPage';
 import { NotificationsSettingsPage } from './pages/NotificationsSettingsPage';
+import { FinancePage } from './pages/FinancePage';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
                   <main className="app-main">
                     <Routes>
                       <Route path="/" element={<Dashboard />} />
+                      <Route path="/finance" element={<FinancePage />} />
                       <Route path="/stats" element={<Stats />} />
                       <Route path="/history" element={<History />} />
                       <Route path="/history/day/:date" element={<DayDetail />} />

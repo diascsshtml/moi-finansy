@@ -3,6 +3,7 @@ import { sendWebPush, type PushSubscriptionInfo } from './webpush';
 import { handleAccountsApi } from './accounts-api';
 import { readSessionCookie, verifySessionToken } from './auth';
 import { runNotificationSweep } from './notifications';
+import { handleRatesApi } from './rates';
 
 export interface Env {
   ASSETS: Fetcher;
@@ -58,6 +59,9 @@ function prefsToJson(row: PrefsRow | null) {
 async function handleApi(request: Request, env: Env, url: URL): Promise<Response> {
   const accountsResponse = await handleAccountsApi(request, env, url);
   if (accountsResponse) return accountsResponse;
+
+  const ratesResponse = await handleRatesApi(request, url);
+  if (ratesResponse) return ratesResponse;
 
   if (url.pathname.startsWith('/api/push/')) {
     try {

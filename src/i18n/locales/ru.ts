@@ -81,9 +81,9 @@ export const ru = {
   nav: {
     ariaLabel: 'Основная навигация',
     dashboard: 'Главная',
-    history: 'История',
+    finance: 'Финансы',
+    history: 'Операции',
     debts: 'Долги',
-    bills: 'Кредиты и подписки',
     profile: 'Профиль',
   },
   fab: {
@@ -93,6 +93,15 @@ export const ru = {
     debt: 'Долг',
     expense: 'Расход',
     income: 'Доход',
+  },
+  finance: {
+    title: 'Финансы',
+    subtitle: 'Курсы валют Нацбанка РК',
+    loading: 'Загружаем курсы…',
+    loadError: 'Не удалось загрузить курсы, попробуйте позже',
+    asOf: 'На {{date}}',
+    otherCurrencies: 'Остальные валюты',
+    sourceHint: 'Источник — официальный курс Национального банка Казахстана, обновляется раз в сутки.',
   },
   dashboard: {
     greetingMorning: 'Доброе утро',
@@ -120,7 +129,7 @@ export const ru = {
     subtitle: 'Расходы по категориям и динамика по месяцам',
   },
   history: {
-    title: 'История операций',
+    title: 'Операции',
     searchPlaceholder: 'Поиск по заметке или категории',
     filterAll: 'Все',
     typeIncome: 'Доходы',
@@ -154,7 +163,8 @@ export const ru = {
   },
   debts: {
     title: 'Долги',
-    titleFull: 'Долги',
+    titleFull: 'Долги и кредиты',
+    overviewLabel: 'Обзор',
     addButton: '+ Долг',
     owedToMe: 'Мне должны',
     iOwe: 'Я должен',
@@ -428,6 +438,7 @@ export const ru = {
     sectionCredits: 'Активные кредиты',
     sectionSubscriptions: 'Подписки',
     addCreditLink: 'Добавить кредит',
+    seeAllCredits: 'Все кредиты ({{count}})',
     addSubscriptionLink: '+ Подписка',
     subscriptionsCountHint_one: '{{count}} подписка на {{amount}} в месяц',
     subscriptionsCountHint_few: '{{count}} подписки на {{amount}} в месяц',
