@@ -7,6 +7,7 @@ import { AppLockGate } from './components/AppLockGate';
 import { BottomNav } from './components/BottomNav';
 import { Fab } from './components/Fab';
 import { SheetHost } from './components/SheetHost';
+import { SyncConflictBanner } from './components/SyncConflictBanner';
 import { Dashboard } from './pages/Dashboard';
 import { Stats } from './pages/Stats';
 import { History } from './pages/History';
@@ -39,6 +40,7 @@ function App() {
             <SheetProvider>
               <HashRouter>
                 <div className="app-shell">
+                  <SyncConflictBanner />
                   <main className="app-main">
                     <Routes>
                       <Route path="/" element={<Dashboard />} />

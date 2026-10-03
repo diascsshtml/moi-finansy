@@ -173,6 +173,11 @@ export interface AppSettings {
   // "crypto:bitcoin", в порядке показа пользователю. undefined — используется
   // дефолтный набор (см. FinancePage.DEFAULT_FAVORITES).
   financeFavorites?: string[];
+  // Метка версии данных на сервере, которую это устройство последний раз
+  // успешно подтянуло/отправило (см. utils/dataSync.ts) — не настройка
+  // пользователя, чисто техническое поле для защиты от перезаписи более
+  // свежих данных с другого устройства/вкладки при одновременной работе.
+  lastSyncedAt?: string;
   onboarded: boolean;
 }
 

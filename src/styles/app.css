@@ -1591,6 +1591,35 @@
 
 /* ============ Bills alert banner ============ */
 
+.sync-conflict-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--danger-soft);
+  border-bottom: 1px solid var(--danger);
+  padding: 10px 16px;
+  color: var(--text-primary);
+}
+
+.sync-conflict-banner-icon {
+  color: var(--danger);
+  flex-shrink: 0;
+  display: flex;
+}
+
+.sync-conflict-banner-text {
+  flex: 1;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.sync-conflict-banner .icon-btn {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  background: transparent;
+}
+
 .bills-banner {
   display: flex;
   align-items: center;

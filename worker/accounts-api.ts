@@ -324,10 +324,30 @@ export async function handleAccountsApi(request: Request, env: AccountsEnv, url:
   if (url.pathname === '/api/data' && request.method === 'PUT') {
     const userId = await currentUserId(request, env);
     if (!userId) return json({ error: 'not authenticated' }, 401);
-    const body = (await request.json().catch(() => null)) as { snapshot?: unknown } | null;
+    const body = (await request.json().catch(() => null)) as { snapshot?: unknown; baseUpdatedAt?: string | null } | null;
     if (!body || typeof body.snapshot !== 'object' || body.snapshot === null) {
       return json({ error: 'missing snapshot' }, 400);
     }
+
+    // Защита от "последний синхронизировавшийся побеждает вслепую": если
+    // клиент знает, с какой версии он стартовал (baseUpdatedAt — из своего
+    // последнего pull/push), а на сервере лежит более СВЕЖАЯ версия — значит,
+    // пока этот клиент работал, кто-то другой (вторая вкладка/устройство)
+    // уже сохранился. Отклоняем перезапись и отдаём актуальный снимок, чтобы
+    // клиент подтянул его, а не затёр тихо. Если baseUpdatedAt не передан —
+    // старое поведение (например, самый первый push сразу после регистрации,
+    // когда ещё нечего было pull'ить).
+    if (body.baseUpdatedAt) {
+      const existingRows = (await sql`SELECT snapshot, updated_at FROM user_data WHERE user_id = ${userId}`) as Array<{
+        snapshot: string;
+        updated_at: string;
+      }>;
+      const existing = existingRows[0] ?? null;
+      if (existing && existing.updated_at !== body.baseUpdatedAt) {
+        return json({ error: 'conflict', snapshot: JSON.parse(existing.snapshot), updatedAt: existing.updated_at }, 409);
+      }
+    }
+
     const now = new Date().toISOString();
     const snapshotJson = JSON.stringify(body.snapshot);
     await sql`
