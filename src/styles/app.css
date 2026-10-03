@@ -2147,19 +2147,6 @@
 
 /* ============ Credit schedule + payment sheet ============ */
 
-.payment-schedule-bars {
-  display: flex;
-  gap: 6px;
-}
-
-.payment-schedule-bar {
-  flex: 1;
-  height: 64px;
-  border-radius: var(--radius-sm);
-  background: var(--danger);
-  opacity: 0.55;
-}
-
 .radio-dot {
   width: 20px;
   height: 20px;

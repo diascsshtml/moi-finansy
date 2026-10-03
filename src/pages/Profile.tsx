@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Camera, User } from 'lucide-react';
 import { useAccount } from '../context/AccountContext';
-import { logout, updateAvatar, updateEmail, updateName } from '../utils/accountAuth';
+import { logout, updateAvatar, updateEmail, updateName, updatePhone } from '../utils/accountAuth';
 import { clearLocalData, pushSnapshotToServer, setSyncEnabled } from '../utils/dataSync';
 import { resizeImageToDataUrl } from '../utils/imageResize';
 import { ensureSeeded } from '../db/seed';
@@ -16,8 +16,16 @@ export function Profile() {
   const navigate = useNavigate();
   const { user, setUser } = useAccount();
 
-  const [name, setName] = useState(user?.name ?? '');
+  // Единое поле «Имя» на сервере — но на этой странице его показываем как три
+  // отдельных поля (Имя/Фамилия/Отчество) и при сохранении просто склеиваем
+  // через пробел. Разбивать существующее user.name обратно на три части при
+  // загрузке не пытаемся (неизвестно, в каком порядке оно было введено) —
+  // целиком кладём в «Имя», остальное пользователь донаберёт сам.
+  const [firstName, setFirstName] = useState(user?.name ?? '');
+  const [lastName, setLastName] = useState('');
+  const [patronymic, setPatronymic] = useState('');
   const [email, setEmail] = useState(user?.email ?? '');
+  const [phone, setPhone] = useState(user?.phone ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
@@ -60,7 +68,8 @@ export function Profile() {
     }
   };
 
-  const dirty = name.trim() !== (user.name ?? '') || email.trim() !== (user.email ?? '');
+  const combinedName = [firstName, lastName, patronymic].map((s) => s.trim()).filter(Boolean).join(' ');
+  const dirty = combinedName !== (user.name ?? '') || email.trim() !== (user.email ?? '') || phone.trim() !== (user.phone ?? '');
 
   const handleSave = async () => {
     setBusy(true);
@@ -68,11 +77,14 @@ export function Profile() {
     setStatus(null);
     try {
       let latest = user;
-      if (name.trim() !== (user.name ?? '')) {
-        latest = await updateName(name.trim());
+      if (combinedName !== (user.name ?? '')) {
+        latest = await updateName(combinedName);
       }
       if (email.trim() !== (user.email ?? '')) {
         latest = await updateEmail(email.trim());
+      }
+      if (phone.trim() !== (user.phone ?? '')) {
+        latest = await updatePhone(phone.trim());
       }
       setUser(latest);
       setStatus(t('userAccount.profileSaved'));
@@ -142,9 +154,33 @@ export function Profile() {
         id="profile-name"
         type="text"
         className="text-input"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        value={firstName}
+        onChange={(e) => setFirstName(e.target.value)}
         placeholder={t('userAccount.noName')}
+        maxLength={60}
+      />
+
+      <label className="field-label" htmlFor="profile-last-name">
+        {t('userAccount.lastNameLabel')}
+      </label>
+      <input
+        id="profile-last-name"
+        type="text"
+        className="text-input"
+        value={lastName}
+        onChange={(e) => setLastName(e.target.value)}
+        maxLength={60}
+      />
+
+      <label className="field-label" htmlFor="profile-patronymic">
+        {t('userAccount.patronymicLabel')}
+      </label>
+      <input
+        id="profile-patronymic"
+        type="text"
+        className="text-input"
+        value={patronymic}
+        onChange={(e) => setPatronymic(e.target.value)}
         maxLength={60}
       />
 
@@ -167,10 +203,23 @@ export function Profile() {
         maxLength={200}
       />
 
+      <label className="field-label" htmlFor="profile-phone">
+        {t('userAccount.phoneLabel')}
+      </label>
+      <input
+        id="profile-phone"
+        type="tel"
+        className="text-input"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        placeholder={t('userAccount.noPhone')}
+        maxLength={32}
+      />
+
       {error && <p className="field-error">{error}</p>}
       {status && <p className="settings-status settings-status--positive">{status}</p>}
 
-      <button type="button" className="btn btn-primary btn-block" disabled={busy || !dirty || !name.trim()} onClick={handleSave}>
+      <button type="button" className="btn btn-primary btn-block" disabled={busy || !dirty || !combinedName} onClick={handleSave}>
         {busy ? t('userAccount.busy') : t('common.save')}
       </button>
 

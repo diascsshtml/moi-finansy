@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS users (
   -- utils/imageResize.ts), целиком как data URL (data:image/jpeg;base64,...).
   -- NULL — используется дефолтный значок с инициалами/иконкой.
   avatar TEXT,
+  -- Телефон — необязательный, редактируется на странице профиля. NULL —
+  -- не указан.
+  phone TEXT,
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
   -- Восстановление пароля — по коду на почту (см. worker/accounts-api.ts,

@@ -11,6 +11,7 @@ export interface AuthUser {
   // Уменьшенное и сжатое на клиенте фото (data URL) — см. utils/imageResize.ts.
   // Хранится на сервере вместе с именем/почтой, поэтому видно на любом устройстве.
   avatar?: string | null;
+  phone?: string | null;
   createdAt?: string;
 }
 
@@ -64,6 +65,10 @@ export async function updateName(name: string): Promise<AuthUser> {
 
 export async function updateEmail(email: string): Promise<AuthUser> {
   return api<AuthUser>('/api/auth/email', { method: 'PUT', body: JSON.stringify({ email }) });
+}
+
+export async function updatePhone(phone: string): Promise<AuthUser> {
+  return api<AuthUser>('/api/auth/phone', { method: 'PUT', body: JSON.stringify({ phone }) });
 }
 
 /** avatar — уже сжатая data URL (см. resizeImageToDataUrl в utils/imageResize.ts)

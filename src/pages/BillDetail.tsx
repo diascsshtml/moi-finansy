@@ -57,7 +57,6 @@ export function BillDetail() {
   const isCredit = isLoanKind(bill.kind ?? 'subscription');
   const billIcon = isMonogramIcon(bill.icon) ? bill.icon : <EmojiIcon icon={bill.icon} size={22} />;
   const billColor = toDisplayColor(bill.color, isDark);
-  const paymentsLeft = creditProgress && bill.amount > 0 ? Math.max(Math.ceil(creditProgress.remaining / bill.amount), 0) : 0;
 
   return (
     <div className="page">
@@ -201,20 +200,6 @@ export function BillDetail() {
           </button>
         </div>
       </div>
-
-      {isCredit && creditProgress && creditProgress.totalAmount > 0 && (
-        <section className="recent-section">
-          <div className="section-header">
-            <h2>{t('bills.detail.scheduleTitle')}</h2>
-          </div>
-          <p className="settings-hint">{t('bills.detail.paymentsLeft', { count: paymentsLeft })}</p>
-          <div className="payment-schedule-bars">
-            {Array.from({ length: Math.min(Math.max(paymentsLeft, 1), 10) }).map((_, i) => (
-              <div key={i} className="payment-schedule-bar" />
-            ))}
-          </div>
-        </section>
-      )}
 
       <section className="recent-section">
         <div className="section-header">
