@@ -1976,6 +1976,80 @@
   background: var(--accent-soft);
 }
 
+.mode-tile-grid + .mode-tile-grid {
+  margin-top: 8px;
+}
+
+.amount-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.amount-card-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.amount-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.amount-card-top .amount-input {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  padding: 2px 0 0;
+}
+
+.amount-card-top .amount-input input {
+  font-size: 28px;
+  text-align: left;
+  max-width: none;
+}
+
+.amount-card-top .amount-input-currency {
+  font-size: 17px;
+}
+
+.amount-card-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  background: var(--surface-2);
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.amount-card-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0 12px;
+}
+
+.amount-card-sub .amount-card-label {
+  margin-bottom: 6px;
+}
+
+.text-input--plain {
+  border: none;
+  background: none;
+  padding: 0;
+  font-weight: 600;
+}
+
 /* ============ Credit schedule + payment sheet ============ */
 
 .payment-schedule-bars {
