@@ -121,7 +121,7 @@ export function Dashboard() {
           <p className="dashboard-header-date">{formatWeekdayDate(new Date())}</p>
           <h1 className="dashboard-header-greeting">
             {getGreeting(t)}
-            {user?.name ? `, ${user.name}` : ''}
+            {user?.name ? `, ${user.name.split(' ')[0]}` : ''}
           </h1>
         </div>
         <button
