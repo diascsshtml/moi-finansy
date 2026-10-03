@@ -214,10 +214,6 @@ export const ru = {
     monthsLeft_many: 'Осталось {{count}} мес.',
     monthsLeft_other: 'Осталось {{count}} мес.',
     dueOn: 'вернёт {{date}}',
-    howItWorksTitle: 'Как это работает?',
-    howItWorksHint: 'Краткое руководство',
-    howItWorksBody:
-      'Здесь — кто должен вам, и кому должны вы: друзья, знакомые, частные займы. Банковские кредиты, рассрочки и подписки — на отдельной странице «Кредиты и подписки»: там сроки, напоминания и история оплат.',
   },
   debtDetail: {
     back: '← Все долги',
@@ -602,7 +598,6 @@ export const ru = {
     addName: 'Добавьте имя',
     editProfile: 'Редактировать профиль',
     quickActionsTitle: 'Быстрые действия',
-    actionDebts: 'Долги и кредиты',
     actionExport: 'Экспорт данных',
     actionStats: 'Аналитика',
     settingsTitle: 'Настройки',

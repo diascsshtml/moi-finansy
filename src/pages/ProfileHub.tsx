@@ -51,13 +51,7 @@ export function ProfileHub() {
       </div>
 
       <h2>{t('profileHub.quickActionsTitle')}</h2>
-      <div className="quick-actions-grid">
-        <Link to="/debts" className="quick-action-tile">
-          <span className="quick-action-icon" aria-hidden="true">
-            <Handshake size={17} strokeWidth={2.25} />
-          </span>
-          {t('profileHub.actionDebts')}
-        </Link>
+      <div className="quick-actions-grid quick-actions-grid--2">
         <button type="button" className="quick-action-tile" onClick={handleExport}>
           <span className="quick-action-icon" aria-hidden="true">
             <Download size={17} strokeWidth={2.25} />

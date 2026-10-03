@@ -7,9 +7,9 @@ import { getBillsNeedingAttention } from '../utils/bills';
 
 const TABS = [
   { to: '/', key: 'nav.dashboard', Icon: Home, end: true },
-  { to: '/finance', key: 'nav.finance', Icon: Coins, end: false },
   { to: '/history', key: 'nav.history', Icon: ArrowLeftRight, end: false },
   { to: '/debts', key: 'nav.debts', Icon: Handshake, end: false },
+  { to: '/finance', key: 'nav.finance', Icon: Coins, end: false },
   { to: '/settings', key: 'nav.profile', Icon: User, end: false },
 ] as const;
 

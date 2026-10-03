@@ -2,13 +2,12 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
-import { ArrowDownLeft, ArrowUpRight, ChevronRight, CircleHelp, Handshake, PieChart, Plus } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Handshake, PieChart, Plus } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { DebtRow } from '../components/DebtRow';
 import { CreditRow } from '../components/CreditRow';
 import { EmptyState } from '../components/EmptyState';
-import { Sheet } from '../components/Sheet';
 import { formatMoney } from '../utils/format';
 import { getDebtTotals } from '../utils/stats';
 import { getAllBillStatuses, getCreditProgress, isLoanKind, resolveBillKind } from '../utils/bills';
@@ -20,7 +19,6 @@ export function Debts() {
   const navigate = useNavigate();
   const [direction, setDirection] = useState<DebtDirection>('owed_to_me');
   const [showClosed, setShowClosed] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
 
   const debts = useLiveQuery(() => db.debts.toArray(), []);
   const people = useLiveQuery(() => db.people.toArray(), []);
@@ -181,23 +179,6 @@ export function Debts() {
           </>
         )}
       </section>
-
-      <button type="button" className="account-list-row" onClick={() => setShowInfo(true)}>
-        <span className="account-list-icon" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }} aria-hidden="true">
-          <CircleHelp size={17} />
-        </span>
-        <span className="account-list-info">
-          <span className="account-list-name">{t('debts.howItWorksTitle')}</span>
-          <span className="account-list-bank">{t('debts.howItWorksHint')}</span>
-        </span>
-        <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
-      </button>
-
-      {showInfo && (
-        <Sheet title={t('debts.howItWorksTitle')} onClose={() => setShowInfo(false)}>
-          <p className="settings-hint">{t('debts.howItWorksBody')}</p>
-        </Sheet>
-      )}
     </div>
   );
 }

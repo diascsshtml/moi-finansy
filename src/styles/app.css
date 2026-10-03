@@ -416,6 +416,10 @@
   gap: 8px;
 }
 
+.quick-actions-grid--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
 .quick-action-tile {
   display: flex;
   flex-direction: column;
