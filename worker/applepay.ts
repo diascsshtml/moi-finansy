@@ -63,18 +63,21 @@ export async function handleApplePayApi(request: Request, env: ApplePayEnv, url:
   }
 
   // Вебхук — вызывается самой Shortcuts-командой, без сессии/куки (их там
-  // нет), поэтому аутентификация через заголовок с токеном пользователя.
-  // Платёж всегда расход (оплата картой) — направление менять не даём, это
-  // не форма для ручного ввода.
+  // нет), поэтому аутентификация через токен пользователя. Токен принимаем
+  // и из тела запроса (приоритетно — заголовки в Shortcuts на реальных,
+  // автоматических запусках оказались ненадёжными, см. историю отладки), и
+  // из заголовка X-Apple-Pay-Token для обратной совместимости. Платёж всегда
+  // расход (оплата картой) — направление менять не даём, это не форма для
+  // ручного ввода.
   if (url.pathname === '/api/webhook/apple-pay' && request.method === 'POST') {
-    const token = request.headers.get('X-Apple-Pay-Token') ?? '';
+    const body = (await request.json().catch(() => ({}))) as { amount?: unknown; merchant?: unknown; date?: unknown; token?: unknown };
+    const token = typeof body.token === 'string' && body.token ? body.token : (request.headers.get('X-Apple-Pay-Token') ?? '');
     if (!token) return json({ error: 'missing token' }, 401);
     const hash = await sha256Hex(token);
     const rows = (await sql`SELECT id FROM users WHERE apple_pay_token_hash = ${hash}`) as Array<{ id: string }>;
     const user = rows[0] ?? null;
     if (!user) return json({ error: 'invalid token' }, 401);
 
-    const body = (await request.json().catch(() => ({}))) as { amount?: unknown; merchant?: unknown; date?: unknown };
     if (!isValidAmount(body.amount)) {
       return json({ error: 'invalid amount' }, 400);
     }

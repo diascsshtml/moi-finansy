@@ -503,7 +503,6 @@ export function SettingsPage() {
               <p className="settings-hint">{t('settings.applePay.setupStep3')}</p>
               <p className="settings-hint">{t('settings.applePay.setupStep3Url', { url: APPLE_PAY_WEBHOOK_URL })}</p>
               <p className="settings-hint">{t('settings.applePay.setupStep3Method')}</p>
-              <p className="settings-hint">{t('settings.applePay.setupStep3Header')}</p>
               <p className="settings-hint">{t('settings.applePay.setupStep3Body')}</p>
               <p className="settings-hint">{t('settings.applePay.setupStep4')}</p>
 
