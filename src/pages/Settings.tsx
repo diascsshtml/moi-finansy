@@ -18,6 +18,11 @@ import { generateApplePayToken, getApplePayStatus, revokeApplePayToken } from '.
 import type { AppLanguage, ThemeMode } from '../types';
 
 const APPLE_PAY_WEBHOOK_URL = 'https://moi-finansy.personal-finance-pwa.workers.dev/api/webhook/apple-pay';
+// Ссылка iCloud на готовую команду Shortcuts (действия Get Contents of URL +
+// JSON-тело уже собраны, пользователю останется только вставить свой код) —
+// пусто, пока команда не опубликована. Когда появится ссылка — просто
+// подставить сюда, кнопка «Скачать готовую команду» появится сама.
+const APPLE_PAY_SHORTCUT_URL = '';
 
 const CURRENCIES = ['₸', '₽', '$', '€', '₴', 'so\'m', '₺', '£'];
 const LANGUAGES: Array<{ value: AppLanguage; label: string }> = [
@@ -465,6 +470,15 @@ export function SettingsPage() {
               </select>
 
               <div className="settings-divider" />
+              {APPLE_PAY_SHORTCUT_URL && (
+                <>
+                  <a href={APPLE_PAY_SHORTCUT_URL} target="_blank" rel="noreferrer" className="btn btn-primary btn-block">
+                    {t('settings.applePay.downloadShortcutButton')}
+                  </a>
+                  <p className="settings-hint">{t('settings.applePay.downloadShortcutHint')}</p>
+                  <div className="settings-divider" />
+                </>
+              )}
               <p className="settings-hint">{t('settings.applePay.setupTitle')}</p>
               <p className="settings-hint">{t('settings.applePay.setupStep1')}</p>
               <p className="settings-hint">{t('settings.applePay.setupStep2')}</p>
