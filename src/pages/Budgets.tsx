@@ -83,7 +83,7 @@ export function Budgets() {
   return (
     <div className="page">
       <header className="page-header">
-        <button type="button" className="btn-link" onClick={() => navigate('/stats')}>
+        <button type="button" className="btn-link" onClick={() => navigate('/settings')}>
           {t('budgets.back')}
         </button>
         <h1>{t('budgets.title')}</h1>

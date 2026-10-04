@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { BarChart3, ChevronRight, Code2, Download, Handshake, Info, ShieldCheck, SlidersHorizontal, User } from 'lucide-react';
+import { BarChart3, ChevronRight, Code2, Download, Handshake, Info, PiggyBank, ShieldCheck, SlidersHorizontal, User } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useAccount } from '../context/AccountContext';
 import { Sheet } from '../components/Sheet';
@@ -74,6 +74,17 @@ export function ProfileHub() {
       {exportStatus && <p className="settings-status">{exportStatus}</p>}
 
       <div className="grouped-list">
+        <Link to="/budgets" className="grouped-list-row">
+          <span className="grouped-list-icon" aria-hidden="true">
+            <PiggyBank size={16} strokeWidth={2.25} />
+          </span>
+          <span className="grouped-list-info">
+            <span className="grouped-list-name">{t('profileHub.budgetsTitle')}</span>
+            <span className="grouped-list-hint">{t('profileHub.budgetsHint')}</span>
+          </span>
+          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
+        </Link>
+
         <Link to="/settings/preferences" className="grouped-list-row">
           <span className="grouped-list-icon" aria-hidden="true">
             <SlidersHorizontal size={16} strokeWidth={2.25} />
