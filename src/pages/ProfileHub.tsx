@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { BarChart3, ChevronRight, Code2, Download, Handshake, Info, SlidersHorizontal, User } from 'lucide-react';
+import { BarChart3, ChevronRight, Code2, Download, Handshake, Info, ShieldCheck, SlidersHorizontal, User } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useAccount } from '../context/AccountContext';
 import { Sheet } from '../components/Sheet';
@@ -16,6 +16,7 @@ export function ProfileHub() {
   const { user } = useAccount();
   const [showAbout, setShowAbout] = useState(false);
   const [showDeveloper, setShowDeveloper] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
   const [exportStatus, setExportStatus] = useState<string | null>(null);
 
   const handleExport = async () => {
@@ -117,6 +118,17 @@ export function ProfileHub() {
           </span>
           <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
         </button>
+
+        <button type="button" className="grouped-list-row" onClick={() => setShowPrivacy(true)}>
+          <span className="grouped-list-icon" aria-hidden="true">
+            <ShieldCheck size={16} strokeWidth={2.25} />
+          </span>
+          <span className="grouped-list-info">
+            <span className="grouped-list-name">{t('profileHub.privacyTitle')}</span>
+            <span className="grouped-list-hint">{t('profileHub.privacyHint')}</span>
+          </span>
+          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
+        </button>
       </div>
 
       {showAbout && (
@@ -132,6 +144,42 @@ export function ProfileHub() {
           <a href={`mailto:${SUPPORT_EMAIL}`} className="btn-link">
             {SUPPORT_EMAIL}
           </a>
+        </Sheet>
+      )}
+
+      {showPrivacy && (
+        <Sheet title={t('profileHub.privacyTitle')} onClose={() => setShowPrivacy(false)}>
+          <p className="settings-hint">{t('privacy.updated')}</p>
+          <p className="settings-hint">{t('privacy.intro')}</p>
+
+          <span className="field-label">{t('privacy.dataTitle')}</span>
+          <p className="settings-hint">{t('privacy.dataBody')}</p>
+
+          <span className="field-label">{t('privacy.storageTitle')}</span>
+          <p className="settings-hint">{t('privacy.storageBody')}</p>
+
+          <span className="field-label">{t('privacy.useTitle')}</span>
+          <p className="settings-hint">{t('privacy.useBody')}</p>
+
+          <span className="field-label">{t('privacy.thirdPartyTitle')}</span>
+          <p className="settings-hint">{t('privacy.thirdPartyBody')}</p>
+
+          <span className="field-label">{t('privacy.securityTitle')}</span>
+          <p className="settings-hint">{t('privacy.securityBody')}</p>
+
+          <span className="field-label">{t('privacy.deletionTitle')}</span>
+          <p className="settings-hint">{t('privacy.deletionBody')}</p>
+
+          <span className="field-label">{t('privacy.changesTitle')}</span>
+          <p className="settings-hint">{t('privacy.changesBody')}</p>
+
+          <span className="field-label">{t('privacy.contactTitle')}</span>
+          <p className="settings-hint">
+            {t('privacy.contactBody')}{' '}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="btn-link">
+              {SUPPORT_EMAIL}
+            </a>
+          </p>
         </Sheet>
       )}
     </div>
