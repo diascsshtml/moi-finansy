@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { confirmPasswordReset, login, register, requestPasswordReset, type AuthUser } from '../utils/accountAuth';
 import { initSyncHooks, pullSnapshotFromServer, pushSnapshotToServer, setSyncEnabled } from '../utils/dataSync';
+import { syncPendingApplePayTransactions } from '../utils/applePay';
 
 type Mode = 'login' | 'register' | 'reset';
 type ResetStep = 'request' | 'confirm';
@@ -61,6 +62,7 @@ export function AccountAuthForm({ onSuccess, autoFocus }: AccountAuthFormProps) 
           setSyncEnabled(true);
           initSyncHooks();
           await pullSnapshotFromServer();
+          void syncPendingApplePayTransactions().catch(() => {});
           onSuccess(result);
         }
       } else {
@@ -68,6 +70,7 @@ export function AccountAuthForm({ onSuccess, autoFocus }: AccountAuthFormProps) 
         setSyncEnabled(true);
         initSyncHooks();
         await pullSnapshotFromServer();
+        void syncPendingApplePayTransactions().catch(() => {});
         onSuccess(result);
       }
     } catch (e) {

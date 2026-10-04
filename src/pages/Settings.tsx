@@ -1,17 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Banknote, Bell, ChevronRight, DatabaseBackup, Fingerprint, Languages, ShieldCheck, SunMoon, Tag, Wallet } from 'lucide-react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { Banknote, Bell, ChevronRight, DatabaseBackup, Fingerprint, Languages, Smartphone, ShieldCheck, SunMoon, Tag, Wallet } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { useSheet } from '../context/SheetContext';
 import { useAccount } from '../context/AccountContext';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { Sheet } from '../components/Sheet';
+import { db } from '../db/db';
 import { clearAllBills, clearAllData, clearAllTransactions, clearBiometricCredential, setBiometricCredential } from '../db/operations';
 import { exportDataToExcel } from '../utils/excelExport';
 import { isBiometricSupported, registerBiometric } from '../utils/webauthn';
 import { getNotificationPrefs, isPushSupported } from '../utils/pushNotifications';
+import { accountDisplayName } from '../utils/displayName';
+import { generateApplePayToken, getApplePayStatus, revokeApplePayToken } from '../utils/applePay';
 import type { AppLanguage, ThemeMode } from '../types';
+
+const APPLE_PAY_WEBHOOK_URL = 'https://moi-finansy.personal-finance-pwa.workers.dev/api/webhook/apple-pay';
 
 const CURRENCIES = ['₸', '₽', '$', '€', '₴', 'so\'m', '₺', '£'];
 const LANGUAGES: Array<{ value: AppLanguage; label: string }> = [
@@ -19,16 +25,17 @@ const LANGUAGES: Array<{ value: AppLanguage; label: string }> = [
   { value: 'kk', label: 'Қазақша' },
 ];
 
-type SettingsSheet = 'currency' | 'theme' | 'language' | 'security' | 'backup' | null;
+type SettingsSheet = 'currency' | 'theme' | 'language' | 'security' | 'backup' | 'applePay' | null;
 
 export function SettingsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { settings, setCurrency, setTheme, setLanguage } = useSettings();
+  const { settings, setCurrency, setTheme, setLanguage, setApplePayAccountId } = useSettings();
   const { open } = useSheet();
   const { user } = useAccount();
   const pinEnabled = !!settings.pinHash;
   const biometricEnabled = !!settings.biometricCredentialId;
+  const accounts = useLiveQuery(() => db.accounts.orderBy('order').toArray(), []);
   const [customCurrency, setCustomCurrency] = useState('');
   const [confirmAction, setConfirmAction] = useState<'bills' | 'transactions' | 'all' | null>(null);
   const [status, setStatus] = useState<string | null>(null);
@@ -37,6 +44,11 @@ export function SettingsPage() {
   const [biometricError, setBiometricError] = useState<string | null>(null);
   const [activeSheet, setActiveSheet] = useState<SettingsSheet>(null);
   const [notificationsOn, setNotificationsOn] = useState(false);
+  const [applePayEnabled, setApplePayEnabled] = useState(false);
+  const [applePayBusy, setApplePayBusy] = useState(false);
+  const [applePayError, setApplePayError] = useState<string | null>(null);
+  const [newApplePayToken, setNewApplePayToken] = useState<string | null>(null);
+  const [applePayCopied, setApplePayCopied] = useState(false);
 
   useEffect(() => {
     void isBiometricSupported().then(setBiometricSupported);
@@ -48,6 +60,51 @@ export function SettingsPage() {
       .then((prefs) => setNotificationsOn(prefs.dailyEnabled || prefs.billsEnabled))
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    getApplePayStatus()
+      .then(setApplePayEnabled)
+      .catch(() => {});
+  }, []);
+
+  const handleApplePayGenerate = async () => {
+    setApplePayBusy(true);
+    setApplePayError(null);
+    try {
+      const token = await generateApplePayToken();
+      setNewApplePayToken(token);
+      setApplePayCopied(false);
+      setApplePayEnabled(true);
+    } catch (e) {
+      setApplePayError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setApplePayBusy(false);
+    }
+  };
+
+  const handleApplePayRevoke = async () => {
+    setApplePayBusy(true);
+    setApplePayError(null);
+    try {
+      await revokeApplePayToken();
+      setApplePayEnabled(false);
+      setNewApplePayToken(null);
+    } catch (e) {
+      setApplePayError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setApplePayBusy(false);
+    }
+  };
+
+  const handleApplePayCopy = async () => {
+    if (!newApplePayToken) return;
+    try {
+      await navigator.clipboard.writeText(newApplePayToken);
+      setApplePayCopied(true);
+    } catch {
+      // буфер обмена недоступен — токен всё равно показан на экране
+    }
+  };
 
   const handleEnableBiometric = async () => {
     setBiometricBusy(true);
@@ -214,6 +271,21 @@ export function SettingsPage() {
         </button>
       </div>
 
+      <p className="section-label">{t('settings.integrationsSection')}</p>
+      <div className="grouped-list">
+        <button type="button" className="grouped-list-row" onClick={() => setActiveSheet('applePay')}>
+          <span className="grouped-list-icon" aria-hidden="true">
+            <Smartphone size={16} strokeWidth={2.25} />
+          </span>
+          <span className="grouped-list-info">
+            <span className="grouped-list-name">{t('settings.applePayRow')}</span>
+            <span className="grouped-list-hint">{t('settings.applePayHint')}</span>
+          </span>
+          <span className="grouped-list-trailing">{applePayEnabled ? t('common.on') : t('common.off')}</span>
+          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
+        </button>
+      </div>
+
       <p className="settings-about">{t('settings.about')}</p>
 
       {activeSheet === 'currency' && (
@@ -353,6 +425,76 @@ export function SettingsPage() {
             {t('settings.clearButton')}
           </button>
           {status && <p className="settings-status">{status}</p>}
+        </Sheet>
+      )}
+
+      {activeSheet === 'applePay' && (
+        <Sheet title={t('settings.applePay.title')} onClose={() => setActiveSheet(null)}>
+          <p className="settings-hint">{t('settings.applePay.intro')}</p>
+
+          {newApplePayToken && (
+            <>
+              <p className="settings-status settings-status--positive">{t('settings.applePay.tokenOnceWarning')}</p>
+              <div className="field-row field-row--inline">
+                <input type="text" className="text-input" readOnly value={newApplePayToken} onFocus={(e) => e.target.select()} />
+                <button type="button" className="btn btn-ghost" onClick={handleApplePayCopy}>
+                  {applePayCopied ? t('settings.applePay.copiedStatus') : t('settings.applePay.copyButton')}
+                </button>
+              </div>
+            </>
+          )}
+
+          {applePayEnabled ? (
+            <>
+              {!newApplePayToken && <p className="settings-status settings-status--positive">{t('settings.applePay.enabledStatus')}</p>}
+
+              <label className="field-label" htmlFor="apple-pay-account">
+                {t('settings.applePay.accountLabel')}
+              </label>
+              <select
+                id="apple-pay-account"
+                className="text-input"
+                value={settings.applePayAccountId ?? accounts?.[0]?.id ?? ''}
+                onChange={(e) => void setApplePayAccountId(e.target.value)}
+              >
+                {accounts?.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {accountDisplayName(a, t)}
+                  </option>
+                ))}
+              </select>
+
+              <div className="settings-divider" />
+              <p className="settings-hint">{t('settings.applePay.setupTitle')}</p>
+              <p className="settings-hint">{t('settings.applePay.setupStep1')}</p>
+              <p className="settings-hint">{t('settings.applePay.setupStep2')}</p>
+              <p className="settings-hint">{t('settings.applePay.setupStep3')}</p>
+              <p className="settings-hint">{t('settings.applePay.setupStep3Url', { url: APPLE_PAY_WEBHOOK_URL })}</p>
+              <p className="settings-hint">{t('settings.applePay.setupStep3Method')}</p>
+              <p className="settings-hint">{t('settings.applePay.setupStep3Header')}</p>
+              <p className="settings-hint">{t('settings.applePay.setupStep3Body')}</p>
+              <p className="settings-hint">{t('settings.applePay.setupStep4')}</p>
+
+              <div className="settings-divider" />
+              <div className="sheet-footer-row">
+                <button type="button" className="btn btn-secondary btn-grow" disabled={applePayBusy} onClick={handleApplePayGenerate}>
+                  {t('settings.applePay.regenerateButton')}
+                </button>
+                <button type="button" className="btn btn-danger btn-grow" disabled={applePayBusy} onClick={handleApplePayRevoke}>
+                  {t('settings.applePay.disableButton')}
+                </button>
+              </div>
+              {newApplePayToken && <small className="settings-hint">{t('settings.applePay.regenerateWarning')}</small>}
+            </>
+          ) : (
+            <>
+              <p className="settings-status">{t('settings.applePay.disabledStatus')}</p>
+              <button type="button" className="btn btn-primary btn-block" disabled={applePayBusy} onClick={handleApplePayGenerate}>
+                {t('settings.applePay.enableButton')}
+              </button>
+            </>
+          )}
+          {applePayError && <p className="field-error">{applePayError}</p>}
         </Sheet>
       )}
 

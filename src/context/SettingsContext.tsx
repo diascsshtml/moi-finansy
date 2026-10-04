@@ -17,6 +17,7 @@ interface SettingsContextValue {
   setLanguage: (language: AppLanguage) => Promise<void>;
   setHideBalance: (hide: boolean) => Promise<void>;
   setFinanceFavorites: (codes: string[]) => Promise<void>;
+  setApplePayAccountId: (accountId: string) => Promise<void>;
   markOnboarded: () => Promise<void>;
 }
 
@@ -77,6 +78,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       },
       setFinanceFavorites: async (codes) => {
         await db.settings.update(SETTINGS_ID, { financeFavorites: codes });
+      },
+      setApplePayAccountId: async (accountId) => {
+        await db.settings.update(SETTINGS_ID, { applePayAccountId: accountId });
       },
       markOnboarded: async () => {
         await db.settings.update(SETTINGS_ID, { onboarded: true });

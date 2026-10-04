@@ -131,6 +131,24 @@ export function normalizeResetCode(code: string): string {
   return code.trim().replace(/\s+/g, '');
 }
 
+/** Токен для вебхука Apple Pay (см. worker/applepay.ts) — высокоэнтропийная
+ *  случайная строка, генерируется сервером один раз и показывается
+ *  пользователю для вставки в команду Shortcuts. В отличие от пароля, соль
+ *  не нужна: значение уже случайно и достаточно длинное, поэтому на сервере
+ *  хранится просто SHA-256 от него — это даёт быстрый индексированный поиск
+ *  пользователя по хэшу присланного токена (в отличие от PBKDF2+соль, где
+ *  пришлось бы перебирать всех пользователей).
+ */
+export function generateToken(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(24));
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export async function sha256Hex(input: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', textEncoder.encode(input) as BufferSource);
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 /** Побайтовое сравнение за постоянное время — для сверки секретных ключей
  *  (например, админ-ключа), чтобы не давать угадывать его по времени ответа. */
 export function constantTimeEqual(a: string, b: string): boolean {

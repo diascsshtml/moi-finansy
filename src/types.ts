@@ -178,6 +178,9 @@ export interface AppSettings {
   // пользователя, чисто техническое поле для защиты от перезаписи более
   // свежих данных с другого устройства/вкладки при одновременной работе.
   lastSyncedAt?: string;
+  // На какой счёт записывать операции, пришедшие из интеграции Apple Pay
+  // (см. utils/applePay.ts) — undefined значит «первый счёт по порядку».
+  applePayAccountId?: string;
   onboarded: boolean;
 }
 

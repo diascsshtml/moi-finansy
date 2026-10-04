@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { getCurrentUser, type AuthUser } from '../utils/accountAuth';
 import { initSyncHooks, pushSnapshotToServer, setSyncEnabled } from '../utils/dataSync';
+import { syncPendingApplePayTransactions } from '../utils/applePay';
 
 interface AccountContextValue {
   user: AuthUser | null;
@@ -28,6 +29,10 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       setSyncEnabled(true);
       initSyncHooks();
       void pushSnapshotToServer().catch(() => {});
+      // Платежи Apple Pay могли прийти, пока приложение было закрыто — забираем
+      // их отдельно (сам push выше их не видит, они живут только на сервере,
+      // пока это не выполнится). Тихо игнорируем ошибки — офлайн/нет интеграции.
+      void syncPendingApplePayTransactions().catch(() => {});
     });
   }, []);
 

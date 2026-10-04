@@ -4,6 +4,7 @@ import { handleAccountsApi } from './accounts-api';
 import { readSessionCookie, verifySessionToken } from './auth';
 import { runNotificationSweep } from './notifications';
 import { handleCryptoRatesApi, handleRateHistoryApi, handleRatesApi, handleRatesBackfillAdmin, recordDailySnapshot } from './rates';
+import { handleApplePayApi } from './applepay';
 
 export interface Env {
   ASSETS: Fetcher;
@@ -72,6 +73,9 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
 
   const ratesBackfillResponse = await handleRatesBackfillAdmin(request, env, url);
   if (ratesBackfillResponse) return ratesBackfillResponse;
+
+  const applePayResponse = await handleApplePayApi(request, env, url);
+  if (applePayResponse) return applePayResponse;
 
   if (url.pathname.startsWith('/api/push/')) {
     try {

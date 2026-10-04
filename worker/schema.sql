@@ -27,6 +27,11 @@ CREATE TABLE IF NOT EXISTS users (
   -- Телефон — необязательный, редактируется на странице профиля. NULL —
   -- не указан.
   phone TEXT,
+  -- Токен для приёма платежей из Shortcuts-автоматизации (см.
+  -- worker/applepay.ts, worker/auth.ts: generateToken/sha256Hex) — хранится
+  -- только как SHA-256-хэш, сам токен виден пользователю один раз, в момент
+  -- генерации. NULL — интеграция не настроена.
+  apple_pay_token_hash TEXT,
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
   -- Восстановление пароля — по коду на почту (см. worker/accounts-api.ts,
@@ -90,3 +95,25 @@ CREATE TABLE IF NOT EXISTS rate_history (
   PRIMARY KEY (date, kind, code)
 );
 CREATE INDEX IF NOT EXISTS rate_history_lookup ON rate_history (kind, code, date);
+
+-- Уникальный индекс для быстрого (индексированного) поиска пользователя по
+-- хэшу токена Apple Pay при каждом вызове вебхука — без него пришлось бы
+-- перебирать всех пользователей. NULL допускает сколько угодно пользователей
+-- без включённой интеграции (частичный индекс их не учитывает).
+CREATE UNIQUE INDEX IF NOT EXISTS users_apple_pay_token_hash_idx ON users (apple_pay_token_hash) WHERE apple_pay_token_hash IS NOT NULL;
+
+-- Платежи, присланные Shortcuts-автоматизацией в фоне (см. worker/applepay.ts),
+-- пока ещё не подхвачены ни одним устройством пользователя. Клиент при
+-- открытии приложения забирает все свои строки (GET), создаёт из них обычные
+-- операции локально, отправляет обновлённый снимок на сервер и только потом
+-- подтверждает (POST .../ack) — так платёж не потеряется, если приложение
+-- закроется посередине.
+CREATE TABLE IF NOT EXISTS pending_transactions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id),
+  amount NUMERIC NOT NULL,
+  merchant TEXT,
+  occurred_at TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS pending_transactions_user_idx ON pending_transactions (user_id);
