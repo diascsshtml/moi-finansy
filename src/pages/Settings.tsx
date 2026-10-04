@@ -14,7 +14,7 @@ import { exportDataToExcel } from '../utils/excelExport';
 import { isBiometricSupported, registerBiometric } from '../utils/webauthn';
 import { getNotificationPrefs, isPushSupported } from '../utils/pushNotifications';
 import { accountDisplayName } from '../utils/displayName';
-import { generateApplePayToken, getApplePayStatus, revokeApplePayToken } from '../utils/applePay';
+import { generateApplePayToken, getApplePayStatus, revokeApplePayToken, syncPendingApplePayTransactions } from '../utils/applePay';
 import type { AppLanguage, ThemeMode } from '../types';
 
 const APPLE_PAY_WEBHOOK_URL = 'https://moi-finansy.personal-finance-pwa.workers.dev/api/webhook/apple-pay';
@@ -52,6 +52,7 @@ export function SettingsPage() {
   const [applePayError, setApplePayError] = useState<string | null>(null);
   const [newApplePayToken, setNewApplePayToken] = useState<string | null>(null);
   const [applePayCopied, setApplePayCopied] = useState(false);
+  const [applePayCheckStatus, setApplePayCheckStatus] = useState<string | null>(null);
 
   useEffect(() => {
     void isBiometricSupported().then(setBiometricSupported);
@@ -106,6 +107,20 @@ export function SettingsPage() {
       setApplePayCopied(true);
     } catch {
       // буфер обмена недоступен — токен всё равно показан на экране
+    }
+  };
+
+  const handleApplePayCheckNow = async () => {
+    setApplePayBusy(true);
+    setApplePayError(null);
+    setApplePayCheckStatus(null);
+    try {
+      const count = await syncPendingApplePayTransactions();
+      setApplePayCheckStatus(count > 0 ? t('settings.applePay.checkNowFound', { count }) : t('settings.applePay.checkNowEmpty'));
+    } catch (e) {
+      setApplePayError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setApplePayBusy(false);
     }
   };
 
@@ -466,6 +481,11 @@ export function SettingsPage() {
                   </option>
                 ))}
               </select>
+
+              <button type="button" className="btn btn-secondary btn-block" disabled={applePayBusy} onClick={handleApplePayCheckNow}>
+                {t('settings.applePay.checkNowButton')}
+              </button>
+              {applePayCheckStatus && <p className="settings-status">{applePayCheckStatus}</p>}
 
               <div className="settings-divider" />
               {APPLE_PAY_SHORTCUT_URL && (

@@ -36,6 +36,25 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+    // Платёж из Apple Pay может прийти, пока приложение открыто, но свёрнуто
+    // (вкладка в фоне/телефон заблокирован) — чтобы не заставлять человека
+    // каждый раз перезапускать приложение целиком, довытягиваем платежи при
+    // каждом возврате в приложение, а не только при первой загрузке страницы.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        void syncPendingApplePayTransactions().catch(() => {});
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onVisible);
+    };
+  }, [user]);
+
   return <AccountContext.Provider value={{ user, loaded, setUser }}>{children}</AccountContext.Provider>;
 }
 
