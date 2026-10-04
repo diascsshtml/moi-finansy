@@ -20,7 +20,7 @@ import type { AppLanguage, ThemeMode } from '../types';
 const APPLE_PAY_WEBHOOK_URL = 'https://moi-finansy.personal-finance-pwa.workers.dev/api/webhook/apple-pay';
 // Ссылка iCloud на готовую команду Shortcuts (действия Get Contents of URL +
 // JSON-тело уже собраны, пользователю останется только вставить свой код).
-const APPLE_PAY_SHORTCUT_URL = 'https://www.icloud.com/shortcuts/a52f02deb9904e448ef60c70d6d03e1f';
+const APPLE_PAY_SHORTCUT_URL = 'https://www.icloud.com/shortcuts/51e51c6bec7e47eabbcb93f77f750739';
 
 const CURRENCIES = ['₸', '₽', '$', '€', '₴', 'so\'m', '₺', '£'];
 const LANGUAGES: Array<{ value: AppLanguage; label: string }> = [
