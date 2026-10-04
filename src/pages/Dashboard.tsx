@@ -7,6 +7,7 @@ import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { useAccount } from '../context/AccountContext';
 import { StatCard } from '../components/StatCard';
+import { HowItWorksButton } from '../components/HowItWorksButton';
 import { HistoryEntryRow } from '../components/HistoryEntryRow';
 import { EmptyState } from '../components/EmptyState';
 import { BillsAlertBanner } from '../components/BillsAlertBanner';
@@ -124,14 +125,17 @@ export function Dashboard() {
             {user?.name ? `, ${user.name.split(' ')[0]}` : ''}
           </h1>
         </div>
-        <button
-          type="button"
-          className="icon-btn dashboard-hide-balance-btn"
-          onClick={() => void setHideBalance(!hideBalance)}
-          aria-label={hideBalance ? t('dashboard.showBalance') : t('dashboard.hideBalance')}
-        >
-          {hideBalance ? <EyeOff size={20} strokeWidth={1.75} /> : <Eye size={20} strokeWidth={1.75} />}
-        </button>
+        <div className="dashboard-header-actions">
+          <HowItWorksButton title={t('common.howItWorks')} body={t('dashboard.howItWorksBody')} />
+          <button
+            type="button"
+            className="icon-btn dashboard-hide-balance-btn"
+            onClick={() => void setHideBalance(!hideBalance)}
+            aria-label={hideBalance ? t('dashboard.showBalance') : t('dashboard.hideBalance')}
+          >
+            {hideBalance ? <EyeOff size={20} strokeWidth={1.75} /> : <Eye size={20} strokeWidth={1.75} />}
+          </button>
+        </div>
       </header>
 
       <BillsAlertBanner statuses={billsNeedingAttention} />

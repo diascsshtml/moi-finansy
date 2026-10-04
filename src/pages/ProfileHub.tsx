@@ -5,6 +5,7 @@ import { BarChart3, ChevronRight, Code2, Download, Handshake, Info, SlidersHoriz
 import { useSettings } from '../context/SettingsContext';
 import { useAccount } from '../context/AccountContext';
 import { Sheet } from '../components/Sheet';
+import { HowItWorksButton } from '../components/HowItWorksButton';
 import { exportDataToExcel } from '../utils/excelExport';
 
 const SUPPORT_EMAIL = 'kadyrbekdias123@gmail.com';
@@ -25,11 +26,14 @@ export function ProfileHub() {
   return (
     <div className="page">
       <header className="page-header">
-        <div className="page-header-icon-row">
-          <span className="page-header-icon" aria-hidden="true">
-            <User size={19} strokeWidth={2.25} />
-          </span>
-          <h1>{t('profileHub.title')}</h1>
+        <div className="page-header-row">
+          <div className="page-header-icon-row">
+            <span className="page-header-icon" aria-hidden="true">
+              <User size={19} strokeWidth={2.25} />
+            </span>
+            <h1>{t('profileHub.title')}</h1>
+          </div>
+          <HowItWorksButton title={t('common.howItWorks')} body={t('profileHub.howItWorksBody')} />
         </div>
       </header>
 

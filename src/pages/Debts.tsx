@@ -8,6 +8,7 @@ import { useSettings } from '../context/SettingsContext';
 import { DebtRow } from '../components/DebtRow';
 import { CreditRow } from '../components/CreditRow';
 import { EmptyState } from '../components/EmptyState';
+import { HowItWorksButton } from '../components/HowItWorksButton';
 import { formatMoney } from '../utils/format';
 import { getDebtTotals } from '../utils/stats';
 import { getAllBillStatuses, getCreditProgress, isLoanKind, resolveBillKind } from '../utils/bills';
@@ -60,11 +61,14 @@ export function Debts() {
   return (
     <div className="page">
       <header className="page-header">
-        <div className="page-header-icon-row">
-          <span className="page-header-icon" aria-hidden="true">
-            <Handshake size={19} strokeWidth={2.25} />
-          </span>
-          <h1>{t('debts.titleFull')}</h1>
+        <div className="page-header-row">
+          <div className="page-header-icon-row">
+            <span className="page-header-icon" aria-hidden="true">
+              <Handshake size={19} strokeWidth={2.25} />
+            </span>
+            <h1>{t('debts.titleFull')}</h1>
+          </div>
+          <HowItWorksButton title={t('common.howItWorks')} body={t('debts.howItWorksBody')} />
         </div>
       </header>
 

@@ -7,6 +7,7 @@ import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { Sparkline } from '../components/Sparkline';
 import { StatCard } from '../components/StatCard';
+import { HowItWorksButton } from '../components/HowItWorksButton';
 import { CATEGORICAL_LIGHT } from '../styles/palette';
 import { formatMoney } from '../utils/format';
 import { getCashBalance } from '../utils/stats';
@@ -135,7 +136,10 @@ export function FinancePage() {
   return (
     <div className="page">
       <header className="page-header">
-        <h1>{t('finance.title')}</h1>
+        <div className="page-header-row">
+          <h1>{t('finance.title')}</h1>
+          <HowItWorksButton title={t('common.howItWorks')} body={t('finance.howItWorksBody')} />
+        </div>
         <p className="page-subtitle">{t('finance.subtitle')}</p>
       </header>
 

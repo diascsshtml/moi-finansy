@@ -9,6 +9,7 @@ import { useSettings } from '../context/SettingsContext';
 import { useSheet } from '../context/SheetContext';
 import { HistoryEntryRow } from '../components/HistoryEntryRow';
 import { EmptyState } from '../components/EmptyState';
+import { HowItWorksButton } from '../components/HowItWorksButton';
 import { buildHistory } from '../utils/history';
 import { dateToISO, formatDateHuman, formatMonthYearFull, formatMoney } from '../utils/format';
 import { accountDisplayName } from '../utils/displayName';
@@ -131,7 +132,10 @@ export function History() {
   return (
     <div className="page">
       <header className="page-header">
-        <h1>{t('history.title')}</h1>
+        <div className="page-header-row">
+          <h1>{t('history.title')}</h1>
+          <HowItWorksButton title={t('common.howItWorks')} body={t('history.howItWorksBody')} />
+        </div>
       </header>
 
       <div className="period-summary-card">

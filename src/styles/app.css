@@ -247,6 +247,13 @@
   gap: 12px;
 }
 
+.dashboard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .dashboard-header-avatar {
   flex-shrink: 0;
 }
