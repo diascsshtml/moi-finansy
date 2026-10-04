@@ -9,14 +9,19 @@ interface CategoryPickerProps {
   type: TransactionType;
   value: string | null;
   onChange: (categoryId: string) => void;
+  /** Категории, которые не нужно показывать (например, уже занятые под что-то
+   *  другое, как бюджет — см. pages/Budgets.tsx) — сам список от этого не
+   *  перезапрашивается, фильтрация чисто на отображение. */
+  excludeIds?: string[];
 }
 
-export function CategoryPicker({ type, value, onChange }: CategoryPickerProps) {
+export function CategoryPicker({ type, value, onChange, excludeIds }: CategoryPickerProps) {
   const { t } = useTranslation();
-  const categories = useLiveQuery(
+  const allCategories = useLiveQuery(
     () => db.categories.where({ type }).and((c) => !c.isDebtRelated).sortBy('order'),
     [type],
   );
+  const categories = excludeIds ? allCategories?.filter((c) => !excludeIds.includes(c.id)) : allCategories;
 
   if (!categories) return null;
 

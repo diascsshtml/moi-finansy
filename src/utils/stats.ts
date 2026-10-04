@@ -1,7 +1,7 @@
 import { addMonths, endOfMonth, format, parseISO, startOfMonth } from 'date-fns';
 import { kk, ru } from 'date-fns/locale';
 import type { TFunction } from 'i18next';
-import type { Category, Debt, Transaction, Transfer } from '../types';
+import type { Budget, Category, Debt, Transaction, Transfer } from '../types';
 import { categoryDisplayName } from './displayName';
 import i18n from '../i18n';
 
@@ -112,6 +112,31 @@ export function getMonthlySeries(transactions: Transaction[], count = 6): MonthP
     else point.expense += t.amount;
   }
   return months;
+}
+
+export interface BudgetProgress {
+  budget: Budget;
+  category: Category | undefined;
+  spent: number;
+  pct: number; // 0-100+, может быть больше 100 при перерасходе
+  status: 'ok' | 'warning' | 'over'; // ok < 80%, warning 80-100%, over > 100%
+}
+
+/** Прогресс по бюджетам за ТЕКУЩИЙ календарный месяц — бюджет сам по себе
+ *  не хранит период, он просто повторяется каждый месяц (см. тип Budget). */
+export function getBudgetProgress(budgets: Budget[], transactions: Transaction[], categories: Category[]): BudgetProgress[] {
+  const byId = new Map(categories.map((c) => [c.id, c]));
+  const spentByCategory = new Map<string, number>();
+  for (const tx of transactions) {
+    if (tx.type !== 'expense' || !isWithinCurrentMonth(tx.date)) continue;
+    spentByCategory.set(tx.categoryId, (spentByCategory.get(tx.categoryId) ?? 0) + tx.amount);
+  }
+  return budgets.map((budget) => {
+    const spent = spentByCategory.get(budget.categoryId) ?? 0;
+    const pct = budget.amount > 0 ? Math.round((spent / budget.amount) * 100) : 0;
+    const status: BudgetProgress['status'] = pct >= 100 ? 'over' : pct >= 80 ? 'warning' : 'ok';
+    return { budget, category: byId.get(budget.categoryId), spent, pct, status };
+  });
 }
 
 export function isWithinCurrentMonth(iso: string): boolean {

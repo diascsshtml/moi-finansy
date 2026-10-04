@@ -147,6 +147,17 @@ export interface RecurringBill {
   createdAt: string;
 }
 
+/** Месячный лимит расходов по одной категории — повторяется каждый месяц
+ *  без повторного ввода (как RecurringBill, но без привязки к конкретной
+ *  дате платежа). Прогресс считается на лету из Transaction за текущий
+ *  календарный месяц (см. utils/stats.ts), сам Budget хранит только лимит. */
+export interface Budget {
+  id: string;
+  categoryId: string; // расходная категория; не более одного бюджета на категорию
+  amount: number;
+  createdAt: string;
+}
+
 export type ThemeMode = 'system' | 'light' | 'dark';
 export type AppLanguage = 'ru' | 'kk';
 

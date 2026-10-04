@@ -11,7 +11,7 @@
 
 import { db } from '../db/db';
 import { SETTINGS_ID } from '../db/constants';
-import type { Account, Category, Debt, DebtPayment, Person, RecurringBill, Transaction, Transfer } from '../types';
+import type { Account, Budget, Category, Debt, DebtPayment, Person, RecurringBill, Transaction, Transfer } from '../types';
 
 interface DataSnapshot {
   categories: Category[];
@@ -22,10 +22,11 @@ interface DataSnapshot {
   accounts: Account[];
   transfers: Transfer[];
   bills: RecurringBill[];
+  budgets: Budget[];
 }
 
 async function readLocalSnapshot(): Promise<DataSnapshot> {
-  const [categories, transactions, people, debts, debtPayments, accounts, transfers, bills] = await Promise.all([
+  const [categories, transactions, people, debts, debtPayments, accounts, transfers, bills, budgets] = await Promise.all([
     db.categories.toArray(),
     db.transactions.toArray(),
     db.people.toArray(),
@@ -34,11 +35,22 @@ async function readLocalSnapshot(): Promise<DataSnapshot> {
     db.accounts.toArray(),
     db.transfers.toArray(),
     db.bills.toArray(),
+    db.budgets.toArray(),
   ]);
-  return { categories, transactions, people, debts, debtPayments, accounts, transfers, bills };
+  return { categories, transactions, people, debts, debtPayments, accounts, transfers, bills, budgets };
 }
 
-const SYNCED_TABLES = [db.categories, db.transactions, db.people, db.debts, db.debtPayments, db.accounts, db.transfers, db.bills];
+const SYNCED_TABLES = [
+  db.categories,
+  db.transactions,
+  db.people,
+  db.debts,
+  db.debtPayments,
+  db.accounts,
+  db.transfers,
+  db.bills,
+  db.budgets,
+];
 
 async function replaceLocalData(snapshot: DataSnapshot): Promise<void> {
   await db.transaction('rw', SYNCED_TABLES, async () => {
@@ -51,6 +63,7 @@ async function replaceLocalData(snapshot: DataSnapshot): Promise<void> {
       db.accounts.clear(),
       db.transfers.clear(),
       db.bills.clear(),
+      db.budgets.clear(),
     ]);
     await Promise.all([
       db.categories.bulkAdd(snapshot.categories ?? []),
@@ -61,6 +74,7 @@ async function replaceLocalData(snapshot: DataSnapshot): Promise<void> {
       db.accounts.bulkAdd(snapshot.accounts ?? []),
       db.transfers.bulkAdd(snapshot.transfers ?? []),
       db.bills.bulkAdd(snapshot.bills ?? []),
+      db.budgets.bulkAdd(snapshot.budgets ?? []),
     ]);
   });
 }
@@ -168,6 +182,7 @@ export async function clearLocalData(): Promise<void> {
         db.accounts.clear(),
         db.transfers.clear(),
         db.bills.clear(),
+        db.budgets.clear(),
       ]);
     });
   } finally {

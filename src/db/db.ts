@@ -2,6 +2,7 @@ import Dexie, { type Table } from 'dexie';
 import type {
   Account,
   AppSettings,
+  Budget,
   Category,
   Debt,
   DebtPayment,
@@ -22,6 +23,7 @@ export class FinanceDB extends Dexie {
   accounts!: Table<Account, string>;
   transfers!: Table<Transfer, string>;
   bills!: Table<RecurringBill, string>;
+  budgets!: Table<Budget, string>;
 
   constructor() {
     super('personalFinanceDB');
@@ -99,6 +101,20 @@ export class FinanceDB extends Dexie {
       accounts: 'id, order',
       transfers: 'id, fromAccountId, toAccountId, date',
       bills: 'id, isActive, dayOfMonth',
+    });
+
+    // v4: месячные бюджеты по категориям.
+    this.version(4).stores({
+      categories: 'id, type, isSystem, order',
+      transactions: 'id, type, categoryId, date, debtId, billId, createdAt, accountId',
+      people: 'id, name',
+      debts: 'id, personId, direction, status, date, accountId',
+      debtPayments: 'id, debtId, date',
+      settings: 'id',
+      accounts: 'id, order',
+      transfers: 'id, fromAccountId, toAccountId, date',
+      bills: 'id, isActive, dayOfMonth',
+      budgets: 'id, categoryId',
     });
   }
 }

@@ -10,6 +10,7 @@ import { SheetHost } from './components/SheetHost';
 import { SyncConflictBanner } from './components/SyncConflictBanner';
 import { Dashboard } from './pages/Dashboard';
 import { Stats } from './pages/Stats';
+import { Budgets } from './pages/Budgets';
 import { History } from './pages/History';
 import { DayDetail } from './pages/DayDetail';
 import { Debts } from './pages/Debts';
@@ -48,6 +49,7 @@ function App() {
                       <Route path="/finance/customize" element={<FinanceCustomize />} />
                       <Route path="/finance/:kind/:code" element={<FinanceAssetDetail />} />
                       <Route path="/stats" element={<Stats />} />
+                      <Route path="/budgets" element={<Budgets />} />
                       <Route path="/history" element={<History />} />
                       <Route path="/history/day/:date" element={<DayDetail />} />
                       <Route path="/debts" element={<Debts />} />

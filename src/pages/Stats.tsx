@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTranslation } from 'react-i18next';
+import { ChevronRight, PiggyBank } from 'lucide-react';
 import { db } from '../db/db';
 import { useSettings } from '../context/SettingsContext';
 import { ExpenseDonut } from '../components/charts/ExpenseDonut';
@@ -63,6 +64,19 @@ export function Stats() {
           ))}
         </div>
       )}
+
+      <div className="grouped-list">
+        <button type="button" className="grouped-list-row" onClick={() => navigate('/budgets')}>
+          <span className="grouped-list-icon" aria-hidden="true">
+            <PiggyBank size={16} strokeWidth={2.25} />
+          </span>
+          <span className="grouped-list-info">
+            <span className="grouped-list-name">{t('stats.budgetsRow')}</span>
+            <span className="grouped-list-hint">{t('stats.budgetsRowHint')}</span>
+          </span>
+          <ChevronRight size={18} className="chevron-affordance" aria-hidden="true" />
+        </button>
+      </div>
 
       <ExpenseDonut rows={expenseRows} currency={settings.currency} isDark={isDark} title={t('dashboard.expensesThisMonth')} />
       <IncomeExpenseBars data={monthlySeries} currency={settings.currency} isDark={isDark} />

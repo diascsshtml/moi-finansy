@@ -6,6 +6,7 @@ import { generateSalt, hashPin, verifyPin } from '../utils/pin';
 import i18n from '../i18n';
 import type {
   Account,
+  Budget,
   Category,
   Debt,
   DebtDirection,
@@ -92,8 +93,9 @@ export async function updateCategory(
 export async function deleteCategory(id: string, fallbackCategoryId: string) {
   const cat = await db.categories.get(id);
   if (!cat || cat.isSystem) return;
-  await db.transaction('rw', db.transactions, db.categories, async () => {
+  await db.transaction('rw', db.transactions, db.categories, db.budgets, async () => {
     await db.transactions.where({ categoryId: id }).modify({ categoryId: fallbackCategoryId });
+    await db.budgets.where({ categoryId: id }).delete();
     await db.categories.delete(id);
   });
 }
@@ -370,6 +372,25 @@ export async function deleteDebtPayment(paymentId: string) {
   });
 }
 
+// ---------- Бюджеты (месячные лимиты по категориям) ----------
+
+/** Создаёт или обновляет бюджет для категории — не более одного бюджета на
+ *  категорию, повторная установка просто меняет сумму лимита. */
+export async function setBudget(categoryId: string, amount: number): Promise<Budget> {
+  const existing = await db.budgets.where({ categoryId }).first();
+  if (existing) {
+    await db.budgets.update(existing.id, { amount });
+    return { ...existing, amount };
+  }
+  const budget: Budget = { id: makeId(), categoryId, amount, createdAt: nowISO() };
+  await db.budgets.add(budget);
+  return budget;
+}
+
+export async function deleteBudget(id: string) {
+  await db.budgets.delete(id);
+}
+
 // ---------- Очистка данных ----------
 
 const ALL_TABLES = [
@@ -382,6 +403,7 @@ const ALL_TABLES = [
   db.accounts,
   db.transfers,
   db.bills,
+  db.budgets,
 ];
 
 export async function clearAllData() {
@@ -396,6 +418,7 @@ export async function clearAllData() {
       db.accounts.clear(),
       db.transfers.clear(),
       db.bills.clear(),
+      db.budgets.clear(),
     ]);
   });
 }
