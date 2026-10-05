@@ -71,7 +71,12 @@ export async function handleApplePayApi(request: Request, env: ApplePayEnv, url:
   // ручного ввода.
   if (url.pathname === '/api/webhook/apple-pay' && request.method === 'POST') {
     const body = (await request.json().catch(() => ({}))) as { amount?: unknown; merchant?: unknown; date?: unknown; token?: unknown };
-    const token = typeof body.token === 'string' && body.token ? body.token : (request.headers.get('X-Apple-Pay-Token') ?? '');
+    const rawToken = typeof body.token === 'string' && body.token ? body.token : (request.headers.get('X-Apple-Pay-Token') ?? '');
+    // Нормализуем регистр и пробелы — токен всегда генерируется строчными
+    // hex-символами, но при копировании/вставке на телефоне автозамена
+    // иногда делает заглавной первую букву или цепляет пробел по краям; сам
+    // токен достаточно случайный, так что это не ослабляет защиту.
+    const token = rawToken.trim().toLowerCase();
     if (!token) return json({ error: 'missing token' }, 401);
     const hash = await sha256Hex(token);
     const rows = (await sql`SELECT id FROM users WHERE apple_pay_token_hash = ${hash}`) as Array<{ id: string }>;
