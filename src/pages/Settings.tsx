@@ -13,7 +13,7 @@ import { clearAllBills, clearAllData, clearAllTransactions, clearBiometricCreden
 import { exportDataToExcel } from '../utils/excelExport';
 import { isBiometricSupported, registerBiometric } from '../utils/webauthn';
 import { getNotificationPrefs, isPushSupported } from '../utils/pushNotifications';
-import { accountDisplayName } from '../utils/displayName';
+import { AccountPicker } from '../components/AccountPicker';
 import { generateApplePayToken, getApplePayStatus, revokeApplePayToken, syncPendingApplePayTransactions } from '../utils/applePay';
 import type { AppLanguage, ThemeMode } from '../types';
 
@@ -466,21 +466,11 @@ export function SettingsPage() {
             <>
               {!newApplePayToken && <p className="settings-status settings-status--positive">{t('settings.applePay.enabledStatus')}</p>}
 
-              <label className="field-label" htmlFor="apple-pay-account">
-                {t('settings.applePay.accountLabel')}
-              </label>
-              <select
-                id="apple-pay-account"
-                className="text-input"
-                value={settings.applePayAccountId ?? accounts?.[0]?.id ?? ''}
-                onChange={(e) => void setApplePayAccountId(e.target.value)}
-              >
-                {accounts?.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {accountDisplayName(a, t)}
-                  </option>
-                ))}
-              </select>
+              <span className="field-label">{t('settings.applePay.accountLabel')}</span>
+              <AccountPicker
+                value={settings.applePayAccountId ?? accounts?.[0]?.id ?? null}
+                onChange={(accountId) => void setApplePayAccountId(accountId)}
+              />
 
               <button type="button" className="btn btn-secondary btn-block" disabled={applePayBusy} onClick={handleApplePayCheckNow}>
                 {t('settings.applePay.checkNowButton')}
