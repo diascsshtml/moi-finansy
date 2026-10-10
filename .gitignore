@@ -24,6 +24,9 @@ dist-portable
 *.sln
 *.sw?
 
+# маркетинговые видео — тяжёлые, в репозитории не нужны
+promo-video
+
 # wrangler files
 .wrangler
 .dev.vars*
